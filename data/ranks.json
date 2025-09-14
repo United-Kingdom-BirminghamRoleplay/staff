@@ -1,0 +1,94 @@
+{
+  "executive": [
+    {
+      "rank": "Server Owner",
+      "icon": "crown",
+      "responsibilities": "Ultimate server authority, community vision, final decisions",
+      "permissions": "Full admin panel, all game passes, server configuration",
+      "minHours": 0
+    },
+    {
+      "rank": "Co-Owner", 
+      "icon": "shield-alt",
+      "responsibilities": "Owner assistance, major policy decisions, staff oversight",
+      "permissions": "Admin panel access, staff management, major punishments",
+      "minHours": 0
+    },
+    {
+      "rank": "Chief Administrator",
+      "icon": "user-shield",
+      "responsibilities": "Daily operations, staff coordination, department management", 
+      "permissions": "Advanced admin commands, staff training, appeals handling",
+      "minHours": 1
+    }
+  ],
+  "administrative": [
+    {
+      "rank": "Senior Administrator",
+      "icon": "fire",
+      "responsibilities": "Complex FailRP cases, staff mentoring, department oversight",
+      "permissions": "Advanced admin commands, staff training, event hosting",
+      "minHours": 2
+    },
+    {
+      "rank": "Administrator",
+      "icon": "cog",
+      "responsibilities": "General moderation, FailRP enforcement, player assistance",
+      "permissions": "Kick, ban, teleport, vehicle spawn, basic admin panel",
+      "minHours": 3
+    },
+    {
+      "rank": "Junior Administrator", 
+      "icon": "book",
+      "responsibilities": "Supervised moderation, learning advanced commands",
+      "permissions": "Limited admin commands, supervised major actions",
+      "minHours": 3
+    }
+  ],
+  "moderation": [
+    {
+      "rank": "Senior Moderator",
+      "icon": "award",
+      "responsibilities": "Advanced FailRP enforcement, moderator training, shift leadership",
+      "permissions": "Extended bans, teleport, spectate, moderator guidance", 
+      "minHours": 3
+    },
+    {
+      "rank": "Moderator",
+      "icon": "shield",
+      "responsibilities": "Active chat/voice moderation, FailRP enforcement, player reports",
+      "permissions": "Warn, mute, kick, temporary ban, basic teleport",
+      "minHours": 4
+    },
+    {
+      "rank": "Trial Moderator",
+      "icon": "clipboard",
+      "responsibilities": "Probationary period, supervised moderation, learning ERLC rules",
+      "permissions": "Warnings only, supervised actions, training phase",
+      "minHours": 4
+    }
+  ],
+  "support": [
+    {
+      "rank": "Support Lead",
+      "icon": "medal",
+      "responsibilities": "Support team coordination, complex ERLC issues, new player onboarding",
+      "permissions": "Advanced support tools, team management, training oversight",
+      "minHours": 3
+    },
+    {
+      "rank": "Support Staff",
+      "icon": "users",
+      "responsibilities": "Player assistance, ERLC guidance, technical help",
+      "permissions": "Basic teleport, information access, player assistance",
+      "minHours": 4
+    },
+    {
+      "rank": "Trainee",
+      "icon": "clock",
+      "responsibilities": "Learning ERLC rules, basic player assistance, shadowing staff",
+      "permissions": "Read-only access, supervised assistance, learning phase",
+      "minHours": 4
+    }
+  ]
+}
