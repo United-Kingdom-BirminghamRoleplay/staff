@@ -44,7 +44,10 @@ class AuthSystem {
         authContainer.innerHTML = `
             <div class="auth-modal">
                 <div class="auth-header">
-                    <h2><i class="fas fa-shield-alt"></i> UKBRUM Staff Access</h2>
+                    <div class="auth-logo">
+                        <img src="https://via.placeholder.com/80x80/dc2626/ffffff?text=SSP" alt="Staff Share Point Logo" class="logo-img">
+                    </div>
+                    <h2>Staff Share Point Login</h2>
                     <p>Enter your rank-specific access code</p>
                 </div>
                 <form id="authForm" class="auth-form">
@@ -59,20 +62,14 @@ class AuthSystem {
                                 <div class="select-option" data-value="foundership">
                                     <i class="fas fa-crown"></i> Foundership
                                 </div>
-                                <div class="select-option" data-value="assistant_foundership">
-                                    <i class="fas fa-gem"></i> Assistant Foundership
-                                </div>
-                                <div class="select-option" data-value="executive_assistant">
-                                    <i class="fas fa-star"></i> Executive Assistant
-                                </div>
-                                <div class="select-option" data-value="directorate">
-                                    <i class="fas fa-chess-king"></i> Directorate
+                                <div class="select-option" data-value="advisory_board">
+                                    <i class="fas fa-chess-king"></i> Advisory Board
                                 </div>
                                 <div class="select-option" data-value="oversight_enforcement">
                                     <i class="fas fa-eye"></i> Oversight & Enforcement
                                 </div>
-                                <div class="select-option" data-value="management">
-                                    <i class="fas fa-users-cog"></i> Management
+                                <div class="select-option" data-value="human_resources">
+                                    <i class="fas fa-users-cog"></i> Human Resources
                                 </div>
                                 <div class="select-option" data-value="administration">
                                     <i class="fas fa-cog"></i> Administration
@@ -333,14 +330,7 @@ class AuthSystem {
                         <i class="fas fa-tools"></i> Site Settings
                     </button>
                 </div>
-                <div class="card">
-                    <i class="fas fa-server card-icon"></i>
-                    <h3>System Controls</h3>
-                    <p>Server configuration and advanced system settings</p>
-                    <button onclick="authSystem.openSystemControls()" class="btn">
-                        <i class="fas fa-server"></i> System Panel
-                    </button>
-                </div>
+
             </div>
         `;
         

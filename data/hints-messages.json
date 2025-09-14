@@ -1,46 +1,74 @@
 {
-  "hints": [
+  "rle_commands": [
     {
-      "command": ":h Welcome to the server! Please follow all rules and have fun.",
-      "description": "Welcome message for new players"
+      "command": "🚗 Rule Reminder: We drive via map layout! (right handside)"
     },
     {
-      "command": ":h Please drive realistically and follow traffic laws.",
-      "description": "Driving reminder"
+      "command": "🚨Rule Reminder: When an emergency vehicle is driving past, please pull over to let them through to respond to their emergency call!"
     },
     {
-      "command": ":h Staff are here to help - please be respectful.",
-      "description": "Staff respect reminder"
+      "command": "⚠️Rule Reminder: You are not allowed any authorised firearms on the police team unless trained!"
     },
     {
-      "command": ":h Check the rules channel in Discord for full guidelines.",
-      "description": "Rules reference"
+      "command": "🚙Rule Reminder: Please de-sync any crashes below 30mph or any glitches that may occur due to roblox!"
     },
     {
-      "command": ":h Report any issues to staff members immediately.",
-      "description": "Issue reporting"
+      "command": "🛣️Rule Reminder: Do not leave your vehicle unattended in the middle of the road unless it's for roleplay purposes!"
+    },
+    {
+      "command": "💥Rule Reminder: You must have gun permissions to use any authorised firearms on the civilian team!"
+    },
+    {
+      "command": "🔦 Rule Reminder: Unless in a police chase, we recommend you follow traffic laws to create a sense of realism!"
     }
   ],
-  "messages": [
+  "adv_hints": [
     {
-      "command": ":m You have been warned for FailRP. Please review the rules.",
-      "description": "FailRP warning message"
+      "command": "⭐Welcome to Birmingham Roleplay. We hope you enjoy your roleplay!"
     },
     {
-      "command": ":m Please stop the unrealistic behavior immediately.",
-      "description": "Behavior correction"
+      "command": "📌Start your roleplaying journey with Birmingham Roleplay! Communications Code: UKBRUM"
     },
     {
-      "command": ":m You are being monitored by staff. Follow all rules.",
-      "description": "Monitoring notice"
+      "command": "📫Need assistance? Do not hesitate to call !mod or !help for staff attention. Communications Code: UKBRUM"
     },
     {
-      "command": ":m Contact staff if you need assistance with anything.",
-      "description": "Help offer"
+      "command": "✈️ Here at Birmingham Roleplay we catch flights not feelings. Join up today to have an incredible roleplaying experience. Communications Code: UKBRUM"
     },
     {
-      "command": ":m Your behavior is not acceptable. Final warning.",
-      "description": "Final warning message"
+      "command": "🤯Want to be mindblowed with an incredible experience? Come on down and join our community today! Communications Code: UKBRUM"
+    },
+    {
+      "command": "🚨Take your roleplay a step forward with Birmimgham Roleplay, and apply to join our whitelisted team! Communications Code: UKBRUM"
+    },
+    {
+      "command": "💫 Actual Roleplay? Dedicated Team? Well you're at the right place, join us today and start an experience you will never forget! Communications Code: UKBRUM"
+    }
+  ],
+  "adv_messages": [
+    {
+      "command": "🔥Kick start your roleplay with Birmingham Roleplay, an experience you'll never forget. Communications Code: UKBRUM"
+    },
+    {
+      "command": "🍉We are always open for your feedback! Communications Code: UKBRUM"
+    },
+    {
+      "command": "🤯 Spotted somebody violating our rules? Alert our staff team today by grabbing their attention (!mod or !help)"
+    },
+    {
+      "command": "⭐Come on down and join our community! Communications Code: UKBRUM"
+    },
+    {
+      "command": "✈️ Here at Birmingham Roleplay we catch flights not feelings. Join up today to have an incredible roleplaying experience. Communications Code: UKBRUM"
+    },
+    {
+      "command": "🚨Start your policing career with West Midlands Police Service! Communications Code: UKBRUM"
+    },
+    {
+      "command": "🚑 Want to save lifes? Join our team of dedicated professionals down in our ambulance department today! Communications Code: UKBRUM"
+    },
+    {
+      "command": "🚒 Intrested in fighting the wild fire of Birmingham? Join our Firebrigade team today! Communications Code: UKBRUM"
     }
   ]
 }

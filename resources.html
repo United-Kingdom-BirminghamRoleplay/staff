@@ -25,8 +25,8 @@
 
     <main class="main-content">
         <section class="hero">
-            <h1>ERLC Staff Resources</h1>
-            <p>Essential tools, commands, and information for UKBRUM Emergency Response: Liberty County staff</p>
+            <h1>Staff Resources</h1>
+            <p>Staff Resources is designed to equip you with all the essential information, guidelines, and tools necessary to thrive and succeed in your role as a valued staff member at Birmingham Roleplay. </p>
         </section>
 
         <section class="card-grid">
@@ -38,7 +38,7 @@
             <div class="card">
                 <i class="fas fa-comment card-icon"></i>
                 <h3>Hint & Message Guide</h3>
-                <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i> View Commands</button>
+                <a href="hints-messages.html" class="btn"><i class="fas fa-copy"></i> View Commands</a>
             </div>
             <div class="card">
                 <i class="fas fa-comment card-icon"></i>
@@ -55,7 +55,7 @@
                 <h3>Message Preset Guide</h3>
                 <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i>View Messages</button>
             </div>
-            
+
         </section>
 
         <section id="commands" class="guidelines-section">
@@ -65,47 +65,6 @@
             </div>
         </section>
 
-
-
-        <section id="contacts" class="guidelines-section">
-            <h2><i class="fas fa-phone"></i> UKBRUM Emergency Staff Contacts</h2>
-            <table class="rank-table">
-                <thead>
-                    <tr>
-                        <th>Role</th>
-                        <th>Name</th>
-                        <th>Discord</th>
-                        <th>Availability</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><i class="fas fa-crown"></i> Server Owner</td>
-                        <td>[Owner Name]</td>
-                        <td>@owner#0000</td>
-                        <td>Critical emergencies only</td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-shield-alt"></i> Co-Owner</td>
-                        <td>[Co-Owner Name]</td>
-                        <td>@coowner#0000</td>
-                        <td>Major server issues</td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-user-shield"></i> Chief Administrator</td>
-                        <td>[Chief Admin Name]</td>
-                        <td>@chiefadmin#0000</td>
-                        <td>Daily operations</td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-fire"></i> Senior Administrator</td>
-                        <td>[Senior Admin Name]</td>
-                        <td>@senioradmin#0000</td>
-                        <td>Complex FailRP cases</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
 
         <section id="server-info" class="guidelines-section">
             <h2><i class="fas fa-server"></i> UKBRUM ERLC Server Information</h2>
@@ -150,19 +109,7 @@
             </div>
         </section>
 
-        <section class="guidelines-section" id="hintsMessagesSection" style="display: none;">
-            <h2><i class="fas fa-comment"></i> Hint & Message Commands</h2>
-            <div class="commands-container">
-                <div class="command-category">
-                    <h3><i class="fas fa-lightbulb"></i> Hint Commands (:h)</h3>
-                    <div id="hintsContainer"></div>
-                </div>
-                <div class="command-category">
-                    <h3><i class="fas fa-envelope"></i> Message Commands (:m)</h3>
-                    <div id="messagesContainer"></div>
-                </div>
-            </div>
-        </section>
+
     </main>
 
     <footer>
@@ -206,56 +153,7 @@
 
         document.addEventListener('DOMContentLoaded', loadCommands);
         
-        async function showHintsMessages() {
-            const section = document.getElementById('hintsMessagesSection');
-            if (section.style.display === 'none') {
-                try {
-                    const response = await fetch('./data/hints-messages.json');
-                    const data = await response.json();
-                    
-                    const hintsContainer = document.getElementById('hintsContainer');
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    
-                    hintsContainer.innerHTML = data.hints.map(hint => `
-                        <div class="command-item">
-                            <div class="command-text">
-                                <code>${hint.command}</code>
-                                <button onclick="copyToClipboard('${hint.command}')" class="copy-btn">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <p class="command-desc">${hint.description}</p>
-                        </div>
-                    `).join('');
-                    
-                    messagesContainer.innerHTML = data.messages.map(message => `
-                        <div class="command-item">
-                            <div class="command-text">
-                                <code>${message.command}</code>
-                                <button onclick="copyToClipboard('${message.command}')" class="copy-btn">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <p class="command-desc">${message.description}</p>
-                        </div>
-                    `).join('');
-                    
-                } catch (error) {
-                    console.error('Error loading hints and messages:', error);
-                }
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
-        }
-        
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                if (window.StaffPortal) {
-                    new window.StaffPortal().showToast('Command copied to clipboard!', 'success');
-                }
-            });
-        }
+
     </script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>

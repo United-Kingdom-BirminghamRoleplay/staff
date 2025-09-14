@@ -1,0 +1,66 @@
+{
+  "emergency_contacts": [
+    {
+      "role": "Foundership",
+      "name": "[Founder Name]",
+      "discord": "@founder#0000",
+      "availability": "Critical emergencies only",
+      "icon": "crown"
+    },
+    {
+      "role": "Assistant Foundership",
+      "name": "[Assistant Founder Name]",
+      "discord": "@astfounder#0000",
+      "availability": "Major server issues",
+      "icon": "gem"
+    },
+    {
+      "role": "Advisory Board",
+      "name": "[Advisory Board Member]",
+      "discord": "@advisory#0000",
+      "availability": "Strategic decisions",
+      "icon": "chess-king"
+    },
+    {
+      "role": "Oversight & Enforcement",
+      "name": "[O&E Name]",
+      "discord": "@oversight#0000",
+      "availability": "Daily operations",
+      "icon": "eye"
+    },
+    {
+      "role": "Management",
+      "name": "[Manager Name]",
+      "discord": "@manager#0000",
+      "availability": "Staff issues",
+      "icon": "users-cog"
+    }
+  ],
+  "escalation_procedure": [
+    {
+      "level": "Level 1",
+      "contact": "Administration/Moderation",
+      "issues": "Basic rule violations, warnings, kicks"
+    },
+    {
+      "level": "Level 2", 
+      "contact": "Management",
+      "issues": "Complex cases, staff disputes, appeals"
+    },
+    {
+      "level": "Level 3",
+      "contact": "Oversight & Enforcement",
+      "issues": "Major violations, staff misconduct"
+    },
+    {
+      "level": "Level 4",
+      "contact": "Advisory Board/Assistant Foundership",
+      "issues": "Policy decisions, major changes"
+    },
+    {
+      "level": "Level 5",
+      "contact": "Foundership",
+      "issues": "Critical server emergencies only"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "onboarding": [
+    {
+      "step": "Rules Mastery",
+      "description": "Complete understanding of all server rules and guidelines",
+      "duration": "2-3 hours",
+      "required": true
+    },
+    {
+      "step": "Department Knowledge",
+      "description": "Learn WMPS, WMAS, WMFS, and NH procedures",
+      "duration": "1-2 hours",
+      "required": true
+    },
+    {
+      "step": "Command Training",
+      "description": "Practice all admin commands in test environment",
+      "duration": "1 hour",
+      "required": true
+    },
+    {
+      "step": "Shadow Period",
+      "description": "5 shifts with experienced staff member",
+      "duration": "5 shifts",
+      "required": true
+    },
+    {
+      "step": "Scenario Training",
+      "description": "Handle mock rule violation situations",
+      "duration": "2 hours",
+      "required": true
+    },
+    {
+      "step": "Logging System",
+      "description": "Master Melonly punishment logging system",
+      "duration": "30 minutes",
+      "required": true
+    },
+    {
+      "step": "Final Assessment",
+      "description": "Pass comprehensive knowledge test",
+      "duration": "1 hour",
+      "required": true
+    }
+  ],
+  "ongoing": [
+    {
+      "activity": "Weekly Briefings",
+      "description": "Mandatory staff meetings every Sunday",
+      "frequency": "Weekly"
+    },
+    {
+      "activity": "Server Updates",
+      "description": "Training on new features and rule changes",
+      "frequency": "As needed"
+    },
+    {
+      "activity": "Scenario Drills",
+      "description": "Monthly rule violation scenario practice",
+      "frequency": "Monthly"
+    },
+    {
+      "activity": "Peer Reviews",
+      "description": "Quarterly performance evaluations",
+      "frequency": "Quarterly"
+    },
+    {
+      "activity": "Performance Metrics",
+      "description": "Monthly activity and quality reviews",
+      "frequency": "Monthly"
+    }
+  ]
+}

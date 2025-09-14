@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hint & Message Commands - Staff Share Point</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Staff Share Point</h1>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="ranks.html" class="nav-link">Rank Structure</a></li>
+                <li><a href="guidelines.html" class="nav-link">Guidelines</a></li>
+                <li><a href="logs.html" class="nav-link">Punishment Logs</a></li>
+                <li><a href="resources.html" class="nav-link">Resources</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>Hint & Message Commands</h1>
+            <p>When moderating, 25% of your duty is to actively announce hint and message commands. This helps players get reminders of our rules and advertisement of our communications server allowing them to join and start their roleplaying journey with Birmingham Roleplay! It is vital you constantly follow these regulations. </p>
+            <br>
+            <p>If you wish to clear a scene, please say the following using the hint command: Please clear the scene at (place), otherwise you will be loaded! If a player wishes to open a roleplay spot please follow the normal procedures by putting an emoji related to what's opening and then the name and a potential catchphase at the end for example three guys: Want fries? Come to three guys! This engages and encourages people to go to the roleplay spot.</p>
+        </section>
+
+        <section class="guidelines-section">
+            <h2><i class="fas fa-comment"></i> Quick Copy Commands</h2>
+            <div class="commands-container">
+                <div class="command-category">
+                    <h3><i class="fas fa-exclamation-triangle"></i> RULES HINT/MESSAGE COMMANDS</h3>
+                    <div id="rleContainer"></div>
+                </div>
+                <div class="command-category">
+                    <h3><i class="fas fa-lightbulb"></i> ADVERTISEMENT HINT COMMANDS</h3>
+                    <div id="advHintsContainer"></div>
+                </div>
+                <div class="command-category">
+                    <h3><i class="fas fa-envelope"></i> ADVERTISEMENT MESSAGES COMMANDS</h3>
+                    <div id="advMessagesContainer"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Staff Share Point. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function loadHintsMessages() {
+            try {
+                const response = await fetch('./data/hints-messages.json');
+                const data = await response.json();
+                
+                const rleContainer = document.getElementById('rleContainer');
+                const advHintsContainer = document.getElementById('advHintsContainer');
+                const advMessagesContainer = document.getElementById('advMessagesContainer');
+                
+                rleContainer.innerHTML = data.rle_commands.map(cmd => `
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>${cmd.command}</code>
+                            <button onclick="copyToClipboard(\`${cmd.command}\`)" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                advHintsContainer.innerHTML = data.adv_hints.map(hint => `
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>${hint.command}</code>
+                            <button onclick="copyToClipboard(\`${hint.command}\`)" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                advMessagesContainer.innerHTML = data.adv_messages.map(message => `
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>${message.command}</code>
+                            <button onclick="copyToClipboard(\`${message.command}\`)" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading hints and messages:', error);
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Command copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy command');
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary-color);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadHintsMessages);
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
