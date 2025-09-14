@@ -53,14 +53,5 @@
       "minHours": 3,
       "level": 3
     }
-  ],
-  "assistant_staff": [
-    {
-      "rank": "Community Helper",
-      "icon": "hands-helping",
-      "responsibilities": "Community support, player assistance, basic moderation",
-      "minHours": 0,
-      "level": 2
-    }
   ]
 }
