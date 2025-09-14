@@ -32,28 +32,30 @@
         <section class="card-grid">
             <div class="card">
                 <i class="fas fa-terminal card-icon"></i>
-                <h3>ERLC Commands</h3>
-                <p>Complete list of Emergency Response: Liberty County admin commands</p>
+                <h3>Command Guide</h3>
                 <a href="#commands" class="btn"><i class="fas fa-list"></i> View Commands</a>
             </div>
             <div class="card">
-                <i class="fas fa-graduation-cap card-icon"></i>
-                <h3>Staff Training</h3>
-                <p>Training modules and certification requirements for ERLC staff</p>
-                <a href="#training" class="btn"><i class="fas fa-book"></i> Access Training</a>
+                <i class="fas fa-comment card-icon"></i>
+                <h3>Hint & Message Guide</h3>
+                <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i> View Commands</button>
             </div>
             <div class="card">
-                <i class="fas fa-phone card-icon"></i>
-                <h3>Emergency Contacts</h3>
-                <p>Senior staff contacts and escalation procedures</p>
-                <a href="#contacts" class="btn"><i class="fas fa-address-book"></i> View Contacts</a>
+                <i class="fas fa-comment card-icon"></i>
+                <h3>Staff Vehicle Guide</h3>
+                <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i>View Guide</button>
             </div>
             <div class="card">
-                <i class="fas fa-server card-icon"></i>
-                <h3>Server Information</h3>
-                <p>ERLC server details and technical specifications</p>
-                <a href="#server-info" class="btn"><i class="fas fa-info-circle"></i> Server Details</a>
+                <i class="fas fa-comment card-icon"></i>
+                <h3>Roblox Avatar Guide</h3>
+                <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i>View Guide</button>
             </div>
+            <div class="card">
+                <i class="fas fa-comment card-icon"></i>
+                <h3>Message Preset Guide</h3>
+                <button onclick="showHintsMessages()" class="btn"><i class="fas fa-copy"></i>View Messages</button>
+            </div>
+            
         </section>
 
         <section id="commands" class="guidelines-section">
@@ -63,34 +65,7 @@
             </div>
         </section>
 
-        <section id="training" class="guidelines-section">
-            <h2><i class="fas fa-graduation-cap"></i> ERLC Staff Training Program</h2>
-            <div class="punishment-level">
-                <h3>New Staff Onboarding Checklist</h3>
-                <ul>
-                    <li><strong>ERLC Rules Mastery:</strong> Complete understanding of all FailRP rules</li>
-                    <li><strong>Department Knowledge:</strong> Learn LEO, EMS, Fire department procedures</li>
-                    <li><strong>Command Training:</strong> Practice all admin commands in test environment</li>
-                    <li><strong>Shadow Period:</strong> 5 shifts with experienced staff member</li>
-                    <li><strong>Scenario Training:</strong> Handle mock FailRP situations</li>
-                    <li><strong>Logging System:</strong> Master external punishment logging</li>
-                    <li><strong>Discord Integration:</strong> Join all staff channels and learn protocols</li>
-                    <li><strong>Final Assessment:</strong> Pass comprehensive ERLC knowledge test</li>
-                </ul>
-            </div>
-            
-            <div class="punishment-level">
-                <h3>Ongoing Staff Development</h3>
-                <ul>
-                    <li><strong>Weekly Briefings:</strong> Mandatory Sunday staff meetings</li>
-                    <li><strong>ERLC Updates:</strong> Training on new game features and rules</li>
-                    <li><strong>Scenario Drills:</strong> Monthly FailRP scenario practice</li>
-                    <li><strong>Peer Reviews:</strong> Quarterly performance evaluations</li>
-                    <li><strong>Advanced Certifications:</strong> Specialized department training</li>
-                    <li><strong>Performance Metrics:</strong> Monthly activity and quality reviews</li>
-                </ul>
-            </div>
-        </section>
+
 
         <section id="contacts" class="guidelines-section">
             <h2><i class="fas fa-phone"></i> UKBRUM Emergency Staff Contacts</h2>
@@ -174,6 +149,20 @@
                 </ul>
             </div>
         </section>
+
+        <section class="guidelines-section" id="hintsMessagesSection" style="display: none;">
+            <h2><i class="fas fa-comment"></i> Hint & Message Commands</h2>
+            <div class="commands-container">
+                <div class="command-category">
+                    <h3><i class="fas fa-lightbulb"></i> Hint Commands (:h)</h3>
+                    <div id="hintsContainer"></div>
+                </div>
+                <div class="command-category">
+                    <h3><i class="fas fa-envelope"></i> Message Commands (:m)</h3>
+                    <div id="messagesContainer"></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -216,6 +205,57 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadCommands);
+        
+        async function showHintsMessages() {
+            const section = document.getElementById('hintsMessagesSection');
+            if (section.style.display === 'none') {
+                try {
+                    const response = await fetch('./data/hints-messages.json');
+                    const data = await response.json();
+                    
+                    const hintsContainer = document.getElementById('hintsContainer');
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    
+                    hintsContainer.innerHTML = data.hints.map(hint => `
+                        <div class="command-item">
+                            <div class="command-text">
+                                <code>${hint.command}</code>
+                                <button onclick="copyToClipboard('${hint.command}')" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <p class="command-desc">${hint.description}</p>
+                        </div>
+                    `).join('');
+                    
+                    messagesContainer.innerHTML = data.messages.map(message => `
+                        <div class="command-item">
+                            <div class="command-text">
+                                <code>${message.command}</code>
+                                <button onclick="copyToClipboard('${message.command}')" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <p class="command-desc">${message.description}</p>
+                        </div>
+                    `).join('');
+                    
+                } catch (error) {
+                    console.error('Error loading hints and messages:', error);
+                }
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                if (window.StaffPortal) {
+                    new window.StaffPortal().showToast('Command copied to clipboard!', 'success');
+                }
+            });
+        }
     </script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>

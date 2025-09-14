@@ -1,0 +1,46 @@
+{
+  "hints": [
+    {
+      "command": ":h Welcome to the server! Please follow all rules and have fun.",
+      "description": "Welcome message for new players"
+    },
+    {
+      "command": ":h Please drive realistically and follow traffic laws.",
+      "description": "Driving reminder"
+    },
+    {
+      "command": ":h Staff are here to help - please be respectful.",
+      "description": "Staff respect reminder"
+    },
+    {
+      "command": ":h Check the rules channel in Discord for full guidelines.",
+      "description": "Rules reference"
+    },
+    {
+      "command": ":h Report any issues to staff members immediately.",
+      "description": "Issue reporting"
+    }
+  ],
+  "messages": [
+    {
+      "command": ":m You have been warned for FailRP. Please review the rules.",
+      "description": "FailRP warning message"
+    },
+    {
+      "command": ":m Please stop the unrealistic behavior immediately.",
+      "description": "Behavior correction"
+    },
+    {
+      "command": ":m You are being monitored by staff. Follow all rules.",
+      "description": "Monitoring notice"
+    },
+    {
+      "command": ":m Contact staff if you need assistance with anything.",
+      "description": "Help offer"
+    },
+    {
+      "command": ":m Your behavior is not acceptable. Final warning.",
+      "description": "Final warning message"
+    }
+  ]
+}

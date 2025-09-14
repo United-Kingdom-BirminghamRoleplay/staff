@@ -65,8 +65,7 @@
                                 <tr>
                                     <th>Rank</th>
                                     <th>Responsibilities</th>
-                                    <th>ERLC Permissions</th>
-                                    <th>Min Hours/Week</th>
+                                    <th>Quota</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -74,8 +73,7 @@
                                     <tr>
                                         <td><i class="fas fa-${rank.icon}"></i> <strong>${rank.rank}</strong></td>
                                         <td>${rank.responsibilities}</td>
-                                        <td>${rank.permissions}</td>
-                                        <td>${rank.minHours === 0 ? 'No requirement' : rank.minHours + ' hours'}</td>
+                                        <td>${rank.minHours === 0 ? 'No requirement' : rank.minHours + ' hours/week'}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>

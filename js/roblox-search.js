@@ -40,7 +40,7 @@ class RobloxUserSearch {
             // Try multiple methods to get user data
             const userData = await this.fetchUserData(username);
             if (userData) {
-                this.displayUserResult(userData);
+                await this.displayUserResult(userData);
                 // Show success toast
                 if (window.StaffPortal) {
                     new window.StaffPortal().showToast(`Found user: ${userData.name}`, 'success');
@@ -117,16 +117,31 @@ class RobloxUserSearch {
         return null;
     }
 
-    displayUserResult(user) {
-        const avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png`;
+    async displayUserResult(user) {
         const profileUrl = `https://www.roblox.com/users/${user.id}/profile`;
         const melonlyUrl = `https://melonly.xyz/user/${user.id}`;
+        
+        // Get avatar using RoProxy
+        let avatarUrl = `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${user.id}&size=150x150&format=Png&isCircular=false`;
+        
+        try {
+            const avatarResponse = await fetch(avatarUrl);
+            if (avatarResponse.ok) {
+                const avatarData = await avatarResponse.json();
+                if (avatarData.data && avatarData.data[0]) {
+                    avatarUrl = avatarData.data[0].imageUrl;
+                }
+            }
+        } catch (error) {
+            // Fallback to direct Roblox URL
+            avatarUrl = `https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png`;
+        }
 
         this.resultsContainer.innerHTML = `
             <div class="user-result">
                 <div class="user-avatar-container">
                     <img src="${avatarUrl}" alt="${user.name}'s Avatar" class="user-avatar" 
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMzAiIGZpbGw9IiM0YjU1NjMiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSIxOCIgeT0iMTgiPgo8cGF0aCBkPSJNMTIgMTJDMTQuMjA5MSAxMiAxNiAxMC4yMDkxIDE2IDhDMTYgNS43OTA5IDE0LjIwOTEgNCA1IDRDOS43OTA5IDQgOCA1Ljc5MDkgOCA4QzggMTAuMjA5MSA5Ljc5MDkgMTIgMTIgMTJaIiBmaWxsPSIjOWNhM2FmIi8+CjxwYXRoIGQ9Ik0xMiAxNEM5LjMzIDEzLjk5IDcuMDEgMTUuNjIgNiAxOEgxOEMxNi45OSAxNS42MiAxNC42NyAxMy45OSAxMiAxNFoiIGZpbGw9IiM5Y2EzYWYiLz4KPC9zdmc+Cjwvc3ZnPgo='">
+                         onerror="this.src='https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png'">
                 </div>
                 <div class="user-info">
                     <h4>${user.displayName || user.name}</h4>
