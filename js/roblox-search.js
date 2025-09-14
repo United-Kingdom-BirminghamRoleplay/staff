@@ -55,9 +55,12 @@ class RobloxUserSearch {
     }
 
     async fetchUserData(username) {
-        // Method 1: Try Roblox API directly (may have CORS issues)
+        // Method 1: Try CORS proxy with Roblox API
         try {
-            const response = await fetch('https://users.roblox.com/v1/usernames/users', {
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const targetUrl = `https://users.roblox.com/v1/usernames/users`;
+            
+            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -73,15 +76,15 @@ class RobloxUserSearch {
                 }
             }
         } catch (error) {
-            console.log('Direct API failed, trying alternative methods...');
+            console.log('Proxy method failed, trying direct...');
         }
 
-        // Method 2: Try alternative API endpoint
+        // Method 2: Try direct API (works in some browsers)
         try {
             const response = await fetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
             if (response.ok) {
                 const data = await response.json();
-                if (data.Id) {
+                if (data.Id && data.Username) {
                     return {
                         id: data.Id,
                         name: data.Username,
@@ -90,20 +93,24 @@ class RobloxUserSearch {
                 }
             }
         } catch (error) {
-            console.log('Alternative API also failed...');
+            console.log('Direct API failed...');
         }
 
-        // Method 3: Use a proxy service (you can implement your own)
+        // Method 3: Alternative proxy
         try {
-            // This would require setting up a proxy service
-            // For now, we'll simulate the response structure
-            console.log('Using fallback method for demonstration');
-            
-            // In a real implementation, you'd have a proxy server
-            // that handles the Roblox API calls server-side
-            return null;
+            const response = await fetch(`https://corsproxy.io/?https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.Id && data.Username) {
+                    return {
+                        id: data.Id,
+                        name: data.Username,
+                        displayName: data.Username
+                    };
+                }
+            }
         } catch (error) {
-            console.log('All methods failed');
+            console.log('Alternative proxy failed...');
         }
 
         return null;
