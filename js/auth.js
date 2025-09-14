@@ -44,11 +44,7 @@ class AuthSystem {
         authContainer.innerHTML = `
             <div class="auth-modal">
                 <div class="auth-header">
-                    <div class="auth-logo">
-                        <img src="https://via.placeholder.com/80x80/dc2626/ffffff?text=SSP" alt="Staff Share Point Logo" class="logo-img">
-                    </div>
-                    <h2>Staff Share Point Login</h2>
-                    <p>Enter your rank-specific access code</p>
+                    <h2>Staff Sharepoint Login</h2>
                 </div>
                 <form id="authForm" class="auth-form">
                     <div class="form-group">
@@ -59,26 +55,14 @@ class AuthSystem {
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="select-options" id="selectOptions">
-                                <div class="select-option" data-value="foundership">
-                                    <i class="fas fa-crown"></i> Foundership
+                                <div class="select-option" data-value="senior_management">
+                                    <i class="fas fa-crown"></i> Senior Management Staff
                                 </div>
-                                <div class="select-option" data-value="advisory_board">
-                                    <i class="fas fa-chess-king"></i> Advisory Board
+                                <div class="select-option" data-value="management">
+                                    <i class="fas fa-users-cog"></i> Management Staff
                                 </div>
-                                <div class="select-option" data-value="oversight_enforcement">
-                                    <i class="fas fa-eye"></i> Oversight & Enforcement
-                                </div>
-                                <div class="select-option" data-value="human_resources">
-                                    <i class="fas fa-users-cog"></i> Human Resources
-                                </div>
-                                <div class="select-option" data-value="administration">
-                                    <i class="fas fa-cog"></i> Administration
-                                </div>
-                                <div class="select-option" data-value="moderation">
-                                    <i class="fas fa-shield"></i> Moderation
-                                </div>
-                                <div class="select-option" data-value="community_helper">
-                                    <i class="fas fa-hands-helping"></i> Community Helper
+                                <div class="select-option" data-value="staff">
+                                    <i class="fas fa-user-shield"></i> Staff Member
                                 </div>
                             </div>
                         </div>
@@ -179,22 +163,15 @@ class AuthSystem {
         const descEl = document.getElementById('rankDescription');
         
         if (welcomeDiv && messageEl && descEl) {
-            const rankName = this.currentUser.rank.replace('_', ' ').toUpperCase();
-            messageEl.textContent = `Welcome, ${rankName}`;
+            messageEl.textContent = 'Welcome to Birmingham Roleplay Staff Sharepoint';
             
-            const descriptions = {
-                'foundership': 'You have ultimate authority over the UKBRUM community.',
-                'assistant_foundership': 'You assist in foundership duties and major decisions.',
-                'executive_assistant': 'You provide executive support and strategic coordination.',
-                'directorate': 'You direct departments and provide strategic oversight.',
-                'oversight_enforcement': 'You oversee staff and coordinate enforcement.',
-                'management': 'You manage teams and operational oversight.',
-                'administration': 'You handle server administration and advanced moderation.',
-                'moderation': 'You actively moderate and enforce community rules.',
-                'community_helper': 'You provide community support and player assistance.'
+            const rankTitles = {
+                'senior_management': 'Senior Management',
+                'management': 'Management',
+                'staff': 'Staff'
             };
-            
-            descEl.textContent = descriptions[this.currentUser.rank] || 'Welcome to the UKBRUM Staff Portal.';
+            const rankName = rankTitles[this.currentUser.rank] || 'Staff';
+            descEl.textContent = `You are currently logged on as ${rankName}!`;
             welcomeDiv.style.display = 'block';
         }
     }

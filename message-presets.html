@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Preset Guide - Staff Sharepoint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">Staff Sharepoint</h1>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="ranks.html" class="nav-link">Rank Structure</a></li>
+                <li><a href="guidelines.html" class="nav-link">Guidelines</a></li>
+                <li><a href="logs.html" class="nav-link">Punishment Logs</a></li>
+                <li><a href="resources.html" class="nav-link">Resources</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>Message Preset Guide</h1>
+            <p>When actioning someone or responding to a message, you're required to use the formats provided below as a foundation, which you can expand upon; however, we strongly recommend having any modifications double-checked by our high-ranking team to ensure accuracy and consistency.</p>
+        </section>
+
+        <section class="guidelines-section">
+            <h2><i class="fas fa-comments"></i> Message Presets</h2>
+            <div class="commands-container message-presets-grid">
+                <div class="command-category">
+                    <h3><i class="fas fa-exclamation-triangle"></i> ACTION MESSAGES</h3>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>Your are being warned for [REASON]. Please take note your warnings reset after every session.</code>
+                            <button onclick="copyToClipboard('Your are being warned for [REASON]. Please take note your warnings reset after every session.')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>You are being kicked for [REASON]. Please do not rejoin back within [XX] minutes. Please feel free to appeal this via the communications server using the code: UKBRUM.</code>
+                            <button onclick="copyToClipboard('You are being kicked for [REASON]. Please do not rejoin back within [XX] minutes. Please feel free to appeal this via the communications server using the code: UKBRUM.')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>You are being banned for [REASON]. Please feel free to appeal this via the communications server using the code: UKBRUM.</code>
+                            <button onclick="copyToClipboard('You are being banned for [REASON]. Please feel free to appeal this via the communications server using the code: UKBRUM.')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <h3><i class="fas fa-info-circle"></i> MOD CALL MESSAGES</h3>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>Greetings! I am [NAME], how may I assist you today?</code>
+                            <button onclick="copyToClipboard('Greetings! I am [NAME], how may I assist you today?')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>Is there anything else that I can help you with today?</code>
+                            <button onclick="copyToClipboard('Is there anything else that I can help you with today?')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>Feel free to leave a staff review on the communications server via the code: UKBRUM.</code>
+                            <button onclick="copyToClipboard('Feel free to leave a staff review on the communications server via the code: UKBRUM.')" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Staff Sharepoint. All rights reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Message copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy message');
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--primary-color);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
