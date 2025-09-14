@@ -15,6 +15,9 @@ class StaffPortal {
     }
 
     setupNavigation() {
+        // Add mobile hamburger menu
+        this.createMobileMenu();
+        
         // Add active state management
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
         const navLinks = document.querySelectorAll('.nav-link');
@@ -41,6 +44,44 @@ class StaffPortal {
                 }
             });
         });
+    }
+
+    createMobileMenu() {
+        const navContainer = document.querySelector('.nav-container');
+        if (!navContainer) return;
+        
+        // Create hamburger toggle
+        const toggle = document.createElement('div');
+        toggle.className = 'nav-toggle';
+        toggle.innerHTML = '<span></span><span></span><span></span>';
+        
+        // Insert before nav menu
+        const navMenu = document.querySelector('.nav-menu');
+        if (navMenu) {
+            navContainer.insertBefore(toggle, navMenu);
+            
+            // Add click handler
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+            
+            // Close menu when clicking links
+            navMenu.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggle.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navContainer.contains(e.target)) {
+                    toggle.classList.remove('active');
+                    navMenu.classList.remove('active');
+                }
+            });
+        }
     }
 
     setupAnimations() {

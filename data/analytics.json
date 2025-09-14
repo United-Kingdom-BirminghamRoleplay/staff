@@ -1,0 +1,27 @@
+{
+  "serverStats": {
+    "totalMembers": 3000,
+    "activeMembers": 1250,
+    "staffCount": 230
+  },
+
+  "activityData": {
+    "peakHours": "7PM-10PM GMT",
+    "averageDaily": 180,
+    "weekendAverage": 220,
+    "weekdayAverage": 150
+  },
+  "departmentStats": {
+    "WMPS": 45,
+    "WMAS": 23,
+    "WMFS": 18,
+    "NH": 144
+  },
+  "recentTrends": [
+    { "date": "2024-01-15", "members": 2950, "punishments": 15 },
+    { "date": "2024-01-16", "members": 2975, "punishments": 12 },
+    { "date": "2024-01-17", "members": 3000, "punishments": 18 },
+    { "date": "2024-01-18", "members": 3025, "punishments": 9 },
+    { "date": "2024-01-19", "members": 3050, "punishments": 14 }
+  ]
+}

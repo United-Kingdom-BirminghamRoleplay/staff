@@ -48,10 +48,10 @@
                 const container = document.getElementById('ranksContainer');
                 
                 const sections = [
-                    { key: 'executive', title: 'Executive Leadership', icon: 'crown' },
-                    { key: 'administrative', title: 'Administrative Team', icon: 'tools' },
-                    { key: 'moderation', title: 'Moderation Team', icon: 'shield' },
-                    { key: 'support', title: 'Support & Training Team', icon: 'users' }
+                    { key: 'senior_management', title: 'Senior Management', icon: 'crown' },
+                    { key: 'management', title: 'Management', icon: 'users-cog' },
+                    { key: 'staff', title: 'Staff', icon: 'shield' },
+                    { key: 'assistant_staff', title: 'Assistant Staff', icon: 'hands-helping' }
                 ];
 
                 sections.forEach(section => {
@@ -113,5 +113,6 @@
         document.addEventListener('DOMContentLoaded', loadRanks);
     </script>
     <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

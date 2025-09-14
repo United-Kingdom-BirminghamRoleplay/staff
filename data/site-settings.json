@@ -1,0 +1,21 @@
+{
+  "maintenance": {
+    "enabled": false,
+    "message": "UKBRUM Staff Portal is currently under maintenance. Please check back later.",
+    "allowedRanks": ["foundership", "assistant_foundership"]
+  },
+  "announcements": {
+    "enabled": true,
+    "priority": "Staff Training Session - ERLC Updates",
+    "secondary": "Server Population Milestone"
+  },
+  "features": {
+    "robloxSearch": true,
+    "ticketSystem": true,
+    "analytics": true
+  },
+  "theme": {
+    "primaryColor": "#3b82f6",
+    "siteName": "UKBRUM Staff Portal"
+  }
+}

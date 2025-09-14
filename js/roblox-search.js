@@ -55,12 +55,9 @@ class RobloxUserSearch {
     }
 
     async fetchUserData(username) {
-        // Method 1: Try CORS proxy with Roblox API
+        // Method 1: Use RoProxy (most reliable for Roblox APIs)
         try {
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const targetUrl = `https://users.roblox.com/v1/usernames/users`;
-            
-            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+            const response = await fetch(`https://users.roproxy.com/v1/usernames/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -76,12 +73,12 @@ class RobloxUserSearch {
                 }
             }
         } catch (error) {
-            console.log('Proxy method failed, trying direct...');
+            console.log('RoProxy failed, trying alternative...');
         }
 
-        // Method 2: Try direct API (works in some browsers)
+        // Method 2: Use RoProxy with legacy endpoint
         try {
-            const response = await fetch(`https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
+            const response = await fetch(`https://api.roproxy.com/users/get-by-username?username=${encodeURIComponent(username)}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.Id && data.Username) {
@@ -93,14 +90,18 @@ class RobloxUserSearch {
                 }
             }
         } catch (error) {
-            console.log('Direct API failed...');
+            console.log('Legacy RoProxy failed...');
         }
 
-        // Method 3: Alternative proxy
+        // Method 3: Use AllOrigins as fallback
         try {
-            const response = await fetch(`https://corsproxy.io/?https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`);
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const targetUrl = `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`;
+            
+            const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
             if (response.ok) {
-                const data = await response.json();
+                const proxyData = await response.json();
+                const data = JSON.parse(proxyData.contents);
                 if (data.Id && data.Username) {
                     return {
                         id: data.Id,
@@ -110,7 +111,7 @@ class RobloxUserSearch {
                 }
             }
         } catch (error) {
-            console.log('Alternative proxy failed...');
+            console.log('AllOrigins proxy failed...');
         }
 
         return null;

@@ -1,94 +1,82 @@
 {
-  "executive": [
+  "senior_management": [
     {
-      "rank": "Server Owner",
+      "rank": "Foundership",
       "icon": "crown",
-      "responsibilities": "Ultimate server authority, community vision, final decisions",
-      "permissions": "Full admin panel, all game passes, server configuration",
-      "minHours": 0
+      "responsibilities": "Ultimate authority, community vision, strategic decisions",
+      "permissions": "Full system access, all administrative powers",
+      "minHours": 0,
+      "level": 10
     },
     {
-      "rank": "Co-Owner", 
-      "icon": "shield-alt",
-      "responsibilities": "Owner assistance, major policy decisions, staff oversight",
-      "permissions": "Admin panel access, staff management, major punishments",
-      "minHours": 0
+      "rank": "Assistant Foundership",
+      "icon": "gem",
+      "responsibilities": "Foundership support, major policy decisions, executive oversight",
+      "permissions": "Executive panel access, staff management, critical decisions",
+      "minHours": 0,
+      "level": 9
     },
     {
-      "rank": "Chief Administrator",
-      "icon": "user-shield",
-      "responsibilities": "Daily operations, staff coordination, department management", 
-      "permissions": "Advanced admin commands, staff training, appeals handling",
-      "minHours": 1
+      "rank": "Executive Assistant",
+      "icon": "star",
+      "responsibilities": "Executive support, high-level coordination, strategic planning",
+      "permissions": "Executive tools, senior staff management, policy creation",
+      "minHours": 1,
+      "level": 8
+    },
+    {
+      "rank": "Directorate",
+      "icon": "chess-king",
+      "responsibilities": "Department direction, strategic oversight, senior coordination",
+      "permissions": "Directorate panel, department management, strategic tools",
+      "minHours": 2,
+      "level": 7
     }
   ],
-  "administrative": [
+  "management": [
     {
-      "rank": "Senior Administrator",
-      "icon": "fire",
-      "responsibilities": "Complex FailRP cases, staff mentoring, department oversight",
-      "permissions": "Advanced admin commands, staff training, event hosting",
-      "minHours": 2
+      "rank": "Oversight & Enforcement",
+      "icon": "eye",
+      "responsibilities": "Staff oversight, enforcement coordination, quality assurance",
+      "permissions": "Oversight tools, enforcement panel, staff monitoring",
+      "minHours": 3,
+      "level": 6
     },
     {
-      "rank": "Administrator",
+      "rank": "Management",
+      "icon": "users-cog",
+      "responsibilities": "Team management, operational oversight, staff coordination",
+      "permissions": "Management panel, team tools, operational controls",
+      "minHours": 4,
+      "level": 5
+    }
+  ],
+  "staff": [
+    {
+      "rank": "Administration",
       "icon": "cog",
-      "responsibilities": "General moderation, FailRP enforcement, player assistance",
-      "permissions": "Kick, ban, teleport, vehicle spawn, basic admin panel",
-      "minHours": 3
+      "responsibilities": "Server administration, advanced moderation, system management",
+      "permissions": "Admin panel, advanced commands, system controls",
+      "minHours": 5,
+      "level": 4
     },
     {
-      "rank": "Junior Administrator", 
-      "icon": "book",
-      "responsibilities": "Supervised moderation, learning advanced commands",
-      "permissions": "Limited admin commands, supervised major actions",
-      "minHours": 3
-    }
-  ],
-  "moderation": [
-    {
-      "rank": "Senior Moderator",
-      "icon": "award",
-      "responsibilities": "Advanced FailRP enforcement, moderator training, shift leadership",
-      "permissions": "Extended bans, teleport, spectate, moderator guidance", 
-      "minHours": 3
-    },
-    {
-      "rank": "Moderator",
+      "rank": "Moderation",
       "icon": "shield",
-      "responsibilities": "Active chat/voice moderation, FailRP enforcement, player reports",
-      "permissions": "Warn, mute, kick, temporary ban, basic teleport",
-      "minHours": 4
-    },
-    {
-      "rank": "Trial Moderator",
-      "icon": "clipboard",
-      "responsibilities": "Probationary period, supervised moderation, learning ERLC rules",
-      "permissions": "Warnings only, supervised actions, training phase",
-      "minHours": 4
+      "responsibilities": "Active moderation, rule enforcement, player management",
+      "permissions": "Moderation tools, punishment commands, player controls",
+      "minHours": 6,
+      "level": 3
     }
   ],
-  "support": [
+  "assistant_staff": [
     {
-      "rank": "Support Lead",
-      "icon": "medal",
-      "responsibilities": "Support team coordination, complex ERLC issues, new player onboarding",
-      "permissions": "Advanced support tools, team management, training oversight",
-      "minHours": 3
-    },
-    {
-      "rank": "Support Staff",
-      "icon": "users",
-      "responsibilities": "Player assistance, ERLC guidance, technical help",
-      "permissions": "Basic teleport, information access, player assistance",
-      "minHours": 4
-    },
-    {
-      "rank": "Trainee",
-      "icon": "clock",
-      "responsibilities": "Learning ERLC rules, basic player assistance, shadowing staff",
-      "permissions": "Read-only access, supervised assistance, learning phase",
-      "minHours": 4
+      "rank": "Community Helper",
+      "icon": "hands-helping",
+      "responsibilities": "Community support, player assistance, basic moderation",
+      "permissions": "Helper tools, basic commands, support access",
+      "minHours": 8,
+      "level": 2
     }
   ]
 }
