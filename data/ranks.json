@@ -3,23 +3,21 @@
     {
       "rank": "Foundership",
       "icon": "crown",
-      "responsibilities": "Ultimate authority, community vision, strategic decisions",
-      "permissions": "Full system access, all administrative powers",
-      "minHours": 0,
+      "responsibilities": "Oversight of Birmingham Roleplay",
+      "minHours": 1,
       "level": 10
     },
     {
       "rank": "Assistant Foundership",
       "icon": "gem",
-      "responsibilities": "Foundership support, major policy decisions, executive oversight",
-      "permissions": "Executive panel access, staff management, critical decisions",
-      "minHours": 0,
+      "responsibilities": "The assistants of the Foundership team",
+      "minHours": 1,
       "level": 9
     },
     {
       "rank": "Advisory Board",
       "icon": "chess-king",
-      "responsibilities": "Strategic advisory, policy guidance, senior coordination",
+      "responsibilities": "Advises of indevidual staff segments",
       "minHours": 1,
       "level": 7
     }
@@ -28,16 +26,14 @@
     {
       "rank": "Oversight & Enforcement",
       "icon": "eye",
-      "responsibilities": "Staff oversight, enforcement coordination, quality assurance",
-      "permissions": "Oversight tools, enforcement panel, staff monitoring",
+      "responsibilities": "Overseeing and Handleing Staff Reports",
       "minHours": 1,
       "level": 6
     },
     {
-      "rank": "Management",
+      "rank": "Human Resources",
       "icon": "users-cog",
-      "responsibilities": "Team management, operational oversight, staff coordination",
-      "permissions": "Management panel, team tools, operational controls",
+      "responsibilities": "Dealing and assisting with server queries",
       "minHours": 2,
       "level": 5
     }
@@ -47,7 +43,6 @@
       "rank": "Administration",
       "icon": "cog",
       "responsibilities": "Server administration, advanced moderation, system management",
-      "permissions": "Admin panel, advanced commands, system controls",
       "minHours": 3,
       "level": 4
     },
@@ -55,8 +50,7 @@
       "rank": "Moderation",
       "icon": "shield",
       "responsibilities": "Active moderation, rule enforcement, player management",
-      "permissions": "Moderation tools, punishment commands, player controls",
-      "minHours": 4,
+      "minHours": 3,
       "level": 3
     }
   ],
@@ -65,7 +59,6 @@
       "rank": "Community Helper",
       "icon": "hands-helping",
       "responsibilities": "Community support, player assistance, basic moderation",
-      "permissions": "Helper tools, basic commands, support access",
       "minHours": 0,
       "level": 2
     }

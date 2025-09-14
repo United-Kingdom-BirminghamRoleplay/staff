@@ -171,7 +171,7 @@ class AuthSystem {
                 'staff': 'Staff'
             };
             const rankName = rankTitles[this.currentUser.rank] || 'Staff';
-            descEl.textContent = `You are currently logged on as ${rankName}!`;
+            descEl.textContent = `You are currently logged on as ${rankName}`;
             welcomeDiv.style.display = 'block';
         }
     }
@@ -214,14 +214,14 @@ class AuthSystem {
         }
 
         // Show management+ content
-        if (level >= 5) {
-            this.showManagementContent();
-        }
+        // if (level >= 5) {
+        //     this.showManagementContent();
+        // }
 
         // Show executive content
-        if (access.includes('executive') || access.includes('all')) {
-            this.showExecutiveContent();
-        }
+        // if (access.includes('executive') || access.includes('all')) {
+        //     this.showExecutiveContent();
+        // }
     }
 
     showBasicInfo() {

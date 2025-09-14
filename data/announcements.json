@@ -1,16 +1,10 @@
 {
   "announcements": [
     {
-      "title": "Staff Training Session - New Updates",
-      "content": "Mandatory training on new features and updated guidelines. All Moderator+ required.",
-      "date": "Today",
-      "icon": "exclamation-triangle"
-    },
-    {
-      "title": "Server Population Milestone",
-      "content": "We have reached 3000+ active members! Increased staff presence needed during peak hours.",
-      "date": "2 days ago",
-      "icon": "chart-line"
+      "title": "",
+      "content": "",
+      "date": "",
+      "icon": ""
     }
   ]
 }
