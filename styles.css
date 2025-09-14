@@ -1,0 +1,363 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: #e5e7eb;
+    background-color: #111827;
+    min-height: 100vh;
+}
+
+.navbar {
+    background-color: #1f2937;
+    border-bottom: 1px solid #374151;
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    color: #3b82f6;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: #d1d5db;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    background-color: #374151;
+    color: #3b82f6;
+}
+
+.nav-link.active {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    margin-top: 80px;
+}
+
+.hero {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    color: #f9fafb;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: #9ca3af;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.card {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.card:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    color: #3b82f6;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.card h3 {
+    color: #f9fafb;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.card p {
+    color: #9ca3af;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.announcements, .whitelist-section, .roblox-search, .guidelines-section {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.announcements h2, .whitelist-section h2, .roblox-search h2, .guidelines-section h2 {
+    color: #f9fafb;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.announcement {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background-color: #374151;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.announcement:hover {
+    background-color: #4b5563;
+}
+
+.announcement-icon {
+    color: #3b82f6;
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.announcement-content h4 {
+    color: #f9fafb;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.announcement-content p {
+    color: #d1d5db;
+    margin-bottom: 0.5rem;
+}
+
+.date {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+
+
+.search-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem;
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    color: #f9fafb;
+    font-size: 1rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.search-results {
+    min-height: 60px;
+}
+
+.user-result {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: #374151;
+    padding: 1.5rem;
+    border-radius: 6px;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #3b82f6;
+}
+
+.user-info h4 {
+    color: #f9fafb;
+    margin-bottom: 0.5rem;
+}
+
+.user-info p {
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.loading, .no-results, .error {
+    text-align: center;
+    padding: 1.5rem;
+    color: #9ca3af;
+}
+
+.rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1f2937;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.rank-table th, .rank-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+}
+
+.rank-table th {
+    background-color: #374151;
+    color: #f9fafb;
+    font-weight: 600;
+}
+
+.rank-table td {
+    color: #d1d5db;
+}
+
+.rank-table tr:hover {
+    background-color: #374151;
+}
+
+.punishment-level {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background-color: #374151;
+    border-radius: 6px;
+    border-left: 4px solid #ef4444;
+}
+
+.punishment-level h3 {
+    color: #f87171;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.punishment-level p, .punishment-level ul {
+    color: #d1d5db;
+}
+
+.punishment-level ul {
+    padding-left: 1.5rem;
+}
+
+.punishment-level li {
+    margin-bottom: 0.5rem;
+}
+
+footer {
+    background-color: #1f2937;
+    border-top: 1px solid #374151;
+    color: #9ca3af;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .main-content {
+        padding: 1rem;
+        margin-top: 120px;
+    }
+    
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .search-container {
+        flex-direction: column;
+    }
+    
+    .user-result {
+        flex-direction: column;
+        text-align: center;
+    }
+}

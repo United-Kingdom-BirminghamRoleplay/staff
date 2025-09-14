@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punishment Logs - UKBRUM Staff</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">UKBRUM Staff</h1>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="ranks.html" class="nav-link">Rank Structure</a></li>
+                <li><a href="guidelines.html" class="nav-link">Guidelines</a></li>
+                <li><a href="logs.html" class="nav-link active">Punishment Logs</a></li>
+                <li><a href="resources.html" class="nav-link">Resources</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>ERLC Punishment System</h1>
+            <p>External logging system for all UKBRUM Emergency Response: Liberty County infractions</p>
+        </section>
+
+        <section class="card-grid">
+            <div class="card">
+                <h3>🗃️ External Logging System</h3>
+                <p>Access the main ERLC punishment database and infraction records</p>
+                <a href="#" class="btn" onclick="openExternalLogs()">Open Logging System</a>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #94a3b8;">
+                    Configure your external logging system URL in the JavaScript below
+                </p>
+            </div>
+            <div class="card">
+                <h3>⚡ Quick FailRP Log</h3>
+                <p>Fast entry for common ERLC violations and FailRP incidents</p>
+                <a href="#" class="btn" onclick="quickLog()">Quick Log Entry</a>
+            </div>
+            <div class="card">
+                <h3>🔍 Player Search</h3>
+                <p>Search punishment history by Roblox username or User ID</p>
+                <a href="#" class="btn" onclick="searchRecords()">Search Players</a>
+            </div>
+            <div class="card">
+                <h3>📋 Appeal Management</h3>
+                <p>Review and manage punishment appeals from Discord</p>
+                <a href="#" class="btn" onclick="manageAppeals()">Manage Appeals</a>
+            </div>
+        </section>
+
+        <section class="guidelines-section">
+            <h2>📝 ERLC Logging Requirements</h2>
+            <div class="punishment-level">
+                <h3>Mandatory Information for ALL Logs</h3>
+                <ul>
+                    <li>👤 <strong>Player Details:</strong> Roblox username, display name, User ID</li>
+                    <li>🎭 <strong>FailRP Type:</strong> Specific ERLC rule violation with category</li>
+                    <li>📸 <strong>Evidence:</strong> Screenshots, video clips, witness statements</li>
+                    <li>⚖️ <strong>Punishment:</strong> Type, duration, and severity level</li>
+                    <li>👮 <strong>Staff Member:</strong> Who issued the punishment (with rank)</li>
+                    <li>🕐 <strong>Timestamp:</strong> Exact date/time of incident and punishment</li>
+                    <li>📍 <strong>Location:</strong> Where in ERLC the violation occurred</li>
+                    <li>🏢 <strong>Department:</strong> If applicable (LEO, EMS, Fire, Civilian)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="guidelines-section">
+            <h2>🗂️ ERLC Log Categories</h2>
+            <table class="rank-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Required Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🎭 FailRP Violations</td>
+                        <td>Character breaks, unrealistic behavior, rule confusion</td>
+                        <td>Screenshots of behavior, chat logs, context</td>
+                    </tr>
+                    <tr>
+                        <td>💀 RDM/VDM Incidents</td>
+                        <td>Random killing, vehicle ramming, intentional crashes</td>
+                        <td>Video evidence, death logs, witness statements</td>
+                    </tr>
+                    <tr>
+                        <td>👮 Department FailRP</td>
+                        <td>LEO/EMS/Fire violations, corruption, equipment misuse</td>
+                        <td>Department activity logs, screenshots, supervisor reports</td>
+                    </tr>
+                    <tr>
+                        <td>🔧 Exploiting/Hacking</td>
+                        <td>Speed hacks, money exploits, game manipulation</td>
+                        <td>Video proof, server logs, technical evidence</td>
+                    </tr>
+                    <tr>
+                        <td>🎯 Trolling/Griefing</td>
+                        <td>Intentional disruption, mass chaos, server trolling</td>
+                        <td>Multiple screenshots/videos, impact assessment</td>
+                    </tr>
+                    <tr>
+                        <td>🔄 Ban Evasion</td>
+                        <td>Alt accounts, IP circumvention, return after ban</td>
+                        <td>Account linking evidence, IP logs, behavior patterns</td>
+                    </tr>
+                    <tr>
+                        <td>📋 Appeals</td>
+                        <td>Player appeals and their outcomes</td>
+                        <td>Original punishment log, appeal reasoning, decision</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="guidelines-section">
+            <h2>⏰ Staff Logging Responsibilities</h2>
+            <div class="punishment-level">
+                <h3>ALL UKBRUM Staff Must:</h3>
+                <ul>
+                    <li>📝 <strong>Immediate Logging:</strong> Log ALL punishments within 15 minutes of issuing</li>
+                    <li>📸 <strong>Evidence First:</strong> Gather evidence BEFORE taking action</li>
+                    <li>🎯 <strong>Accurate Categories:</strong> Use correct ERLC violation categories</li>
+                    <li>🔄 <strong>Update Logs:</strong> Modify entries if punishments are appealed/changed</li>
+                    <li>🔒 <strong>Confidentiality:</strong> Maintain privacy of sensitive player information</li>
+                    <li>📊 <strong>Weekly Reports:</strong> Submit activity summaries to Senior Staff</li>
+                    <li>🎓 <strong>Training Logs:</strong> Document all staff training and certifications</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="guidelines-section">
+            <h2>🚨 Priority Logging Situations</h2>
+            <div class="punishment-level">
+                <h3>Immediate Senior Staff Notification Required:</h3>
+                <ul>
+                    <li>🔧 <strong>Exploiting/Hacking:</strong> Any suspected game manipulation</li>
+                    <li>👥 <strong>Mass Incidents:</strong> Multiple players involved in major FailRP</li>
+                    <li>🎯 <strong>Targeted Harassment:</strong> Personal attacks or doxxing attempts</li>
+                    <li>🏢 <strong>Department Corruption:</strong> Unauthorized LEO/EMS corruption RP</li>
+                    <li>🔄 <strong>Ban Evasion:</strong> Confirmed alt account usage</li>
+                    <li>⚖️ <strong>Staff Misconduct:</strong> Any staff member rule violations</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 UKBRUM Emergency Response: Liberty County. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function openExternalLogs() {
+            // Replace with your actual ERLC logging system URL
+            alert('Configure your external ERLC logging system URL in logs.html\n\nRecommended systems:\n- Discord bot logging\n- Google Sheets integration\n- Custom web dashboard');
+            // window.open('https://your-erlc-logging-system.com', '_blank');
+        }
+
+        function quickLog() {
+            alert('Quick FailRP logging functionality\n\nIntegrate with your preferred system:\n- Discord webhook\n- Google Forms\n- Custom logging interface');
+        }
+
+        function searchRecords() {
+            alert('Player search functionality\n\nSearch by:\n- Roblox username\n- User ID\n- Previous violations\n- Department history');
+        }
+
+        function manageAppeals() {
+            alert('Appeal management system\n\nFeatures:\n- Discord appeal integration\n- Evidence review\n- Senior staff escalation\n- Decision tracking');
+        }
+    </script>
+</body>
+</html>
