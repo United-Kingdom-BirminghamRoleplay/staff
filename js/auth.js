@@ -45,6 +45,7 @@ class AuthSystem {
             <div class="auth-modal">
                 <div class="auth-header">
                     <h2>Staff Sharepoint Login</h2>
+                    <p>United Kingdom: Birmingham Roleplay</p>
                 </div>
                 <form id="authForm" class="auth-form">
                     <div class="form-group">
