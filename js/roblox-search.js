@@ -141,7 +141,7 @@ class RobloxUserSearch {
             <div class="user-result">
                 <div class="user-avatar-container">
                     <img src="${avatarUrl}" alt="${user.name}'s Avatar" class="user-avatar" 
-                         onerror="this.src='https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png'">
+                    onerror="this.src='https://www.roblox.com/headshot-thumbnail/image?userId=${user.id}&width=150&height=150&format=png'">
                 </div>
                 <div class="user-info">
                     <h4>${user.displayName || user.name}</h4>

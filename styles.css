@@ -1934,3 +1934,41 @@ html {
         font-size: 3rem;
     }
 }
+
+.nice_a_tag {
+    position: relative;
+    display: inline-block;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.nice_a_tag::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-hover);
+    transition: width 0.3s ease;
+}
+
+.nice_a_tag:hover {
+    color: var(--primary-hover);
+}
+
+.nice_a_tag:hover::after {
+    width: 100%;
+}
+
+.nice_a_tag:focus {
+    outline: none;
+    color: var(--primary-hover);
+}
+
+.nice_a_tag:focus::after {
+    width: 100%;
+}
