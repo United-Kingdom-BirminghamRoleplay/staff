@@ -1972,3 +1972,101 @@ html {
 .nice_a_tag:focus::after {
     width: 100%;
 }
+
+.roblox-search-disabled {
+    background-color: #ffe3e3; /* soft pastel pink background */
+    border: 2px solid #ff6b6b; /* gentle red accent */
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin: 20px 0;
+    color: #333;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    box-shadow: 0 6px 12px rgba(255, 107, 107, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.roblox-search-disabled:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 107, 0.25);
+}
+
+.disabled-section-description {
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.melonly-link {
+    color: #ff6b6b;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.melonly-link:hover {
+    color: #ff8787;
+    transform: translateX(2px);
+    text-decoration: underline;
+}
+
+.google-icon {
+    color: #4285F4;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.google-icon:hover {
+    transform: scale(1.1);
+}
+
+.disabled-search-container {
+    opacity: 0.7;
+    pointer-events: none;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.disabled-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.disabled-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #ff6b6b;
+    border-radius: 12px;
+    background-color: #ffdada; /* light pastel red input */
+    color: #555;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.disabled-input::placeholder {
+    color: #d96b6b;
+    font-style: italic;
+}
+
+.disabled-btn {
+    padding: 12px 20px;
+    border: 2px solid #ff6b6b;
+    border-radius: 12px;
+    background-color: #ffcaca; /* pastel red button */
+    color: #333;
+    font-weight: 600;
+    cursor: not-allowed;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.disabled-btn:hover {
+    background-color: #ffd5d5;
+    transform: none;
+}
