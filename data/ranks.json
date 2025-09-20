@@ -17,7 +17,7 @@
     {
       "rank": "Advisory Board",
       "icon": "chess-king",
-      "responsibilities": "Advises of individual staff segments",
+      "responsibilities": "Advises of indevidual staff segments",
       "minHours": 1,
       "level": 7
     }
@@ -26,7 +26,7 @@
     {
       "rank": "Oversight & Enforcement",
       "icon": "eye",
-      "responsibilities": "Overseeing and Handling Staff Reports",
+      "responsibilities": "Overseeing and Handleing Staff Reports",
       "minHours": 1,
       "level": 6
     },
@@ -34,7 +34,7 @@
       "rank": "Human Resources",
       "icon": "users-cog",
       "responsibilities": "Dealing and assisting with server queries",
-      "minHours": 2,
+      "minHours": 3,
       "level": 5
     }
   ],
@@ -43,14 +43,14 @@
       "rank": "Administration",
       "icon": "cog",
       "responsibilities": "Server administration, advanced moderation, system management",
-      "minHours": 3,
+      "minHours": 4,
       "level": 4
     },
     {
       "rank": "Moderation",
       "icon": "shield",
       "responsibilities": "Active moderation, rule enforcement, player management",
-      "minHours": 3,
+      "minHours": 4,
       "level": 3
     }
   ]

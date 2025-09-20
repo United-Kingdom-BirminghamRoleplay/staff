@@ -70,5 +70,28 @@
     {
       "command": "🚒 Intrested in fighting the wild fire of Birmingham? Join our Firebrigade team today! Communications Code: UKBRUM"
     }
-  ]
+  ],
+    "halloween_messages": [
+      {
+        "command": ":m OFFICIAL ANNOUNCEMENT: The UKBRUM Halloween 2025 event is officially in the works! More specific dates and terrifying details are out now! Make sure you're in our Communications so you don't miss the events. Code: UKBRUM 🗓️"
+      },
+      {
+        "command": ":m EVENT ANNOUNCEMENT: Preparations for the UKBRUM Halloween event have begun. All members interested in participating or helping to organise should join the main Communications server for details. Code: UKBRUM 🎃"
+      },
+      {
+        "command": ":h Welcome to UKBRUM - We are soon doing a Spooky event! 🎃 Join our Communications to get involved. Code: UKBRUM"
+      },
+      {
+        "command": ":h Something spooky is brewing at UKBRUM... 👻 Our Halloween event is creeping closer! Wish to get involved? Join our Communications. Don't be left in the dark! Code: UKBRUM 🎃"
+      },
+      {
+        "command": ":h Get ready for a scare! 🎃 UKBRUM is hosting a spooky event very soon. Join our Communications now to take part! Code: UKBRUM 🦇"
+      },
+      {
+        "command": ":h Welcome to UKBRUM! 🕸️ We're getting into the spirit with a spooky event just around the corner. We'd love for you to get involved—join our Communications to find out more! Code: UKBRUM 👻"
+      },
+      {
+        "command": ":h Look alive! (Or undead...) 🧟 UKBRUM's spooky event is coming soon and you won't want to miss it. Get all the info and participate by joining our Communications! Code: UKBRUM 🎃 "
+      }
+    ]
 }

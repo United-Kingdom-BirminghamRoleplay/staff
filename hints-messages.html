@@ -45,6 +45,10 @@
                     <h3><i class="fas fa-envelope"></i> ADVERTISEMENT MESSAGES COMMANDS</h3>
                     <div id="advMessagesContainer"></div>
                 </div>
+                <div class="command-category">
+                    <h3><i class="fa-solid fa-ghost"></i>HALLOWEEN MESSAGE COMMANDS</h3>
+                    <div id="halloweenMessagesContainer"></div>
+                </div>
             </div>
         </section>
     </main>
@@ -62,6 +66,7 @@
                 const rleContainer = document.getElementById('rleContainer');
                 const advHintsContainer = document.getElementById('advHintsContainer');
                 const advMessagesContainer = document.getElementById('advMessagesContainer');
+                const halloweenMessagesContainer = document.getElementById('halloweenMessagesContainer');
                 
                 rleContainer.innerHTML = data.rle_commands.map(cmd => `
                     <div class="command-item">
@@ -90,6 +95,17 @@
                         <div class="command-text">
                             <code>${message.command}</code>
                             <button onclick="copyToClipboard(\`${message.command}\`)" class="copy-btn">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                                
+                halloweenMessagesContainer.innerHTML = data.halloween_messages.map(cmd => `
+                    <div class="command-item">
+                        <div class="command-text">
+                            <code>${cmd.command}</code>
+                            <button onclick="copyToClipboard(\`${cmd.command}\`)" class="copy-btn">
                                 <i class="fas fa-copy"></i>
                             </button>
                         </div>
