@@ -17,7 +17,7 @@
     {
       "rank": "Advisory Board",
       "icon": "chess-king",
-      "responsibilities": "Advises of indevidual staff segments",
+      "responsibilities": "Advises of individual staff segments",
       "minHours": 1,
       "level": 7
     }
@@ -26,7 +26,7 @@
     {
       "rank": "Oversight & Enforcement",
       "icon": "eye",
-      "responsibilities": "Overseeing and Handleing Staff Reports",
+      "responsibilities": "Overseeing and Handling Staff Reports",
       "minHours": 1,
       "level": 6
     },
