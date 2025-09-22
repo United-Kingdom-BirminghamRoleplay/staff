@@ -216,7 +216,7 @@ class AuthSystem {
 
         // Show management+ content
         // if (level >= 5) {
-        //     this.showManagementContent();
+            // this.showManagementContent();
         // }
 
         // Show executive content
@@ -259,7 +259,8 @@ class AuthSystem {
         const managementSection = document.createElement('section');
         managementSection.className = 'management-section guidelines-section';
         managementSection.innerHTML = `
-            <h2><i class="fas fa-ticket-alt"></i> Management Tools</h2>
+            <br>
+            <h2><i class="fas fa-ticket-alt"></i> </h2>
             <div class="card-grid">
                 <div class="card">
                     <i class="fas fa-ticket-alt card-icon"></i>

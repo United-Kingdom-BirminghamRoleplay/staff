@@ -2099,7 +2099,7 @@ html {
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--primary-color);
+    border: 3px solid #f7931e;
     margin: 0 auto;
     display: block;
 }
@@ -2120,19 +2120,20 @@ html {
     color: white;
     text-transform: uppercase;
     letter-spacing: 1px;
-    box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
     position: relative;
     z-index: 3;
     backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(167, 23, 211, 0.2);
     transition: all 0.3s ease;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     white-space: nowrap;
     display: inline-block;
     min-width: 120px;
     text-align: center;
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    box-shadow: 
+        0 8px 25px rgba(255, 107, 53, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .role-badge:hover {
@@ -2147,4 +2148,14 @@ html {
     box-shadow: 
         0 8px 25px rgba(255, 107, 53, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.staff-avatar.developer img{
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    margin: 0 auto;
+    display: block;
 }
