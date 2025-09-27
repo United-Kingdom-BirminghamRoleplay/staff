@@ -34,7 +34,7 @@
       "rank": "Human Resources",
       "icon": "users-cog",
       "responsibilities": "Dealing and assisting with server queries",
-      "minHours": 3,
+      "minHours": 1,
       "level": 5
     }
   ],
@@ -43,14 +43,14 @@
       "rank": "Administration",
       "icon": "cog",
       "responsibilities": "Server administration, advanced moderation, system management",
-      "minHours": 4,
+      "minHours": 3,
       "level": 4
     },
     {
       "rank": "Moderation",
       "icon": "shield",
       "responsibilities": "Active moderation, rule enforcement, player management",
-      "minHours": 4,
+      "minHours": 3,
       "level": 3
     }
   ]
