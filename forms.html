@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Management - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="ranks.html" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Rank Structure</span>
+            </a></li>
+            <li><a href="melonlysystem.html" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Melonly System</span>
+            </a></li>
+            <li><a href="resources.html" class="nav-link">
+                <i class="fas fa-tools"></i>
+                <span>Resources</span>
+            </a></li>
+            <li><a href="forms.html" class="nav-link active">
+                <i class="fas fa-file-alt"></i>
+                <span>Forms</span>
+            </a></li>
+        </ul>
+        <div class="sidebar-logout">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="logout-text">Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section class="top-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="siteSearch" placeholder="Search site content..." class="search-input" autocomplete="off">
+                    <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+        
+        <section class="greeting-section">
+            <h1 class="greeting-text">Form Management</h1>
+            <p class="greeting-subtitle">Create and manage staff announcements and custom forms for the organization.</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-file-alt"></i> Available Forms</h2>
+            <div class="forms-grid" id="formsGrid">
+                <div class="form-card" onclick="openFormBuilder()">
+                    <h4>Form Builder</h4>
+                    <p>Create custom forms for staff use (Senior Management only)</p>
+                    <button class="btn-glass">Build Form</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Staff Sharepoint. All rights reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function logout() {
+            if (window.authSystem) {
+                window.authSystem.logout();
+            } else {
+                localStorage.removeItem('ukbrum_auth');
+                location.reload();
+            }
+        }
+        
+        function siteSearch() {
+            const query = document.getElementById('siteSearch').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li');
+            const matches = [];
+            
+            searchableElements.forEach(el => {
+                if (el.textContent.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: el.textContent.substring(0, 100) + '...',
+                        element: el
+                    });
+                }
+            });
+            
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(match => `
+                    <div class="search-result">
+                        <p>${match.text}</p>
+                    </div>
+                `).join('');
+            } else {
+                results.innerHTML = '<div class="no-results">No results found</div>';
+            }
+        }
+        
+
+        
+        function openFormBuilder() {
+            const authData = localStorage.getItem('ukbrum_auth');
+            if (!authData) {
+                alert('Please log in first.');
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(authData);
+                if (user.rank !== 'senior_management') {
+                    alert('Access denied. Only Senior Management can create forms.');
+                    return;
+                }
+            } catch (e) {
+                alert('Authentication error. Please log in again.');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content form-builder">
+                    <h3>Form Builder</h3>
+                    <div class="form-builder-content">
+                        <input type="text" id="formName" placeholder="Form Name" required>
+                        <div id="formFields">
+                            <div class="field-item">
+                                <input type="text" placeholder="Field Label" class="field-label">
+                                <select class="field-type">
+                                    <option value="text">Text Input</option>
+                                    <option value="textarea">Text Area</option>
+                                    <option value="select">Dropdown</option>
+                                    <option value="checkbox">Checkbox</option>
+                                </select>
+                                <button type="button" onclick="removeField(this)">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addField()">Add Field</button>
+                        <div class="form-actions">
+                            <button type="button" onclick="saveForm()">Save Form</button>
+                            <button type="button" onclick="this.closest('.form-modal').remove()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function addField() {
+            const container = document.getElementById('formFields');
+            const fieldItem = document.createElement('div');
+            fieldItem.className = 'field-item';
+            fieldItem.innerHTML = `
+                <input type="text" placeholder="Field Label" class="field-label">
+                <select class="field-type">
+                    <option value="text">Text Input</option>
+                    <option value="textarea">Text Area</option>
+                    <option value="select">Dropdown</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+                <button type="button" onclick="removeField(this)">Remove</button>
+            `;
+            container.appendChild(fieldItem);
+        }
+        
+        function removeField(btn) {
+            btn.parentElement.remove();
+        }
+        
+        function saveForm() {
+            const formName = document.getElementById('formName').value;
+            const fields = [];
+            
+            document.querySelectorAll('.field-item').forEach(item => {
+                const label = item.querySelector('.field-label').value;
+                const type = item.querySelector('.field-type').value;
+                if (label) {
+                    fields.push({ label, type });
+                }
+            });
+            
+            if (formName && fields.length > 0) {
+                // Add to forms grid
+                const formsGrid = document.getElementById('formsGrid');
+                const newFormCard = document.createElement('div');
+                newFormCard.className = 'form-card';
+                newFormCard.innerHTML = `
+                    <h4>${formName}</h4>
+                    <p>Custom form with ${fields.length} fields</p>
+                    <button class="btn-glass" onclick="openCustomForm('${formName}')">Open Form</button>
+                `;
+                formsGrid.appendChild(newFormCard);
+                
+                document.querySelector('.form-modal').remove();
+                alert('Form created successfully!');
+            } else {
+                alert('Please fill in form name and add at least one field.');
+            }
+        }
+        
+        function openCustomForm(formName) {
+            alert(`Opening custom form: ${formName}`);
+        }
+        
+        // Add search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('siteSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', siteSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        siteSearch();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

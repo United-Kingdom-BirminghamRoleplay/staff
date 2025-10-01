@@ -19,25 +19,77 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Staff Sharepoint</h1>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="ranks.html" class="nav-link">Rank Structure</a></li>
-                <li><a href="melonlysystem.html" class="nav-link">Melonly System</a></li>
-                <li><a href="resources.html" class="nav-link">Resources</a></li>
-            </ul>
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="index.html" class="nav-link active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="ranks.html" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Rank Structure</span>
+            </a></li>
+            <li><a href="melonlysystem.html" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Melonly System</span>
+            </a></li>
+            <li><a href="resources.html" class="nav-link">
+                <i class="fas fa-tools"></i>
+                <span>Resources</span>
+            </a></li>
+            <li><a href="forms.html" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Forms</span>
+            </a></li>
+        </ul>
+        <div class="sidebar-logout">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="logout-text">Logout</span>
+            </button>
         </div>
     </nav>
 
     <main class="main-content">
-        <section class="hero">
-            <h1>Staff Sharepoint</h1>
-            <p>You are now viewing our Staff Sharepoint. Please ensure you are not screensharing or showing this panel to anyone outside of our team. Leaking this Sharepoint is strictly prohibited.</p>
-            <div id="rankWelcome" class="rank-welcome" style="display: none;">
-                <h3 id="welcomeMessage"></h3>
-                <p id="rankDescription"></p>
+        <section class="top-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="siteSearch" placeholder="Search Sharepoint Content..." class="search-input" autocomplete="off">
+                    <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+        
+        <section class="greeting-section">
+            <h1 id="dynamicGreeting" class="greeting-text">Good Afternoon</h1>
+            <div class="quick-access-grid">
+                <div class="quick-box" onclick="window.location.href='#announcements'">
+                    <i class="fas fa-bullhorn"></i>
+                    <h4>Announcements</h4>
+                    <p>Recent notices</p>
+                </div>
+                <div class="quick-box" onclick="window.location.href='ranks.html'">
+                    <i class="fas fa-users"></i>
+                    <h4>Staff Ranks</h4>
+                    <p>View hierarchy</p>
+                </div>
+                <div class="quick-box" onclick="window.location.href='melonlysystem.html'">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h4>Melonly</h4>
+                    <p>Logging system</p>
+                </div>
+                <div class="quick-box" onclick="window.location.href='resources.html'">
+                    <i class="fas fa-tools"></i>
+                    <h4>Resources</h4>
+                    <p>Staff guides</p>
+                </div>
+                <div class="quick-box" onclick="window.location.href='#contacts'">
+                    <i class="fas fa-address-book"></i>
+                    <h4>Contacts</h4>
+                    <p>High ranking staff</p>
+                </div>
             </div>
         </section>
 
@@ -51,22 +103,27 @@
 
 
                         
-        <section class="roblox-search-disabled">
-            <h2><i class="fas fa-search"></i> Roblox User Search</h2>
-            <p class="disabled-section-description">
-                Due to an issue with the API, the Roblox Search Feature is currently unavailable. Please refer to 
-                <a href="https://melonly.xyz/panel/7301696251932708864" target="_blank" class="melonly-link">Melonly</a> to search for users.
-            </p>
-            <div class="disabled-search-container">
-                <div class="disabled-input-wrapper">
-                    <input type="text" placeholder="Search disabled..." class="disabled-input" autocomplete="off" disabled>
-                    <span class="disabled-shortcut">Ctrl+K</span>
-                </div>
-                <button class="disabled-btn" disabled><i class="fas fa-search"></i> Search</button>
+
+        
+        <section class="info-grid">
+            <div class="info-box" onclick="window.location.href='ranks.html'">
+                <i class="fas fa-users info-box-icon"></i>
+                <h3>Rank Structure</h3>
+                <p>View staff hierarchy and responsibilities</p>
+            </div>
+            <div class="info-box" onclick="window.location.href='melonlysystem.html'">
+                <i class="fas fa-clipboard-list info-box-icon"></i>
+                <h3>Melonly System</h3>
+                <p>Access external logging system for violations</p>
+            </div>
+            <div class="info-box" onclick="window.location.href='resources.html'">
+                <i class="fas fa-tools info-box-icon"></i>
+                <h3>Resources</h3>
+                <p>Staff guides, commands, and helpful tools</p>
             </div>
         </section>
         
-        <section class="announcements">
+        <section id="contacts" class="announcements">
             <h2><i class="fa-solid fa-address-book"></i>High Ranking Leaders Contact</h2>
             <p>These are all the contacts you will mainly need when being a High Ranking. If you have any issues regarding sessions, please contact your advisor as we do not have an team lead for sessions.</p>
             <br>
@@ -95,7 +152,7 @@
                             <div class="role-badge">Human Resources Advisor</div>
                         </div>
                         <div class="staff-info">
-                            <h3>Bobmanjeff</h3>
+                            <h3>Bobman</h3>
                         </div>
                     </div>
                     <div class="staff-card">
@@ -122,7 +179,7 @@
                             <div class="role-badge">Head of Training</div>
                         </div>
                         <div class="staff-info">
-                            <h3>Active.karam</h3>
+                            <h3>act1v.bov</h3>
                         </div>
                     </div>
             </div>
@@ -156,11 +213,13 @@
                                 <div class="role-badge developer">Website Administrator</div>
                             </div>
                             <div class="staff-info">
-                                <h3>Active.karam</h3>
+                                <h3>act1v.bov</h3>
                             </div>
                         </div>
                     </div>
         </section>
+
+
 
     </main>
 
@@ -173,43 +232,332 @@
     <script src="js/roblox-search.js"></script>
     <script>
         async function loadAnnouncements() {
+            const container = document.getElementById('announcementsContainer');
+            let announcements = [];
+            
+            // Check localStorage first
             try {
-                const response = await fetch('./data/announcements.json');
-                const data = await response.json();
-                const container = document.getElementById('announcementsContainer');
-                
-                // Check if announcements are empty
-                const hasValidAnnouncements = data.announcements.some(announcement => 
-                    announcement.title && announcement.content && announcement.date && announcement.icon
-                );
-                
-                if (!hasValidAnnouncements) {
-                    container.innerHTML = `
-                        <div class="announcement">
-                            <i class="fas fa-info-circle announcement-icon"></i>
-                            <div class="announcement-content">
-                                <h4>There are no current notices</h4>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = data.announcements.map(announcement => `
-                        <div class="announcement">
-                            <i class="fas fa-${announcement.icon} announcement-icon"></i>
-                            <div class="announcement-content">
-                                <h4>${announcement.title}</h4>
-                                <p>${announcement.content}</p>
-                                <span class="date">Posted: ${announcement.date}</span>
-                            </div>
-                        </div>
-                    `).join('');
+                const stored = localStorage.getItem('announcements');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    announcements = data.announcements || [];
                 }
-            } catch (error) {
-                console.error('Error loading announcements:', error);
+            } catch (e) {
+                console.log('No stored announcements');
+            }
+            
+            // If no stored announcements, try to load from file
+            if (announcements.length === 0) {
+                try {
+                    const response = await fetch('./data/announcements.json');
+                    const data = await response.json();
+                    announcements = data.announcements || [];
+                } catch (error) {
+                    console.error('Error loading announcements:', error);
+                }
+            }
+            
+            // Display announcements
+            if (announcements.length === 0) {
+                container.innerHTML = `
+                    <div class="announcement">
+                        <i class="fas fa-info-circle announcement-icon"></i>
+                        <div class="announcement-content">
+                            <h4>There are no current notices</h4>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = announcements.map(announcement => `
+                    <div class="announcement">
+                        <i class="fas fa-${announcement.icon} announcement-icon"></i>
+                        <div class="announcement-content">
+                            <h4>${announcement.title}</h4>
+                            <p>${announcement.content}</p>
+                            <span class="date">Posted: ${announcement.date}</span>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
         
-        document.addEventListener('DOMContentLoaded', loadAnnouncements);
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = 'Good evening';
+            
+            if (hour >= 5 && hour < 12) greeting = 'Good Morning';
+            else if (hour >= 12 && hour < 18) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            
+            const greetingEl = document.getElementById('dynamicGreeting');
+            const authData = localStorage.getItem('ukbrum_auth');
+            
+            if (authData) {
+                try {
+                    const user = JSON.parse(authData);
+                    const rankTitles = {
+                        'founder': 'act1v.bov',
+                        'senior_management': 'Senior Leadership Member',
+                        'management': 'Management Member',
+                        'staff': 'Staff Member'
+                    };
+                    const rank = rankTitles[user.rank] || 'Staff Member';
+                    greetingEl.innerHTML = `<span style="font-size: 0.6em; color: #9ca3af; font-weight: 400; display: block; margin-bottom: 2px;">${greeting},</span><span style="font-size: 1.2em; font-weight: 800;">${rank},</span><br><span style="font-size: 0.6em; opacity: 0.7; margin-top: 10px; display: block;">Welcome back</span>`;
+                } catch (e) {
+                    greetingEl.textContent = greeting;
+                }
+            } else {
+                greetingEl.textContent = greeting;
+            }
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('expanded');
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAnnouncements();
+            updateGreeting();
+            setInterval(updateGreeting, 60000);
+        });
+        
+        // Update greeting when user logs in
+        document.addEventListener('userLoggedIn', updateGreeting);
+        
+        function siteSearch() {
+            const query = document.getElementById('siteSearch').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li');
+            const matches = [];
+            
+            searchableElements.forEach(el => {
+                if (el.textContent.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: el.textContent.substring(0, 100) + '...',
+                        element: el
+                    });
+                }
+            });
+            
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(match => `
+                    <div class="search-result" onclick="scrollToElement(this)">
+                        <p>${match.text}</p>
+                    </div>
+                `).join('');
+            } else {
+                results.innerHTML = '<div class="no-results">No results found</div>';
+            }
+        }
+        
+        function openAnnouncementForm() {
+            const authData = localStorage.getItem('ukbrum_auth');
+            if (!authData) {
+                alert('Please log in first.');
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(authData);
+                if (user.rank !== 'senior_management') {
+                    alert('Access denied. Only Senior Management can create announcements.');
+                    return;
+                }
+            } catch (e) {
+                alert('Authentication error. Please log in again.');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3>Create Staff Announcement</h3>
+                    <form id="announcementForm" onsubmit="saveAnnouncement(event)">
+                        <input type="text" id="announcementTitle" placeholder="Announcement Title" required>
+                        <textarea id="announcementContent" placeholder="Announcement Content" required></textarea>
+                        <select id="announcementIcon">
+                            <option value="bullhorn">Bullhorn</option>
+                            <option value="info-circle">Info</option>
+                            <option value="exclamation-triangle">Warning</option>
+                        </select>
+                        <button type="submit">Create Announcement</button>
+                        <button type="button" onclick="this.closest('.form-modal').remove()">Cancel</button>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function saveAnnouncement(event) {
+            event.preventDefault();
+            const title = document.getElementById('announcementTitle').value;
+            const content = document.getElementById('announcementContent').value;
+            const icon = document.getElementById('announcementIcon').value;
+            const date = new Date().toLocaleDateString();
+            
+            const newAnnouncement = {
+                title: title,
+                content: content,
+                icon: icon,
+                date: date
+            };
+            
+            // Save to localStorage
+            let announcements = [];
+            try {
+                const stored = localStorage.getItem('announcements');
+                if (stored) {
+                    announcements = JSON.parse(stored).announcements || [];
+                }
+            } catch (e) {
+                announcements = [];
+            }
+            
+            announcements.unshift(newAnnouncement);
+            localStorage.setItem('announcements', JSON.stringify({ announcements }));
+            
+            // Add to page immediately
+            const container = document.getElementById('announcementsContainer');
+            const announcementEl = document.createElement('div');
+            announcementEl.className = 'announcement';
+            announcementEl.innerHTML = `
+                <i class="fas fa-${icon} announcement-icon"></i>
+                <div class="announcement-content">
+                    <h4>${title}</h4>
+                    <p>${content}</p>
+                    <span class="date">Posted: ${date}</span>
+                </div>
+            `;
+            container.insertBefore(announcementEl, container.firstChild);
+            
+            document.querySelector('.form-modal').remove();
+            alert('Announcement created successfully!\n\nNote: This saves to browser storage only. In production, this would save to the server.');
+        }
+        
+        function openFormBuilder() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content form-builder">
+                    <h3>Form Builder</h3>
+                    <div class="form-builder-content">
+                        <input type="text" id="formName" placeholder="Form Name" required>
+                        <div id="formFields">
+                            <div class="field-item">
+                                <input type="text" placeholder="Field Label" class="field-label">
+                                <select class="field-type">
+                                    <option value="text">Text Input</option>
+                                    <option value="textarea">Text Area</option>
+                                    <option value="select">Dropdown</option>
+                                    <option value="checkbox">Checkbox</option>
+                                </select>
+                                <button type="button" onclick="removeField(this)">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" onclick="addField()">Add Field</button>
+                        <div class="form-actions">
+                            <button type="button" onclick="saveForm()">Save Form</button>
+                            <button type="button" onclick="this.closest('.form-modal').remove()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function addField() {
+            const container = document.getElementById('formFields');
+            const fieldItem = document.createElement('div');
+            fieldItem.className = 'field-item';
+            fieldItem.innerHTML = `
+                <input type="text" placeholder="Field Label" class="field-label">
+                <select class="field-type">
+                    <option value="text">Text Input</option>
+                    <option value="textarea">Text Area</option>
+                    <option value="select">Dropdown</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+                <button type="button" onclick="removeField(this)">Remove</button>
+            `;
+            container.appendChild(fieldItem);
+        }
+        
+        function removeField(btn) {
+            btn.parentElement.remove();
+        }
+        
+        function saveForm() {
+            const formName = document.getElementById('formName').value;
+            const fields = [];
+            
+            document.querySelectorAll('.field-item').forEach(item => {
+                const label = item.querySelector('.field-label').value;
+                const type = item.querySelector('.field-type').value;
+                if (label) {
+                    fields.push({ label, type });
+                }
+            });
+            
+            if (formName && fields.length > 0) {
+                // Create form data
+                const formData = {
+                    name: formName,
+                    fields: fields,
+                    created: new Date().toISOString()
+                };
+                
+                // Add to forms section
+                const formsGrid = document.querySelector('.forms-grid');
+                const newFormCard = document.createElement('div');
+                newFormCard.className = 'form-card';
+                newFormCard.innerHTML = `
+                    <h4>${formName}</h4>
+                    <p>Custom form with ${fields.length} fields</p>
+                    <button class="btn-glass" onclick="openCustomForm('${formName}')">Open Form</button>
+                `;
+                formsGrid.appendChild(newFormCard);
+                
+                document.querySelector('.form-modal').remove();
+                alert('Form created successfully!');
+            } else {
+                alert('Please fill in form name and add at least one field.');
+            }
+        }
+        
+        function logout() {
+            if (window.authSystem) {
+                window.authSystem.logout();
+            } else {
+                localStorage.removeItem('ukbrum_auth');
+                location.reload();
+            }
+        }
+        
+        function openCustomForm(formName) {
+            alert(`Opening custom form: ${formName}`);
+        }
+        
+        // Add search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('siteSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', siteSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        siteSearch();
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

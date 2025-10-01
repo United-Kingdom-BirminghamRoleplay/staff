@@ -10,24 +10,42 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Staff Sharepoint</h1>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="ranks.html" class="nav-link">Rank Structure</a></li>
-                <li><a href="melonlysystem.html" class="nav-link">Melonly System</a></li>
-                <li><a href="resources.html" class="nav-link">Resources</a></li>
-            </ul>
-        </div>
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="ranks.html" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Rank Structure</span>
+            </a></li>
+            <li><a href="melonlysystem.html" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Melonly System</span>
+            </a></li>
+            <li><a href="resources.html" class="nav-link">
+                <i class="fas fa-tools"></i>
+                <span>Resources</span>
+            </a></li>
+        </ul>
     </nav>
 
     <main class="main-content">
-        <section class="hero">
-            <h1>Hint & Message Commands</h1>
-            <p>When moderating, 25% of your duty is to actively announce hint and message commands. This helps players get reminders of our rules and advertisement of our communications server allowing them to join and start their roleplaying journey with Birmingham Roleplay! It is vital you constantly follow these regulations. </p>
-            <br>
-            <p>If you wish to clear a scene, please say the following using the hint command: Please clear the scene at (place), otherwise you will be loaded! If a player wishes to open a roleplay spot please follow the normal procedures by putting an emoji related to what's opening and then the name and a potential catchphase at the end for example three guys: Want fries? Come to three guys! This engages and encourages people to go to the roleplay spot.</p>
+        <section class="top-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="siteSearch" placeholder="Search site content..." class="search-input" autocomplete="off">
+                    <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+        
+        <section class="greeting-section">
+            <h1 class="greeting-text">Hint & Message Commands</h1>
+            <p class="greeting-subtitle">When moderating, 25% of your duty is to actively announce hint and message commands. This helps players get reminders of our rules and advertisement of our communications server.</p>
         </section>
 
         <section class="guidelines-section">

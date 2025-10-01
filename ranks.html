@@ -19,22 +19,52 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <h1 class="nav-logo">Staff Sharepoint</h1>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="ranks.html" class="nav-link active">Rank Structure</a></li>
-                <li><a href="melonlysystem.html" class="nav-link">Melonly System</a></li>
-                <li><a href="resources.html" class="nav-link">Resources</a></li>
-            </ul>
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-nav">
+            <li><a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a></li>
+            <li><a href="ranks.html" class="nav-link active">
+                <i class="fas fa-users"></i>
+                <span>Rank Structure</span>
+            </a></li>
+            <li><a href="melonlysystem.html" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Melonly System</span>
+            </a></li>
+            <li><a href="resources.html" class="nav-link">
+                <i class="fas fa-tools"></i>
+                <span>Resources</span>
+            </a></li>
+            <li><a href="forms.html" class="nav-link">
+                <i class="fas fa-file-alt"></i>
+                <span>Forms</span>
+            </a></li>
+        </ul>
+        <div class="sidebar-logout">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="logout-text">Logout</span>
+            </button>
         </div>
     </nav>
 
     <main class="main-content">
-        <section class="hero">
-            <h1>Staff Hierarchy</h1>
-            <p>Staff hierarchy at Birmingham Roleplay is the structured ranking system that defines roles, responsibilities, and lines of communication within the team, ensuring efficient management and clear leadership.</p>
+        <section class="top-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="siteSearch" placeholder="Search site content..." class="search-input" autocomplete="off">
+                    <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+        
+        <section class="greeting-section">
+            <h1 class="greeting-text">Staff Hierarchy</h1>
+            <p class="greeting-subtitle">Staff hierarchy at Birmingham Roleplay is the structured ranking system that defines roles, responsibilities, and lines of communication within the team.</p>
         </section>
 
         <div id="ranksContainer">
@@ -106,7 +136,60 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadRanks);
+        function siteSearch() {
+            const query = document.getElementById('siteSearch').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li, td');
+            const matches = [];
+            
+            searchableElements.forEach(el => {
+                if (el.textContent.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: el.textContent.substring(0, 100) + '...',
+                        element: el
+                    });
+                }
+            });
+            
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(match => `
+                    <div class="search-result">
+                        <p>${match.text}</p>
+                    </div>
+                `).join('');
+            } else {
+                results.innerHTML = '<div class="no-results">No results found</div>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRanks();
+            
+            const searchInput = document.getElementById('siteSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', siteSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        siteSearch();
+                    }
+                });
+            }
+        });
+        
+        function logout() {
+            if (window.authSystem) {
+                window.authSystem.logout();
+            } else {
+                localStorage.removeItem('ukbrum_auth');
+                location.reload();
+            }
+        }
     </script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>

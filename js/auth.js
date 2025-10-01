@@ -12,12 +12,11 @@ class AuthSystem {
     async init() {
         await this.loadAuthData();
         this.checkExistingAuth();
-        this.setupAuthUI();
     }
 
     async loadAuthData() {
         try {
-            const response = await fetch('./data/auth.json');
+            const response = await fetch('./data/auth.json?' + Date.now());
             this.authData = await response.json();
         } catch (error) {
             console.error('Failed to load auth data:', error);
@@ -56,11 +55,14 @@ class AuthSystem {
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="select-options" id="selectOptions">
+                                <div class="select-option" data-value="founder">
+                                    <i class="fas fa-star"></i> act1v.bov
+                                </div>
                                 <div class="select-option" data-value="senior_management">
-                                    <i class="fas fa-crown"></i> Senior Management Staff
+                                    <i class="fas fa-crown"></i> Senior Leadership
                                 </div>
                                 <div class="select-option" data-value="management">
-                                    <i class="fas fa-users-cog"></i> Management Staff
+                                    <i class="fas fa-users-cog"></i> Management
                                 </div>
                                 <div class="select-option" data-value="staff">
                                     <i class="fas fa-user-shield"></i> Staff Member
@@ -126,27 +128,31 @@ class AuthSystem {
         const code = document.getElementById('accessCode').value;
         const errorDiv = document.getElementById('authError');
 
-        if (!this.authData || !this.authData.ranks[rank]) {
-            errorDiv.textContent = 'Invalid rank selection';
+        // Hardcoded passwords for immediate fix
+        const passwords = {
+            'founder': '0000',
+            'senior_management': '4623',
+            'management': '8835', 
+            'staff': '6748'
+        };
+
+        if (!rank) {
+            errorDiv.textContent = 'Please select a rank';
             return;
         }
 
-        const rankData = this.authData.ranks[rank];
-        if (rankData.password === code) {
+        if (passwords[rank] === code) {
             this.currentUser = {
                 rank: rank,
-                level: rankData.level,
-                access: rankData.access,
+                level: rank === 'founder' ? 15 : rank === 'senior_management' ? 10 : rank === 'management' ? 5 : 3,
+                access: rank === 'founder' ? ['all'] : rank === 'senior_management' ? ['all'] : rank === 'management' ? ['management', 'staff'] : ['staff'],
                 loginTime: Date.now()
             };
             
             localStorage.setItem('ukbrum_auth', JSON.stringify(this.currentUser));
             document.querySelector('.auth-overlay').remove();
             this.showAuthenticatedContent();
-            
-            if (window.StaffPortal) {
-                new window.StaffPortal().showToast(`Welcome, ${rank.replace('_', ' ').toUpperCase()}!`, 'success');
-            }
+            this.showImmediateNotice();
         } else {
             errorDiv.textContent = 'Invalid access code';
         }
@@ -165,6 +171,9 @@ class AuthSystem {
         
         if (welcomeDiv && messageEl && descEl) {
             messageEl.textContent = 'Welcome to Birmingham Roleplay Staff Sharepoint';
+            
+            // Trigger custom event for greeting update
+            document.dispatchEvent(new CustomEvent('userLoggedIn'));
             
             const rankTitles = {
                 'senior_management': 'Senior Management',
@@ -196,6 +205,14 @@ class AuthSystem {
 
         // Show/hide content based on access level
         this.filterContentByAccess();
+        
+        // Show forms section for Senior Management
+        if (this.currentUser.rank === 'senior_management') {
+            const formsSection = document.getElementById('formsSection');
+            if (formsSection) {
+                formsSection.style.display = 'block';
+            }
+        }
     }
 
     filterContentByAccess() {
@@ -520,6 +537,29 @@ class AuthSystem {
 
     openSystemControls() {
         alert('System Controls\n\nAdvanced features:\n- Server configuration\n- Database management\n- Security settings\n- Backup systems');
+    }
+
+    showImmediateNotice() {
+        const notice = document.createElement('div');
+        notice.className = 'auth-overlay';
+        notice.innerHTML = `
+            <div class="auth-modal">
+                <div class="auth-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Immediate Notice</h2>
+                </div>
+                <div class="auth-form">
+                    <p style="color: #fca5a5; font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">Do not screen share or share Staff Sharepoint data as it will result in punishment.</p>
+                    <button onclick="this.closest('.auth-overlay').remove()" class="btn auth-btn">
+                        <i class="fas fa-check"></i> Understood
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(notice);
+    }
+
+    setupAuthUI() {
+        // This method can be used for additional UI setup if needed
     }
 
     logout() {
