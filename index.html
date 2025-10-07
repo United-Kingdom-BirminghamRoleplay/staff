@@ -19,7 +19,7 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" style="position: fixed; top: 20px; left: 20px; z-index: 10002; background: #dc2626; color: white; border: none; border-radius: 8px; padding: 12px; width: 48px; height: 48px; display: block;">
         <i class="fas fa-bars"></i>
     </button>
     <div class="mobile-overlay" id="mobileOverlay"></div>
@@ -517,23 +517,21 @@
         }
         
         // Mobile menu functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobileOverlay');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('expanded');
+                overlay.classList.toggle('active');
+            });
             
-            if (mobileMenuBtn) {
-                mobileMenuBtn.addEventListener('click', () => {
-                    sidebar.classList.toggle('expanded');
-                    overlay.classList.toggle('active');
-                });
-                
-                overlay.addEventListener('click', () => {
-                    sidebar.classList.remove('expanded');
-                    overlay.classList.remove('active');
-                });
-            }
-        });
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('expanded');
+                overlay.classList.remove('active');
+            });
+        }
         
         function openCustomForm(formName) {
             alert(`Opening custom form: ${formName}`);
