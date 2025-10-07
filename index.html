@@ -19,6 +19,10 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
     <nav class="sidebar" id="sidebar">
         <ul class="sidebar-nav">
             <li><a href="index.html" class="nav-link active">
@@ -511,6 +515,25 @@
                 location.reload();
             }
         }
+        
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('expanded');
+                    overlay.classList.toggle('active');
+                });
+                
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('expanded');
+                    overlay.classList.remove('active');
+                });
+            }
+        });
         
         function openCustomForm(formName) {
             alert(`Opening custom form: ${formName}`);
