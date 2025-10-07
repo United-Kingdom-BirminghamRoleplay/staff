@@ -2388,3 +2388,369 @@ html {
     margin: 0 auto;
     display: block;
 }
+
+/* Timetable Styles */
+.timetable-event {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.timetable-event:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.event-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.event-info i {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.event-info h3 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.event-time {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.next-time {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.time-remaining {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.countdown-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.countdown-progress {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.countdown-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+@media (max-width: 768px) {
+    .event-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .event-time {
+        text-align: left;
+        width: 100%;
+    }
+    
+    .timetable-event {
+        padding: 1.5rem;
+    }
+}
+.countdown-circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.countdown-circle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
+}
+
+.progress-ring-circle {
+    fill: transparent;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+    opacity: 0.9;
+}
+
+.progress-text {
+    position: absolute;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.countdown-circle::before {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: -1;
+}
+.countdown-bar {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.countdown-progress {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    position: relative;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.countdown-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 3s infinite;
+}
+
+.progress-percentage {
+    position: absolute;
+    right: 8px;
+    top: -25px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+/* Final Countdown Animation */
+.timetable-event.countdown-mode {
+    background: radial-gradient(circle at center, rgba(220, 38, 38, 0.15), var(--glass-bg));
+    border: 2px solid rgba(220, 38, 38, 0.5);
+    animation: countdownPulse 2s ease-in-out infinite;
+    transform: scale(1.02);
+}
+
+.final-countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    position: relative;
+}
+
+.countdown-display {
+    font-size: 4rem;
+    font-weight: 900;
+    font-family: 'Inter', monospace;
+    letter-spacing: 0.1em;
+    animation: countdownGlow 1s ease-in-out infinite alternate;
+    position: relative;
+    z-index: 10;
+}
+
+.countdown-separator {
+    animation: blink 1s infinite;
+    margin: 0 0.2em;
+}
+
+.countdown-label {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    margin-top: 1rem;
+    text-transform: uppercase;
+    animation: labelPulse 2s ease-in-out infinite;
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border: 3px solid;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulseRing 2s ease-out infinite;
+}
+
+.pulse-ring-delay {
+    animation-delay: 1s;
+}
+
+@keyframes countdownPulse {
+    0%, 100% { 
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                    0 0 30px rgba(220, 38, 38, 0.3);
+    }
+    50% { 
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+                    0 0 50px rgba(220, 38, 38, 0.6);
+    }
+}
+
+@keyframes countdownGlow {
+    0% { 
+        filter: drop-shadow(0 0 10px currentColor);
+        transform: scale(1);
+    }
+    100% { 
+        filter: drop-shadow(0 0 30px currentColor);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+@keyframes labelPulse {
+    0%, 100% { 
+        opacity: 0.8;
+        transform: translateY(0);
+    }
+    50% { 
+        opacity: 1;
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulseRing {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .countdown-display {
+        font-size: 3rem;
+    }
+    
+    .pulse-ring {
+        width: 150px;
+        height: 150px;
+    }
+}
+/* Toned Down Final Countdown Animation */
+.timetable-event.countdown-mode {
+    background: radial-gradient(circle at center, rgba(220, 38, 38, 0.08), var(--glass-bg));
+    border: 2px solid rgba(220, 38, 38, 0.3);
+    animation: countdownPulse 3s ease-in-out infinite;
+    transform: scale(1.01);
+}
+
+@keyframes countdownPulse {
+    0%, 100% { 
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                    0 0 20px rgba(220, 38, 38, 0.2);
+    }
+    50% { 
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35),
+                    0 0 30px rgba(220, 38, 38, 0.4);
+    }
+}
+
+@keyframes countdownGlow {
+    0% { 
+        filter: drop-shadow(0 0 8px currentColor);
+        transform: scale(1);
+    }
+    100% { 
+        filter: drop-shadow(0 0 20px currentColor);
+        transform: scale(1.02);
+    }
+}
+@keyframes countdownPulse {
+    0% { 
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                    0 0 15px rgba(220, 38, 38, 0.1);
+    }
+    25% { 
+        box-shadow: 0 9px 34px rgba(0, 0, 0, 0.32),
+                    0 0 25px rgba(220, 38, 38, 0.3);
+    }
+    50% { 
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35),
+                    0 0 35px rgba(220, 38, 38, 0.5);
+    }
+    75% { 
+        box-shadow: 0 9px 34px rgba(0, 0, 0, 0.32),
+                    0 0 25px rgba(220, 38, 38, 0.3);
+    }
+    100% { 
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                    0 0 15px rgba(220, 38, 38, 0.1);
+    }
+}

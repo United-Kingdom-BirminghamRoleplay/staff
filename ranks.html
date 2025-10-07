@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rank Structure - UKBRUM Staff</title>
+    <title>Timetable - UKBRUM Staff</title>
     <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,8 +26,8 @@
                 <span>Home</span>
             </a></li>
             <li><a href="ranks.html" class="nav-link active">
-                <i class="fas fa-users"></i>
-                <span>Rank Structure</span>
+                <i class="fas fa-calendar-alt"></i>
+                <span>Timetable</span>
             </a></li>
             <li><a href="melonlysystem.html" class="nav-link">
                 <i class="fas fa-clipboard-list"></i>
@@ -35,7 +35,7 @@
             </a></li>
             <li><a href="resources.html" class="nav-link">
                 <i class="fas fa-tools"></i>
-                <span>Resources</span>
+                <span>Staff Material</span>
             </a></li>
             <li><a href="forms.html" class="nav-link">
                 <i class="fas fa-file-alt"></i>
@@ -63,12 +63,12 @@
         </section>
         
         <section class="greeting-section">
-            <h1 class="greeting-text">Staff Hierarchy</h1>
-            <p class="greeting-subtitle">Staff hierarchy at Birmingham Roleplay is the structured ranking system that defines roles, responsibilities, and lines of communication within the team.</p>
+            <h1 class="greeting-text">Staff Timetable</h1>
+            <p class="greeting-subtitle">View staff schedules, assignments, and availability for Birmingham Roleplay operations.</p>
         </section>
 
-        <div id="ranksContainer">
-            <!-- Ranks will be loaded dynamically -->
+        <div id="timetableContainer">
+            <!-- Timetable events will be loaded dynamically -->
         </div>
     </main>
 
@@ -77,63 +77,104 @@
     </footer>
 
     <script>
-        async function loadRanks() {
-            try {
-                const response = await fetch('./data/ranks.json');
-                const data = await response.json();
-                const container = document.getElementById('ranksContainer');
+        const timetableEvents = [
+            {
+                name: 'Sunday Staff Meeting',
+                day: 0, // Today
+                hour: 19,
+                minute: 0, // 1 minute from now
+                icon: 'users',
+                color: '#dc2626'
+            },
+            {
+                name: 'Quota Reset',
+                day: 5, // Friday
+                hour: 20, // 8PM
+                minute: 0,
+                icon: 'refresh',
+                color: '#f7931e'
+            },
+            {
+                name: 'Staff of the Week Reset',
+                day: 3, // Wednesday
+                hour: 8, // 8AM
+                minute: 0,
+                icon: 'star',
+                color: '#ff6b35'
+            }
+        ];
+
+        function getNextEventTime(event) {
+            const now = new Date();
+            const nextEvent = new Date();
+            
+            // Set to today first
+            nextEvent.setHours(event.hour, event.minute, 0, 0);
+            
+            // If event time has passed today, move to next occurrence
+            if (nextEvent <= now) {
+                nextEvent.setDate(now.getDate() + (event.day + 7 - now.getDay()) % 7);
+                if (nextEvent <= now) {
+                    nextEvent.setDate(nextEvent.getDate() + 7);
+                }
+            }
+            
+            return nextEvent;
+        }
+
+        function formatTimeRemaining(ms) {
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        function loadTimetable() {
+            const container = document.getElementById('timetableContainer');
+            
+            container.innerHTML = timetableEvents.map(event => {
+                const nextTime = getNextEventTime(event);
+                const now = new Date();
+                const timeRemaining = nextTime - now;
+                const totalWeekMs = 7 * 24 * 60 * 60 * 1000;
+                const progressPercent = Math.max(0, Math.min(100, (1 - (timeRemaining / totalWeekMs)) * 100));
+                const minutesLeft = Math.floor(timeRemaining / (1000 * 60));
+                const secondsLeft = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+                const isCountdownMode = minutesLeft <= 2;
                 
-                const sections = [
-                    { key: 'senior_management', title: 'Senior Management', icon: 'crown' },
-                    { key: 'management', title: 'Management', icon: 'users-cog' },
-                    { key: 'staff', title: 'Staff', icon: 'shield' }
-                ];
-
-                sections.forEach(section => {
-                    const sectionDiv = document.createElement('section');
-                    sectionDiv.className = 'guidelines-section';
-                    
-                    sectionDiv.innerHTML = `
-                        <h2><i class="fas fa-${section.icon}"></i> ${section.title}</h2>
-                        <table class="rank-table">
-                            <thead>
-                                <tr>
-                                    <th>Rank</th>
-                                    <th>Responsibilities</th>
-                                    <th>Quota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data[section.key].map(rank => `
-                                    <tr>
-                                        <td><i class="fas fa-${rank.icon}"></i> <strong>${rank.rank}</strong></td>
-                                        <td>${rank.responsibilities}</td>
-                                        <td>${rank.minHours === 0 ? 'No requirement' : rank.minHours + ' hours/week'}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `;
-                    
-                    container.appendChild(sectionDiv);
-                });
-
-                // Add promotion requirements
-                const promoSection = document.createElement('section');
-                promoSection.className = 'guidelines-section';
-                promoSection.innerHTML = `
-                    <h2><i class="fas fa-rocket"></i> Promotion Requirements</h2>
-                    <div class="punishment-level">
-                        <p>To enhance your prospects for promotion, consistently excel in your current responsibilities like constantly coming on to moderate or whatever your tasks may be, proactively seek opportunities for expanded responsibilities. We are always looking at those staff members who want to actually be here. We are not expected to keep you in our team so we suggest you make yourself known and wanting to be in our team.</p>
-
+                return `
+                    <div class="timetable-event ${isCountdownMode ? 'countdown-mode' : ''}" style="border-left: 4px solid ${event.color}">
+                        <div class="event-header">
+                            <div class="event-info">
+                                <i class="fas fa-${event.icon}" style="color: ${event.color}"></i>
+                                <h3>${event.name}</h3>
+                            </div>
+                            <div class="event-time">
+                                <span class="next-time">${nextTime.toLocaleDateString('en-GB')} at ${nextTime.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'})}</span>
+                                <span class="time-remaining">${formatTimeRemaining(timeRemaining)} remaining</span>
+                            </div>
+                        </div>
+                        ${isCountdownMode ? `
+                            <div class="final-countdown">
+                                <div class="countdown-display" style="color: ${event.color}; text-shadow: 0 0 20px ${event.color}">
+                                    <span class="countdown-minutes">${minutesLeft.toString().padStart(2, '0')}</span>
+                                    <span class="countdown-separator">:</span>
+                                    <span class="countdown-seconds">${secondsLeft.toString().padStart(2, '0')}</span>
+                                </div>
+                                <div class="countdown-label" style="color: ${event.color}">${event.name.includes('Meeting') ? 'MEETING STARTING' : event.name.includes('Reset') ? 'RESETTING' : 'STARTING SOON'}</div>
+                            </div>
+                        ` : `
+                            <div class="countdown-bar">
+                                <div class="countdown-progress" style="width: ${progressPercent}%; background: linear-gradient(90deg, ${event.color}, ${event.color}aa);"></div>
+                                <div class="progress-percentage" style="color: ${event.color}">${Math.round(progressPercent)}%</div>
+                            </div>
+                        `}
                     </div>
                 `;
-                container.appendChild(promoSection);
-
-            } catch (error) {
-                console.error('Error loading ranks:', error);
-                document.getElementById('ranksContainer').innerHTML = '<p>Error loading rank data</p>';
-            }
+            }).join('');
         }
 
         function siteSearch() {
@@ -169,7 +210,8 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            loadRanks();
+            loadTimetable();
+            setInterval(loadTimetable, 1000); // Update every second for countdown
             
             const searchInput = document.getElementById('siteSearch');
             if (searchInput) {
