@@ -464,53 +464,33 @@
             const container = document.getElementById('existingForms');
             
             try {
-                console.log('=== LOADING FORMS DEBUG ===');
                 const forms = await formSystem.loadForms();
-                console.log('Forms type:', typeof forms);
-                console.log('Forms is array:', Array.isArray(forms));
-                console.log('Forms length:', forms ? forms.length : 'null/undefined');
-                console.log('Forms content:', forms);
                 
-                if (!Array.isArray(forms)) {
-                    console.error('Forms is not an array:', forms);
-                    container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Data format error - not an array</p>';
-                    return;
-                }
-                
-                if (forms.length === 0) {
-                    console.log('No forms found');
+                if (!forms || forms.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
                     return;
                 }
                 
-                console.log('Processing', forms.length, 'forms');
                 const canViewPin = formSystem.canViewPin();
                 
-                const html = forms.map((form, index) => {
-                    console.log(`Form ${index}:`, form);
-                    return `
-                        <div class="form-card">
-                            <h4>${form.title || 'Untitled Form'}</h4>
-                            <p>${form.description || 'No description'}</p>
-                            <p><small>Created: ${form.created ? new Date(form.created).toLocaleDateString() : 'Unknown'}</small></p>
-                            <p><small>Questions: ${form.fields ? form.fields.length : 0}</small></p>
-                            ${canViewPin ? `<p><small>PIN: ${form.pin || 'N/A'}</small></p>` : ''}
-                            <div class="form-actions">
-                                <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
-                                <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
-                                <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
-                            </div>
+                container.innerHTML = forms.map(form => `
+                    <div class="form-card">
+                        <h4>${form.title}</h4>
+                        <p>${form.description || 'No description'}</p>
+                        <p><small>Created: ${new Date(form.created).toLocaleDateString()}</small></p>
+                        <p><small>Questions: ${form.fields.length}</small></p>
+                        ${canViewPin ? `<p><small>PIN: ${form.pin}</small></p>` : ''}
+                        <div class="form-actions">
+                            <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
+                            <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
+                            <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
                         </div>
-                    `;
-                }).join('');
-                
-                console.log('Generated HTML length:', html.length);
-                container.innerHTML = html;
-                console.log('=== FORMS LOADED SUCCESSFULLY ===');
+                    </div>
+                `).join('');
                 
             } catch (error) {
-                console.error('Error in loadForms:', error);
-                container.innerHTML = `<p style="text-align: center; color: #ff6b35;">Error: ${error.message}</p>`;
+                console.error('Error loading forms:', error);
+                container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Error loading forms</p>';
             }
         }
         

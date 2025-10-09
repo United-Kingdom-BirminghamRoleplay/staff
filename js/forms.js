@@ -1,32 +1,21 @@
 class FormSystem {
     constructor() {
         this.forms = [];
-        this.announcements = [];
         this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
-        this.ANNOUNCEMENT_WEBHOOK = 'https://discord.com/api/webhooks/1425527865281085501/MlLK4__Ztp6tFDhER5S-Wa-HRo_es8jpgvT69VsfAbeCIicVVrtC-XZxXNX0t37Qts6I';
     }
     
     async loadForms() {
         try {
             const response = await fetch('./api/load.php?type=forms');
-            console.log('Load response status:', response.status);
-            
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                throw new Error(`HTTP ${response.status}`);
             }
             
-            const text = await response.text();
-            console.log('Raw response:', text);
-            
-            const data = JSON.parse(text);
-            console.log('Parsed data:', data);
-            
-            // Ensure we always return an array
+            const data = await response.json();
             this.forms = Array.isArray(data) ? data : [];
-            console.log('Final forms array:', this.forms);
             return this.forms;
         } catch (error) {
-            console.error('Error loading forms:', error);
+            console.error('Load error:', error);
             this.forms = [];
             return [];
         }
@@ -41,8 +30,6 @@ class FormSystem {
             responses: []
         };
         
-        console.log('Creating form:', form);
-        
         try {
             const response = await fetch('./api/save.php', {
                 method: 'POST',
@@ -50,18 +37,19 @@ class FormSystem {
                 body: JSON.stringify({ type: 'forms', form })
             });
             
-            console.log('Save response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
             
-            const text = await response.text();
-            console.log('Save response text:', text);
-            
-            const result = JSON.parse(text);
-            if (!result.success) throw new Error(result.error);
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.error || 'Save failed');
+            }
             
             form.id = result.id;
             return form;
         } catch (error) {
-            console.error('Error creating form:', error);
+            console.error('Create error:', error);
             throw error;
         }
     }
@@ -71,31 +59,34 @@ class FormSystem {
     }
 
     async createAnnouncement(title, content) {
-        const announcement = { title, content };
-        
         try {
             const response = await fetch('./api/save.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'announcements', announcement })
+                body: JSON.stringify({ type: 'announcements', announcement: { title, content } })
             });
             
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
             const result = await response.json();
-            if (!result.success) throw new Error(result.error);
+            if (!result.success) {
+                throw new Error(result.error || 'Save failed');
+            }
             
             this.sendToDiscord({
                 embeds: [{
                     title: '📢 New Announcement',
                     description: `**${title}**\n\n${content}`,
                     color: 0xff6b35,
-                    timestamp: new Date().toISOString(),
-                    footer: { text: 'UK Birmingham Staff Portal' }
+                    timestamp: new Date().toISOString()
                 }]
             });
             
-            return announcement;
+            return { title, content };
         } catch (error) {
-            console.error('Error creating announcement:', error);
+            console.error('Announcement error:', error);
             throw error;
         }
     }
@@ -110,14 +101,13 @@ class FormSystem {
     submitReport(data) {
         this.sendToDiscord({
             embeds: [{
-                title: '🚨 General Report Submitted',
+                title: '🚨 General Report',
                 color: 0xff0000,
                 fields: [
-                    { name: 'Report Type', value: data.reportType, inline: true },
-                    { name: 'Roblox Username', value: data.robloxUsername, inline: true },
-                    { name: 'Discord Username', value: data.discordUsername, inline: true },
-                    { name: 'Description', value: data.description, inline: false },
-                    { name: 'Evidence', value: data.evidence || 'None provided', inline: true }
+                    { name: 'Type', value: data.reportType, inline: true },
+                    { name: 'Roblox', value: data.robloxUsername, inline: true },
+                    { name: 'Discord', value: data.discordUsername, inline: true },
+                    { name: 'Description', value: data.description.substring(0, 500), inline: false }
                 ],
                 timestamp: new Date().toISOString()
             }]
@@ -129,7 +119,7 @@ class FormSystem {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).catch(console.error);
+        }).catch(() => {});
     }
 }
 
