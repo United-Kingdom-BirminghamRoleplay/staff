@@ -54,13 +54,22 @@
         const formId = params.get('id');
         const pin = params.get('pin');
 
-        if (!formId) {
-            document.getElementById('content').innerHTML = '<div class="error">No form ID provided</div>';
-        } else if (pin) {
-            showResponses();
-        } else {
-            showForm();
+        async function init() {
+            if (!formId) {
+                document.getElementById('content').innerHTML = '<div class="error">No form ID provided</div>';
+                return;
+            }
+            
+            await formSystem.loadForms();
+            
+            if (pin) {
+                showResponses();
+            } else {
+                showForm();
+            }
         }
+        
+        init();
 
         function showForm() {
             const form = formSystem.getForm(formId);
@@ -72,7 +81,7 @@
             document.getElementById('content').innerHTML = `
                 <div class="form-header">
                     <h1>${form.title}</h1>
-                    <p>${form.description}</p>
+                    <p>${form.description || ''}</p>
                 </div>
                 <form id="responseForm" onsubmit="submitResponse(event)">
                     ${form.fields.map((q, i) => createQuestion(q, i)).join('')}
@@ -158,26 +167,26 @@
         }
 
         function showResponses() {
-            const responses = formSystem.getResponses(formId, pin);
-            if (!responses) {
+            const form = formSystem.getForm(formId);
+            if (!form || form.pin != pin) {
                 document.getElementById('content').innerHTML = '<div class="error">Invalid PIN or form not found</div>';
                 return;
             }
 
-            const form = formSystem.getForm(formId);
+            const responses = form.responses || [];
             document.getElementById('content').innerHTML = `
                 <div class="form-header">
                     <h1>${form.title} - Responses</h1>
                     <p>Total responses: ${responses.length}</p>
                 </div>
                 <div class="responses">
-                    ${responses.map(r => `
+                    ${responses.length === 0 ? '<p>No responses yet</p>' : responses.map((r, i) => `
                         <div class="response-item">
                             <div class="response-header">
-                                <strong>Response #${r.id}</strong>
-                                <span>${new Date(r.submitted).toLocaleString()}</span>
+                                <strong>Response #${i + 1}</strong>
+                                <span>${r.submitted ? new Date(r.submitted).toLocaleString() : 'Unknown date'}</span>
                             </div>
-                            ${Object.entries(r.data).map(([k, v]) => `
+                            ${Object.entries(r.data || {}).map(([k, v]) => `
                                 <p><strong>${k}:</strong> ${Array.isArray(v) ? v.join(', ') : v}</p>
                             `).join('')}
                         </div>

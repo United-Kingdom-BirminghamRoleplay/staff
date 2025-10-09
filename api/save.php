@@ -42,6 +42,82 @@ if ($type === 'forms') {
     chmod($file, 0644);
     echo json_encode(['success' => true, 'id' => $form['id'], 'pin' => $form['pin']]);
     
+} elseif ($type === 'response') {
+    $formId = $input['formId'];
+    $response = $input['response'];
+    
+    $file = $dataDir . 'forms.json';
+    $forms = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $forms = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($forms as &$form) {
+        if ($form['id'] === $formId) {
+            if (!isset($form['responses'])) $form['responses'] = [];
+            $form['responses'][] = $response;
+            break;
+        }
+    }
+    
+    if (file_put_contents($file, json_encode($forms, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot save response']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'delete_form') {
+    $formId = $input['formId'];
+    
+    $file = $dataDir . 'forms.json';
+    $forms = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $forms = $content ? json_decode($content, true) : [];
+    }
+    
+    $forms = array_filter($forms, function($form) use ($formId) {
+        return $form['id'] !== $formId;
+    });
+    
+    $forms = array_values($forms);
+    
+    if (file_put_contents($file, json_encode($forms, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot delete form']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'update_form') {
+    $formId = $input['formId'];
+    $updates = $input['updates'];
+    
+    $file = $dataDir . 'forms.json';
+    $forms = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $forms = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($forms as &$form) {
+        if ($form['id'] === $formId) {
+            foreach ($updates as $key => $value) {
+                $form[$key] = $value;
+            }
+            break;
+        }
+    }
+    
+    if (file_put_contents($file, json_encode($forms, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot update form']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
 } elseif ($type === 'announcements') {
     $announcement = $input['announcement'];
     $announcement['id'] = uniqid();
@@ -55,7 +131,7 @@ if ($type === 'forms') {
         if (!is_array($announcements)) $announcements = [];
     }
     
-    $announcements[] = $announcement;
+    array_unshift($announcements, $announcement);
     
     if (file_put_contents($file, json_encode($announcements, JSON_PRETTY_PRINT), LOCK_EX) === false) {
         echo json_encode(['error' => 'Cannot write to announcements.json']);
@@ -64,6 +140,29 @@ if ($type === 'forms') {
     
     chmod($file, 0644);
     echo json_encode(['success' => true, 'id' => $announcement['id']]);
+    
+} elseif ($type === 'delete_announcement') {
+    $announcementId = $input['announcementId'];
+    
+    $file = $dataDir . 'announcements.json';
+    $announcements = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $announcements = $content ? json_decode($content, true) : [];
+    }
+    
+    $announcements = array_filter($announcements, function($announcement) use ($announcementId) {
+        return $announcement['id'] !== $announcementId;
+    });
+    
+    $announcements = array_values($announcements);
+    
+    if (file_put_contents($file, json_encode($announcements, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot delete announcement']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
     
 } else {
     echo json_encode(['error' => 'Invalid type']);

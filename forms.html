@@ -152,6 +152,13 @@
                 <!-- Existing forms will be loaded here -->
             </div>
         </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-bullhorn"></i> Recent Announcements</h2>
+            <div id="announcements" class="forms-grid">
+                <!-- Announcements will be loaded here -->
+            </div>
+        </section>
     </main>
 
     <div id="footer-container"></div>
@@ -400,9 +407,7 @@
             document.querySelector('.form-modal').remove();
             alert('Announcement created and will be posted shortly!');
             
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            loadAnnouncements();
         }
         
         function openGeneralReport() {
@@ -484,6 +489,10 @@
                             <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
                             <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
                             <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+                            ${canViewPin ? `
+                                <button class="btn-glass" onclick="editForm('${form.id}')">Edit</button>
+                                <button class="btn-glass" onclick="deleteForm('${form.id}')">Delete</button>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -496,8 +505,89 @@
         
 
         
+        async function editForm(id) {
+            const form = formSystem.getForm(id);
+            if (!form) return;
+            
+            const newTitle = prompt('Edit title:', form.title);
+            if (newTitle && newTitle !== form.title) {
+                if (await formSystem.updateForm(id, { title: newTitle })) {
+                    loadForms();
+                } else {
+                    alert('Failed to update form');
+                }
+            }
+        }
+        
+        async function deleteForm(id) {
+            const form = formSystem.getForm(id);
+            if (!form) return;
+            
+            if (confirm(`Delete form "${form.title}"? This cannot be undone.`)) {
+                if (await formSystem.deleteForm(id)) {
+                    loadForms();
+                } else {
+                    alert('Failed to delete form');
+                }
+            }
+        }
+        
+        async function loadAnnouncements() {
+            const container = document.getElementById('announcements');
+            
+            try {
+                const announcements = await formSystem.loadAnnouncements();
+                
+                if (!announcements || announcements.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No announcements yet</p>';
+                    return;
+                }
+                
+                const canViewPin = formSystem.canViewPin();
+                
+                container.innerHTML = announcements.slice(0, 5).map(announcement => `
+                    <div class="form-card">
+                        <h4>${announcement.title}</h4>
+                        <p>${announcement.content}</p>
+                        <p><small>Created: ${new Date(announcement.created).toLocaleDateString()}</small></p>
+                        ${canViewPin ? `
+                            <div class="form-actions">
+                                <button class="btn-glass" onclick="deleteAnnouncement('${announcement.id}')">Delete</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Error loading announcements</p>';
+            }
+        }
+        
+        async function deleteAnnouncement(id) {
+            if (confirm('Delete this announcement?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'delete_announcement', announcementId: id })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        loadAnnouncements();
+                    } else {
+                        alert('Failed to delete announcement');
+                    }
+                } catch (error) {
+                    alert('Error deleting announcement');
+                }
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', async () => {
             await loadForms();
+            await loadAnnouncements();
             
             const searchInput = document.getElementById('siteSearch');
             if (searchInput) {

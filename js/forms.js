@@ -21,6 +21,21 @@ class FormSystem {
         }
     }
 
+    async loadAnnouncements() {
+        try {
+            const response = await fetch('./api/load.php?type=announcements');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error('Announcement load error:', error);
+            return [];
+        }
+    }
+
     async createForm(title, description, fields) {
         const form = {
             pin: Math.floor(1000 + Math.random() * 9000),
@@ -51,6 +66,73 @@ class FormSystem {
         } catch (error) {
             console.error('Create error:', error);
             throw error;
+        }
+    }
+
+    async submitResponse(formId, data) {
+        try {
+            const response = await fetch('./api/save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    type: 'response', 
+                    formId, 
+                    response: {
+                        data,
+                        submitted: new Date().toISOString()
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('Response error:', error);
+            return false;
+        }
+    }
+
+    async deleteForm(formId) {
+        try {
+            const response = await fetch('./api/save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'delete_form', formId })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('Delete error:', error);
+            return false;
+        }
+    }
+
+    async updateForm(formId, updates) {
+        try {
+            const response = await fetch('./api/save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'update_form', formId, updates })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return result.success;
+        } catch (error) {
+            console.error('Update error:', error);
+            return false;
         }
     }
 

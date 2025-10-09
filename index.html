@@ -239,51 +239,41 @@
     <script>
         async function loadAnnouncements() {
             const container = document.getElementById('announcementsContainer');
-            let announcements = [];
             
-            // Check localStorage first
             try {
-                const stored = localStorage.getItem('announcements');
-                if (stored) {
-                    const data = JSON.parse(stored);
-                    announcements = data.announcements || [];
+                const announcements = await formSystem.loadAnnouncements();
+                
+                if (announcements.length === 0) {
+                    container.innerHTML = `
+                        <div class="announcement">
+                            <i class="fas fa-info-circle announcement-icon"></i>
+                            <div class="announcement-content">
+                                <h4>There are no current notices</h4>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = announcements.slice(0, 3).map(announcement => `
+                        <div class="announcement">
+                            <i class="fas fa-bullhorn announcement-icon"></i>
+                            <div class="announcement-content">
+                                <h4>${announcement.title}</h4>
+                                <p>${announcement.content}</p>
+                                <span class="date">Posted: ${new Date(announcement.created).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
                 }
-            } catch (e) {
-                console.log('No stored announcements');
-            }
-            
-            // If no stored announcements, try to load from file
-            if (announcements.length === 0) {
-                try {
-                    const response = await fetch('./data/announcements.json');
-                    const data = await response.json();
-                    announcements = data.announcements || [];
-                } catch (error) {
-                    console.error('Error loading announcements:', error);
-                }
-            }
-            
-            // Display announcements
-            if (announcements.length === 0) {
+            } catch (error) {
+                console.error('Error loading announcements:', error);
                 container.innerHTML = `
                     <div class="announcement">
-                        <i class="fas fa-info-circle announcement-icon"></i>
+                        <i class="fas fa-exclamation-triangle announcement-icon"></i>
                         <div class="announcement-content">
-                            <h4>There are no current notices</h4>
+                            <h4>Error loading announcements</h4>
                         </div>
                     </div>
                 `;
-            } else {
-                container.innerHTML = announcements.map(announcement => `
-                    <div class="announcement">
-                        <i class="fas fa-${announcement.icon} announcement-icon"></i>
-                        <div class="announcement-content">
-                            <h4>${announcement.title}</h4>
-                            <p>${announcement.content}</p>
-                            <span class="date">Posted: ${announcement.date}</span>
-                        </div>
-                    </div>
-                `).join('');
             }
         }
         
