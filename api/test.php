@@ -1,30 +1,35 @@
 <?php
 header('Content-Type: application/json');
 
+$dataDir = __DIR__ . '/../data/';
+
 $info = [
     'php_version' => phpversion(),
     'current_dir' => __DIR__,
-    'parent_dir' => dirname(__DIR__),
-    'data_dir' => __DIR__ . '/../data/',
-    'data_dir_exists' => is_dir(__DIR__ . '/../data/'),
-    'data_dir_writable' => is_writable(dirname(__DIR__)),
-    'forms_file_exists' => file_exists(__DIR__ . '/../data/forms.json'),
-    'announcements_file_exists' => file_exists(__DIR__ . '/../data/announcements.json')
+    'data_dir' => $dataDir,
+    'data_dir_exists' => is_dir($dataDir),
+    'data_dir_writable' => is_writable(dirname($dataDir)),
+    'parent_writable' => is_writable(__DIR__ . '/..'),
+    'forms_exists' => file_exists($dataDir . 'forms.json'),
+    'announcements_exists' => file_exists($dataDir . 'announcements.json')
 ];
 
-$dataDir = __DIR__ . '/../data/';
+// Try to create data directory
 if (!is_dir($dataDir)) {
     $created = mkdir($dataDir, 0755, true);
-    $info['data_dir_created'] = $created;
-    $info['data_dir_exists'] = is_dir($dataDir);
+    $info['mkdir_result'] = $created;
+    $info['mkdir_error'] = $created ? null : error_get_last()['message'];
 }
 
+// Test file write
 $testFile = $dataDir . 'test.json';
-$testData = ['test' => true, 'timestamp' => date('c')];
-$writeResult = file_put_contents($testFile, json_encode($testData));
-$info['test_write'] = $writeResult !== false;
+$writeResult = file_put_contents($testFile, '{"test":true}');
+$info['write_test'] = $writeResult !== false;
+$info['write_bytes'] = $writeResult;
 
-if (file_exists($testFile)) {
+if ($writeResult !== false) {
+    chmod($testFile, 0644);
+    $info['read_test'] = file_get_contents($testFile) !== false;
     unlink($testFile);
 }
 

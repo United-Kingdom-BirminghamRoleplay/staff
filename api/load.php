@@ -9,45 +9,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $type = $_GET['type'] ?? '';
-
-if (!$type) {
-    http_response_code(400);
-    exit(json_encode(['error' => 'Type parameter required']));
-}
-
 $dataDir = __DIR__ . '/../data/';
-$file = '';
 
-switch ($type) {
-    case 'forms':
-        $file = $dataDir . 'forms.json';
-        break;
-    case 'announcements':
-        $file = $dataDir . 'announcements.json';
-        break;
-    default:
-        http_response_code(400);
-        exit(json_encode(['error' => 'Invalid type: ' . $type]));
+if ($type === 'forms') {
+    $file = $dataDir . 'forms.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $forms = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($forms) ? $forms : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} elseif ($type === 'announcements') {
+    $file = $dataDir . 'announcements.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $announcements = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($announcements) ? $announcements : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} else {
+    echo json_encode(['error' => 'Invalid type']);
 }
-
-if (!file_exists($file)) {
-    $default = ($type === 'forms') ? ['forms' => []] : ['announcements' => []];
-    echo json_encode($default);
-    exit;
-}
-
-$content = file_get_contents($file);
-if ($content === false) {
-    http_response_code(500);
-    exit(json_encode(['error' => 'Failed to read file']));
-}
-
-$data = json_decode($content, true);
-if ($data === null) {
-    $default = ($type === 'forms') ? ['forms' => []] : ['announcements' => []];
-    echo json_encode($default);
-    exit;
-}
-
-echo json_encode($data);
 ?>

@@ -333,7 +333,6 @@
             const result = await formSystem.createForm(title, description, questions);
             
             document.querySelector('.form-modal').remove();
-            await formSystem.loadData();
             loadForms();
             
             alert(`Form created! ID: ${result.id}, PIN: ${result.pin}`);
@@ -468,20 +467,16 @@
             const container = document.getElementById('existingForms');
             
             try {
-                const response = await fetch('./api/load.php?type=forms');
-                const data = await response.json();
-                console.log('Loaded forms data:', data);
+                const forms = await formSystem.loadForms();
                 
-                const forms = data.forms || {};
-                
-                if (Object.keys(forms).length === 0) {
+                if (forms.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
                     return;
                 }
                 
                 const canViewPin = formSystem.canViewPin();
                 
-                container.innerHTML = Object.values(forms).map(form => `
+                container.innerHTML = forms.map(form => `
                     <div class="form-card">
                         <h4>${form.title}</h4>
                         <p>${form.description || 'No description'}</p>
