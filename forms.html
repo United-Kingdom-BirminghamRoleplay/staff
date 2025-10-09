@@ -464,19 +464,30 @@
             const container = document.getElementById('existingForms');
             
             try {
-                console.log('Loading forms...');
+                console.log('=== LOADING FORMS DEBUG ===');
                 const forms = await formSystem.loadForms();
-                console.log('Forms loaded:', forms);
+                console.log('Forms type:', typeof forms);
+                console.log('Forms is array:', Array.isArray(forms));
+                console.log('Forms length:', forms ? forms.length : 'null/undefined');
+                console.log('Forms content:', forms);
                 
-                if (!Array.isArray(forms) || forms.length === 0) {
+                if (!Array.isArray(forms)) {
+                    console.error('Forms is not an array:', forms);
+                    container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Data format error - not an array</p>';
+                    return;
+                }
+                
+                if (forms.length === 0) {
+                    console.log('No forms found');
                     container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
                     return;
                 }
                 
+                console.log('Processing', forms.length, 'forms');
                 const canViewPin = formSystem.canViewPin();
                 
-                container.innerHTML = forms.map(form => {
-                    console.log('Processing form:', form);
+                const html = forms.map((form, index) => {
+                    console.log(`Form ${index}:`, form);
                     return `
                         <div class="form-card">
                             <h4>${form.title || 'Untitled Form'}</h4>
@@ -492,6 +503,11 @@
                         </div>
                     `;
                 }).join('');
+                
+                console.log('Generated HTML length:', html.length);
+                container.innerHTML = html;
+                console.log('=== FORMS LOADED SUCCESSFULLY ===');
+                
             } catch (error) {
                 console.error('Error in loadForms:', error);
                 container.innerHTML = `<p style="text-align: center; color: #ff6b35;">Error: ${error.message}</p>`;
