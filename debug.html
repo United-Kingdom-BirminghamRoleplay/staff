@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Form Creation</title>
+</head>
+<body>
+    <h1>Debug Form Creation</h1>
+    <button onclick="testFormCreation()">Test Form Creation</button>
+    <button onclick="testAPI()">Test API</button>
+    <div id="results"></div>
+
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Testing API...</h3>';
+            
+            try {
+                // Test PHP test endpoint
+                const testResponse = await fetch('./api/test.php');
+                const testData = await testResponse.json();
+                results.innerHTML += '<h4>PHP Test:</h4><pre>' + JSON.stringify(testData, null, 2) + '</pre>';
+                
+                // Test load endpoint
+                const loadResponse = await fetch('./api/load.php?type=forms');
+                const loadData = await loadResponse.json();
+                results.innerHTML += '<h4>Load Forms:</h4><pre>' + JSON.stringify(loadData, null, 2) + '</pre>';
+                
+            } catch (error) {
+                results.innerHTML += '<h4>Error:</h4><pre>' + error.message + '</pre>';
+            }
+        }
+
+        async function testFormCreation() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Testing Form Creation...</h3>';
+            
+            const testForm = {
+                title: 'Test Form',
+                description: 'This is a test form',
+                fields: [
+                    { text: 'What is your name?', type: 'text', required: true },
+                    { text: 'How are you?', type: 'textarea', required: false }
+                ]
+            };
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'forms', form: testForm })
+                });
+                
+                const result = await response.json();
+                results.innerHTML += '<h4>Save Response:</h4><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                
+                // Now test loading
+                const loadResponse = await fetch('./api/load.php?type=forms');
+                const loadData = await loadResponse.json();
+                results.innerHTML += '<h4>After Save - Load Forms:</h4><pre>' + JSON.stringify(loadData, null, 2) + '</pre>';
+                
+            } catch (error) {
+                results.innerHTML += '<h4>Error:</h4><pre>' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>
