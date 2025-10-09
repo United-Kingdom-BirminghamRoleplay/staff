@@ -9,7 +9,17 @@ class FormSystem {
     async loadForms() {
         try {
             const response = await fetch('./api/load.php?type=forms');
-            this.forms = await response.json();
+            console.log('Load response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const text = await response.text();
+            console.log('Raw response:', text);
+            
+            this.forms = JSON.parse(text);
+            console.log('Parsed forms:', this.forms);
             return this.forms;
         } catch (error) {
             console.error('Error loading forms:', error);
@@ -27,6 +37,8 @@ class FormSystem {
             responses: []
         };
         
+        console.log('Creating form:', form);
+        
         try {
             const response = await fetch('./api/save.php', {
                 method: 'POST',
@@ -34,7 +46,12 @@ class FormSystem {
                 body: JSON.stringify({ type: 'forms', form })
             });
             
-            const result = await response.json();
+            console.log('Save response status:', response.status);
+            
+            const text = await response.text();
+            console.log('Save response text:', text);
+            
+            const result = JSON.parse(text);
             if (!result.success) throw new Error(result.error);
             
             form.id = result.id;
