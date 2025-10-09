@@ -15,8 +15,19 @@ if ($type === 'forms') {
     $file = $dataDir . 'forms.json';
     if (file_exists($file) && is_readable($file)) {
         $content = file_get_contents($file);
-        $forms = $content ? json_decode($content, true) : [];
-        echo json_encode(is_array($forms) ? $forms : []);
+        $data = $content ? json_decode($content, true) : [];
+        
+        // Convert old format to array
+        $forms = [];
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_numeric($key) && is_array($value) && isset($value['id'])) {
+                    $forms[] = $value;
+                }
+            }
+        }
+        
+        echo json_encode($forms);
     } else {
         echo json_encode([]);
     }
