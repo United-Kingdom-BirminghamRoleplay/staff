@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            color: white;
+            cursor: pointer;
+        }
+        .radio-option input, .checkbox-option input {
+            margin: 0;
+        }
+        .response-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .response-header strong {
+            color: #ff6b35;
+        }
+        .response-header span {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div id="content">Loading...</div>
+    </div>
+
+    <script src="js/forms.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const formId = params.get('id');
+        const pin = params.get('pin');
+
+        if (!formId) {
+            document.getElementById('content').innerHTML = '<div class="error">No form ID provided</div>';
+        } else if (pin) {
+            showResponses();
+        } else {
+            showForm();
+        }
+
+        function showForm() {
+            const form = formSystem.getForm(formId);
+            if (!form) {
+                document.getElementById('content').innerHTML = '<div class="error">Form not found</div>';
+                return;
+            }
+
+            document.getElementById('content').innerHTML = `
+                <div class="form-header">
+                    <h1>${form.title}</h1>
+                    <p>${form.description}</p>
+                </div>
+                <form id="responseForm" onsubmit="submitResponse(event)">
+                    ${form.fields.map((q, i) => createQuestion(q, i)).join('')}
+                    <button type="submit" class="btn-primary">Submit</button>
+                </form>
+            `;
+        }
+
+        function createQuestion(question, index) {
+            const required = question.required ? 'required' : '';
+            const name = `q${index}`;
+            
+            let input = '';
+            switch (question.type) {
+                case 'text':
+                    input = `<input type="text" name="${name}" ${required}>`;
+                    break;
+                case 'textarea':
+                    input = `<textarea name="${name}" rows="4" ${required}></textarea>`;
+                    break;
+                case 'radio':
+                    input = question.options.map(opt => `
+                        <label class="radio-option">
+                            <input type="radio" name="${name}" value="${opt}" ${required}>
+                            <span>${opt}</span>
+                        </label>
+                    `).join('');
+                    break;
+                case 'checkbox':
+                    input = question.options.map(opt => `
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="${name}" value="${opt}">
+                            <span>${opt}</span>
+                        </label>
+                    `).join('');
+                    break;
+                case 'select':
+                    input = `
+                        <select name="${name}" ${required}>
+                            <option value="">Choose...</option>
+                            ${question.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                        </select>
+                    `;
+                    break;
+            }
+
+            return `
+                <div class="form-group">
+                    <label>${question.text} ${question.required ? '<span style="color: #ff6b35;">*</span>' : ''}</label>
+                    ${input}
+                </div>
+            `;
+        }
+
+        async function submitResponse(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                if (data[key]) {
+                    if (Array.isArray(data[key])) {
+                        data[key].push(value);
+                    } else {
+                        data[key] = [data[key], value];
+                    }
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            if (await formSystem.submitResponse(formId, data)) {
+                document.getElementById('content').innerHTML = `
+                    <div class="success">
+                        <i class="fas fa-check-circle"></i>
+                        <h2>Response Submitted!</h2>
+                        <p>Thank you for your submission.</p>
+                    </div>
+                `;
+            } else {
+                alert('Error submitting response');
+            }
+        }
+
+        function showResponses() {
+            const responses = formSystem.getResponses(formId, pin);
+            if (!responses) {
+                document.getElementById('content').innerHTML = '<div class="error">Invalid PIN or form not found</div>';
+                return;
+            }
+
+            const form = formSystem.getForm(formId);
+            document.getElementById('content').innerHTML = `
+                <div class="form-header">
+                    <h1>${form.title} - Responses</h1>
+                    <p>Total responses: ${responses.length}</p>
+                </div>
+                <div class="responses">
+                    ${responses.map(r => `
+                        <div class="response-item">
+                            <div class="response-header">
+                                <strong>Response #${r.id}</strong>
+                                <span>${new Date(r.submitted).toLocaleString()}</span>
+                            </div>
+                            ${Object.entries(r.data).map(([k, v]) => `
+                                <p><strong>${k}:</strong> ${Array.isArray(v) ? v.join(', ') : v}</p>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

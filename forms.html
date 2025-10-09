@@ -8,6 +8,98 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .form-modal-content {
+            max-width: 700px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .question-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .question-text, .question-type, .option-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .options-container {
+            margin: 15px 0;
+            padding-left: 0;
+        }
+        .options-container button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .required-check {
+            margin: 10px 0;
+            color: white;
+        }
+        #formTitle, #formDesc {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: #00ff00;
+            color: black;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
 </head>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -15,36 +107,7 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
-    <nav class="sidebar" id="sidebar">
-        <ul class="sidebar-nav">
-            <li><a href="index.html" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a></li>
-            <li><a href="ranks.html" class="nav-link">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Timetable</span>
-            </a></li>
-            <li><a href="melonlysystem.html" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Melonly System</span>
-            </a></li>
-            <li><a href="resources.html" class="nav-link">
-                <i class="fas fa-tools"></i>
-                <span>Staff Material</span>
-            </a></li>
-            <li><a href="forms.html" class="nav-link active">
-                <i class="fas fa-file-alt"></i>
-                <span>Forms</span>
-            </a></li>
-        </ul>
-        <div class="sidebar-logout">
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="logout-text">Logout</span>
-            </button>
-        </div>
-    </nav>
+    <div id="sidebar-container"></div>
 
     <main class="main-content">
         <section class="top-search">
@@ -71,16 +134,36 @@
                     <p>Create custom forms for staff use (Senior Management only)</p>
                     <button class="btn-glass">Build Form</button>
                 </div>
+                
+                <div class="form-card" onclick="openAnnouncementForm()">
+                    <h4>Announcements</h4>
+                    <p>Create staff announcements (Senior Management+ only)</p>
+                    <button class="btn-glass">Create Announcement</button>
+                </div>
+                
+                <div class="form-card" onclick="openGeneralReport()">
+                    <h4>General Report</h4>
+                    <p>Submit reports for staff review</p>
+                    <button class="btn-glass">Submit Report</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-list"></i> Created Forms</h2>
+            <div id="existingForms" class="forms-grid">
+                <!-- Existing forms will be loaded here -->
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2025 Staff Sharepoint. All rights reserved.</p>
-    </footer>
+    <div id="footer-container"></div>
 
+    <script src="js/components.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/forms.js"></script>
     <script>
         function logout() {
             if (window.authSystem) {
@@ -134,7 +217,7 @@
             
             try {
                 const user = JSON.parse(authData);
-                if (user.rank !== 'senior_management') {
+                if (user.rank !== 'senior_management' && user.rank !== 'founder') {
                     alert('Access denied. Only Senior Management can create forms.');
                     return;
                 }
@@ -146,91 +229,272 @@
             const modal = document.createElement('div');
             modal.className = 'form-modal';
             modal.innerHTML = `
-                <div class="form-modal-content form-builder">
-                    <h3>Form Builder</h3>
-                    <div class="form-builder-content">
-                        <input type="text" id="formName" placeholder="Form Name" required>
-                        <div id="formFields">
-                            <div class="field-item">
-                                <input type="text" placeholder="Field Label" class="field-label">
-                                <select class="field-type">
-                                    <option value="text">Text Input</option>
-                                    <option value="textarea">Text Area</option>
-                                    <option value="select">Dropdown</option>
-                                    <option value="checkbox">Checkbox</option>
-                                </select>
-                                <button type="button" onclick="removeField(this)">Remove</button>
-                            </div>
-                        </div>
-                        <button type="button" onclick="addField()">Add Field</button>
-                        <div class="form-actions">
-                            <button type="button" onclick="saveForm()">Save Form</button>
-                            <button type="button" onclick="this.closest('.form-modal').remove()">Cancel</button>
-                        </div>
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-file-alt"></i> Create New Form</h3>
+                    <input type="text" id="formTitle" placeholder="Form Title" required>
+                    <textarea id="formDesc" placeholder="Form Description (optional)" rows="2"></textarea>
+                    
+                    <h4>Questions</h4>
+                    <div id="questions"></div>
+                    
+                    <button onclick="addQuestion()" class="btn-glass">+ Add Question</button>
+                    
+                    <div class="form-actions">
+                        <button onclick="createForm()" class="btn-primary">Create Form</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            addQuestion(); // Start with one question
+        }
+        
+        function addQuestion() {
+            const container = document.getElementById('questions');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-item';
+            questionDiv.innerHTML = `
+                <input type="text" placeholder="Question" class="question-text" required>
+                <select class="question-type" onchange="updateOptions(this)">
+                    <option value="text">Short Answer</option>
+                    <option value="textarea">Long Answer</option>
+                    <option value="radio">Multiple Choice</option>
+                    <option value="checkbox">Checkboxes</option>
+                    <option value="select">Dropdown</option>
+                </select>
+                <div class="options-container" style="display:none;">
+                    <input type="text" placeholder="Option 1" class="option-input">
+                    <button type="button" onclick="addOption(this)">+ Add Option</button>
+                </div>
+                <label><input type="checkbox" class="required-check"> Required</label>
+                <button type="button" onclick="removeQuestion(this)" class="remove-btn">×</button>
+            `;
+            container.appendChild(questionDiv);
+        }
+        
+        function removeQuestion(btn) {
+            btn.closest('.question-item').remove();
+        }
+        
+        function updateOptions(select) {
+            const container = select.parentElement.querySelector('.options-container');
+            if (['radio', 'checkbox', 'select'].includes(select.value)) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        function addOption(btn) {
+            const container = btn.parentElement;
+            const optionCount = container.querySelectorAll('.option-input').length + 1;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `Option ${optionCount}`;
+            input.className = 'option-input';
+            container.insertBefore(input, btn);
+        }
+        
+        async function createForm() {
+            const title = document.getElementById('formTitle').value.trim();
+            const description = document.getElementById('formDesc').value.trim();
+            
+            if (!title) {
+                alert('Please enter a form title');
+                return;
+            }
+            
+            const questions = [];
+            document.querySelectorAll('.question-item').forEach(item => {
+                const text = item.querySelector('.question-text').value.trim();
+                const type = item.querySelector('.question-type').value;
+                const required = item.querySelector('.required-check').checked;
+                
+                if (text) {
+                    const question = { text, type, required };
+                    
+                    if (['radio', 'checkbox', 'select'].includes(type)) {
+                        const options = [];
+                        item.querySelectorAll('.option-input').forEach(input => {
+                            if (input.value.trim()) options.push(input.value.trim());
+                        });
+                        question.options = options;
+                    }
+                    
+                    questions.push(question);
+                }
+            });
+            
+            if (questions.length === 0) {
+                alert('Please add at least one question');
+                return;
+            }
+            
+            const result = await formSystem.createForm(title, description, questions);
+            
+            document.querySelector('.form-modal').remove();
+            loadForms();
+            
+            alert(`Form created! ID: ${result.id}, PIN: ${result.pin}`);
+        }
+        
+        function openForm(id) {
+            window.open(`form.html?id=${id}`, '_blank');
+        }
+        
+        function copyLink(id) {
+            const url = `${window.location.origin}/form.html?id=${id}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied!');
+            });
+        }
+        
+        function viewResponses(id) {
+            if (formSystem.canViewPin()) {
+                const form = formSystem.getForm(id);
+                window.open(`form.html?id=${id}&pin=${form.pin}`, '_blank');
+            } else {
+                const pin = prompt('Enter PIN to view responses:');
+                if (pin) {
+                    window.open(`form.html?id=${id}&pin=${pin}`, '_blank');
+                }
+            }
+        }
+        
+        function openAnnouncementForm() {
+            const authData = localStorage.getItem('ukbrum_auth');
+            if (!authData) {
+                alert('Please log in first.');
+                return;
+            }
+            
+            const user = JSON.parse(authData);
+            if (user.rank !== 'senior_management' && user.rank !== 'founder') {
+                alert('Access denied. Senior Management+ only.');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-bullhorn"></i> Create Announcement</h3>
+                    <input type="text" id="announcementTitle" placeholder="Announcement Title" required>
+                    <textarea id="announcementContent" placeholder="Announcement Content" rows="6" required></textarea>
+                    <div class="form-actions">
+                        <button onclick="createAnnouncement()" class="btn-primary">Create Announcement</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
         }
         
-        function addField() {
-            const container = document.getElementById('formFields');
-            const fieldItem = document.createElement('div');
-            fieldItem.className = 'field-item';
-            fieldItem.innerHTML = `
-                <input type="text" placeholder="Field Label" class="field-label">
-                <select class="field-type">
-                    <option value="text">Text Input</option>
-                    <option value="textarea">Text Area</option>
-                    <option value="select">Dropdown</option>
-                    <option value="checkbox">Checkbox</option>
-                </select>
-                <button type="button" onclick="removeField(this)">Remove</button>
-            `;
-            container.appendChild(fieldItem);
-        }
-        
-        function removeField(btn) {
-            btn.parentElement.remove();
-        }
-        
-        function saveForm() {
-            const formName = document.getElementById('formName').value;
-            const fields = [];
+        async function createAnnouncement() {
+            const title = document.getElementById('announcementTitle').value.trim();
+            const content = document.getElementById('announcementContent').value.trim();
             
-            document.querySelectorAll('.field-item').forEach(item => {
-                const label = item.querySelector('.field-label').value;
-                const type = item.querySelector('.field-type').value;
-                if (label) {
-                    fields.push({ label, type });
-                }
-            });
-            
-            if (formName && fields.length > 0) {
-                // Add to forms grid
-                const formsGrid = document.getElementById('formsGrid');
-                const newFormCard = document.createElement('div');
-                newFormCard.className = 'form-card';
-                newFormCard.innerHTML = `
-                    <h4>${formName}</h4>
-                    <p>Custom form with ${fields.length} fields</p>
-                    <button class="btn-glass" onclick="openCustomForm('${formName}')">Open Form</button>
-                `;
-                formsGrid.appendChild(newFormCard);
-                
-                document.querySelector('.form-modal').remove();
-                alert('Form created successfully!');
-            } else {
-                alert('Please fill in form name and add at least one field.');
+            if (!title || !content) {
+                alert('Please fill in all fields');
+                return;
             }
+            
+            await formSystem.createAnnouncement(title, content);
+            document.querySelector('.form-modal').remove();
+            alert('Announcement created and will be posted shortly!');
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         }
         
-        function openCustomForm(formName) {
-            alert(`Opening custom form: ${formName}`);
+        function openGeneralReport() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-flag"></i> General Report</h3>
+                    <input type="text" id="robloxUsername" placeholder="Roblox Username" required>
+                    <input type="text" id="discordUsername" placeholder="Discord Username" required>
+                    <select id="reportType" required>
+                        <option value="">Select Report Type</option>
+                        <option value="Staff Report">Staff Report</option>
+                        <option value="Incident Report">Incident Report</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <textarea id="reportDescription" placeholder="Describe the issue (max 1000 characters)" rows="6" maxlength="1000" required></textarea>
+                    <input type="url" id="evidenceLink" placeholder="Evidence Link (optional)">
+                    <label class="checkbox-option">
+                        <input type="checkbox" id="agreeTicket" required>
+                        <span>I understand I may be added to a ticket for further explanation</span>
+                    </label>
+                    <div class="form-actions">
+                        <button onclick="submitGeneralReport()" class="btn-primary">Submit Report</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
         
-        // Add search functionality
+        function submitGeneralReport() {
+            const robloxUsername = document.getElementById('robloxUsername').value.trim();
+            const discordUsername = document.getElementById('discordUsername').value.trim();
+            const reportType = document.getElementById('reportType').value;
+            const description = document.getElementById('reportDescription').value.trim();
+            const evidenceLink = document.getElementById('evidenceLink').value.trim();
+            const agreeTicket = document.getElementById('agreeTicket').checked;
+            
+            if (!robloxUsername || !discordUsername || !reportType || !description || !agreeTicket) {
+                alert('Please fill in all required fields and agree to the terms');
+                return;
+            }
+            
+            const reportData = {
+                robloxUsername,
+                discordUsername,
+                reportType,
+                description,
+                evidence: evidenceLink
+            };
+            
+            formSystem.submitReport(reportData);
+            document.querySelector('.form-modal').remove();
+            alert('Report submitted successfully!');
+        }
+        
+        function loadForms() {
+            const container = document.getElementById('existingForms');
+            const forms = formSystem.forms;
+            
+            if (Object.keys(forms).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
+                return;
+            }
+            
+            const canViewPin = formSystem.canViewPin();
+            
+            container.innerHTML = Object.values(forms).map(form => `
+                <div class="form-card">
+                    <h4>${form.title}</h4>
+                    <p>${form.description || 'No description'}</p>
+                    <p><small>Created: ${new Date(form.created).toLocaleDateString()}</small></p>
+                    <p><small>Questions: ${form.fields.length}</small></p>
+                    ${canViewPin ? `<p><small>PIN: ${form.pin}</small></p>` : ''}
+                    <div class="form-actions">
+                        <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
+                        <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
+                        <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+
+        
         document.addEventListener('DOMContentLoaded', () => {
+            loadForms();
+            
             const searchInput = document.getElementById('siteSearch');
             if (searchInput) {
                 searchInput.addEventListener('input', siteSearch);

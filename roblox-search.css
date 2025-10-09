@@ -1,0 +1,67 @@
+/* Roblox Search Styling */
+.roblox-search-container {
+    display: flex;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    align-items: center;
+}
+
+.roblox-search-input {
+    flex: 1;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.roblox-search-input:focus {
+    outline: none;
+    border-color: var(--orange-accent);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.roblox-search-btn {
+    background: linear-gradient(135deg, var(--orange-accent), var(--orange-glow));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.roblox-search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 107, 53, 0.4);
+}
+
+#robloxResults {
+    margin-top: 20px;
+}
+
+#robloxResults .user-result {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .roblox-search-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .roblox-search-input {
+        width: 100%;
+    }
+    
+    .roblox-search-btn {
+        width: 100%;
+    }
+}

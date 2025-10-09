@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timetable - UKBRUM Staff</title>
+    <title>Schedule - UKBRUM Staff</title>
     <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,36 +19,7 @@
 <script defer src="/_vercel/insights/script.js"></script>
 
 <body>
-    <nav class="sidebar" id="sidebar">
-        <ul class="sidebar-nav">
-            <li><a href="index.html" class="nav-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a></li>
-            <li><a href="ranks.html" class="nav-link active">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Timetable</span>
-            </a></li>
-            <li><a href="melonlysystem.html" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Melonly System</span>
-            </a></li>
-            <li><a href="resources.html" class="nav-link">
-                <i class="fas fa-tools"></i>
-                <span>Staff Material</span>
-            </a></li>
-            <li><a href="forms.html" class="nav-link">
-                <i class="fas fa-file-alt"></i>
-                <span>Forms</span>
-            </a></li>
-        </ul>
-        <div class="sidebar-logout">
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span class="logout-text">Logout</span>
-            </button>
-        </div>
-    </nav>
+    <div id="sidebar-container"></div>
 
     <main class="main-content">
         <section class="top-search">
@@ -63,7 +34,7 @@
         </section>
         
         <section class="greeting-section">
-            <h1 class="greeting-text">Staff Timetable</h1>
+            <h1 class="greeting-text">Staff Schedule</h1>
             <p class="greeting-subtitle">View staff schedules, assignments, and availability for Birmingham Roleplay operations.</p>
         </section>
 
@@ -72,9 +43,7 @@
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2025 UKBRUM Emergency Response: Liberty County. All rights reserved.</p>
-    </footer>
+    <div id="footer-container"></div>
 
     <script>
         const timetableEvents = [
@@ -233,6 +202,7 @@
             }
         }
     </script>
+    <script src="js/components.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
 </body>
