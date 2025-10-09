@@ -18,8 +18,12 @@ class FormSystem {
             const text = await response.text();
             console.log('Raw response:', text);
             
-            this.forms = JSON.parse(text);
-            console.log('Parsed forms:', this.forms);
+            const data = JSON.parse(text);
+            console.log('Parsed data:', data);
+            
+            // Ensure we always return an array
+            this.forms = Array.isArray(data) ? data : [];
+            console.log('Final forms array:', this.forms);
             return this.forms;
         } catch (error) {
             console.error('Error loading forms:', error);

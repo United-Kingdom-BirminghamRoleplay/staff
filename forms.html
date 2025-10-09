@@ -101,10 +101,7 @@
         }
     </style>
 </head>
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
+
 
 <body>
     <div id="sidebar-container"></div>
@@ -467,32 +464,37 @@
             const container = document.getElementById('existingForms');
             
             try {
+                console.log('Loading forms...');
                 const forms = await formSystem.loadForms();
+                console.log('Forms loaded:', forms);
                 
-                if (forms.length === 0) {
+                if (!Array.isArray(forms) || forms.length === 0) {
                     container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
                     return;
                 }
                 
                 const canViewPin = formSystem.canViewPin();
                 
-                container.innerHTML = forms.map(form => `
-                    <div class="form-card">
-                        <h4>${form.title}</h4>
-                        <p>${form.description || 'No description'}</p>
-                        <p><small>Created: ${new Date(form.created).toLocaleDateString()}</small></p>
-                        <p><small>Questions: ${form.fields.length}</small></p>
-                        ${canViewPin ? `<p><small>PIN: ${form.pin}</small></p>` : ''}
-                        <div class="form-actions">
-                            <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
-                            <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
-                            <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+                container.innerHTML = forms.map(form => {
+                    console.log('Processing form:', form);
+                    return `
+                        <div class="form-card">
+                            <h4>${form.title || 'Untitled Form'}</h4>
+                            <p>${form.description || 'No description'}</p>
+                            <p><small>Created: ${form.created ? new Date(form.created).toLocaleDateString() : 'Unknown'}</small></p>
+                            <p><small>Questions: ${form.fields ? form.fields.length : 0}</small></p>
+                            ${canViewPin ? `<p><small>PIN: ${form.pin || 'N/A'}</small></p>` : ''}
+                            <div class="form-actions">
+                                <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
+                                <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
+                                <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (error) {
-                console.error('Error loading forms:', error);
-                container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Error loading forms</p>';
+                console.error('Error in loadForms:', error);
+                container.innerHTML = `<p style="text-align: center; color: #ff6b35;">Error: ${error.message}</p>`;
             }
         }
         
