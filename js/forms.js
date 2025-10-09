@@ -11,14 +11,14 @@ class FormSystem {
     
     async loadData() {
         try {
-            const [formsRes, responsesRes, announcementsRes] = await Promise.all([
+            const [formsRes, announcementsRes] = await Promise.all([
                 fetch('./api/load.php?type=forms'),
-                fetch('./api/load.php?type=responses'),
                 fetch('./api/load.php?type=announcements')
             ]);
             
-            this.forms = await formsRes.json() || {};
-            this.responses = await responsesRes.json() || {};
+            const formsData = await formsRes.json() || {};
+            this.forms = formsData.forms || {};
+            this.responses = formsData.responses || {};
             this.announcements = await announcementsRes.json() || { announcements: [] };
         } catch (error) {
             console.log('Loading from localStorage as fallback');
@@ -34,19 +34,29 @@ class FormSystem {
         localStorage.setItem('announcements', JSON.stringify(this.announcements));
         
         try {
-            await fetch('./api/save.php', {
+            const formsData = {
+                forms: this.forms,
+                responses: this.responses,
+                metadata: {
+                    lastUpdated: new Date().toISOString(),
+                    totalForms: Object.keys(this.forms).length,
+                    totalResponses: Object.values(this.responses).reduce((total, arr) => total + arr.length, 0)
+                }
+            };
+            
+            const response = await fetch('./api/save.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'forms', data: this.forms })
+                body: JSON.stringify({ type: 'forms', data: formsData })
             });
             
-            await fetch('./api/save.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'responses', data: this.responses })
-            });
+            const result = await response.json();
+            console.log('Save result:', result);
             
-            console.log('Data saved to server files');
+            if (!response.ok) {
+                throw new Error(result.error || 'Save failed');
+            }
+            
         } catch (error) {
             console.error('Failed to save to server:', error);
         }

@@ -333,6 +333,7 @@
             const result = await formSystem.createForm(title, description, questions);
             
             document.querySelector('.form-modal').remove();
+            await formSystem.loadData();
             loadForms();
             
             alert(`Form created! ID: ${result.id}, PIN: ${result.pin}`);
@@ -463,37 +464,47 @@
             alert('Report submitted successfully!');
         }
         
-        function loadForms() {
+        async function loadForms() {
             const container = document.getElementById('existingForms');
-            const forms = formSystem.forms;
             
-            if (Object.keys(forms).length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
-                return;
-            }
-            
-            const canViewPin = formSystem.canViewPin();
-            
-            container.innerHTML = Object.values(forms).map(form => `
-                <div class="form-card">
-                    <h4>${form.title}</h4>
-                    <p>${form.description || 'No description'}</p>
-                    <p><small>Created: ${new Date(form.created).toLocaleDateString()}</small></p>
-                    <p><small>Questions: ${form.fields.length}</small></p>
-                    ${canViewPin ? `<p><small>PIN: ${form.pin}</small></p>` : ''}
-                    <div class="form-actions">
-                        <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
-                        <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
-                        <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+            try {
+                const response = await fetch('./api/load.php?type=forms');
+                const data = await response.json();
+                console.log('Loaded forms data:', data);
+                
+                const forms = data.forms || {};
+                
+                if (Object.keys(forms).length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No forms created yet</p>';
+                    return;
+                }
+                
+                const canViewPin = formSystem.canViewPin();
+                
+                container.innerHTML = Object.values(forms).map(form => `
+                    <div class="form-card">
+                        <h4>${form.title}</h4>
+                        <p>${form.description || 'No description'}</p>
+                        <p><small>Created: ${new Date(form.created).toLocaleDateString()}</small></p>
+                        <p><small>Questions: ${form.fields.length}</small></p>
+                        ${canViewPin ? `<p><small>PIN: ${form.pin}</small></p>` : ''}
+                        <div class="form-actions">
+                            <button class="btn-glass" onclick="openForm('${form.id}')">Open</button>
+                            <button class="btn-glass" onclick="copyLink('${form.id}')">Copy Link</button>
+                            <button class="btn-glass" onclick="viewResponses('${form.id}')">Responses</button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch (error) {
+                console.error('Error loading forms:', error);
+                container.innerHTML = '<p style="text-align: center; color: #ff6b35;">Error loading forms</p>';
+            }
         }
         
 
         
-        document.addEventListener('DOMContentLoaded', () => {
-            loadForms();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadForms();
             
             const searchInput = document.getElementById('siteSearch');
             if (searchInput) {
