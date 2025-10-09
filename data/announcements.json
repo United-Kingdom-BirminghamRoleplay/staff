@@ -1,16 +1,10 @@
 {
   "announcements": [
     {
-      "title": "New Staff Policy",
+      "title": "N/A",
       "content": "To ensure the safety and privacy of all staff members, sharing personal social media accounts (including but not limited to WhatsApp, TikTok, Snapchat, Instagram, Facebook, etc.) with other staff, community members, or other external parties that are involved in our community is strictly prohibited. This policy is in place to protect our staff from potential risks and maintain professional boundaries. If you are seen to be exploiting this policy it can result in an immediate removal from our team.",
       "date": "16/09/2025",
-      "icon": "fa fa-info-circle"
-    },
-    {
-      "title": "Release of Staff Share Point System",
-      "content": "We are excited to announce the launch of our new Staff Share Point System, please find all information regarding this system in the staff channel on discord.",
-      "date": "16/09/2025",
-      "icon": "fa fa-info-circle"
+      "icon": "fa fa-warning"
     }
   ]
 }
