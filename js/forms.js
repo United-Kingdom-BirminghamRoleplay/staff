@@ -23,12 +23,20 @@ class FormSystem {
 
     async loadAnnouncements() {
         try {
+            console.log('Loading announcements...');
             const response = await fetch('./api/load.php?type=announcements');
+            console.log('Response status:', response.status);
+            
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }
             
-            const data = await response.json();
+            const text = await response.text();
+            console.log('Raw response:', text);
+            
+            const data = JSON.parse(text);
+            console.log('Parsed data:', data);
+            
             return Array.isArray(data) ? data : [];
         } catch (error) {
             console.error('Announcement load error:', error);
