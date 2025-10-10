@@ -56,7 +56,7 @@ class AuthSystem {
                             </div>
                             <div class="select-options" id="selectOptions">
                                 <div class="select-option" data-value="founder">
-                                    <i class="fas fa-star"></i> Foundership 
+                                    <i class="fas fa-star"></i> act1v.bov
                                 </div>
                                 <div class="select-option" data-value="senior_management">
                                     <i class="fas fa-crown"></i> Senior Leadership
@@ -128,25 +128,13 @@ class AuthSystem {
         const code = document.getElementById('accessCode').value;
         const errorDiv = document.getElementById('authError');
 
-        // Prefer passwords from loaded auth.json when available. Fall back to
-        // the hardcoded map for resilience during development.
-        let passwords = null;
-        if (this.authData && this.authData.ranks && typeof this.authData.ranks === 'object') {
-            try {
-                passwords = Object.fromEntries(Object.entries(this.authData.ranks).map(([k, v]) => [k, v.password]));
-            } catch (e) {
-                passwords = null;
-            }
-        }
-        if (!passwords) {
-            // Hardcoded passwords for immediate fallback
-            passwords = {
-                'founder': '6769',
-                'senior_management': '4623',
-                'management': '8835',
-                'staff': '6748'
-            };
-        }
+        // Hardcoded passwords for immediate fix
+        const passwords = {
+            'founder': '0000',
+            'senior_management': '4623',
+            'management': '8835', 
+            'staff': '6748'
+        };
 
         if (!rank) {
             errorDiv.textContent = 'Please select a rank';
