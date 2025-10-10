@@ -36,7 +36,6 @@ class FormSystem {
             
             const data = JSON.parse(text);
             console.log('Parsed data:', data);
-            
             return Array.isArray(data) ? data : [];
         } catch (error) {
             console.error('Announcement load error:', error);
