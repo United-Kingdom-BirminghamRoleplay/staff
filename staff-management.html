@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer-styles.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Staff Management</h1>
+            <p class="greeting-subtitle">Manage staff accounts and permissions (Human Resources+ only)</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-user-clock"></i> Pending Approvals</h2>
+            <div id="pendingUsers">
+                <!-- Pending users will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-users"></i> Active Staff</h2>
+            <div id="activeUsers">
+                <!-- Active users will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        async function loadUsers() {
+            try {
+                const response = await fetch('./api/load.php?type=users');
+                const users = await response.json();
+                
+                const pending = users.filter(u => u.status === 'pending');
+                const active = users.filter(u => u.status === 'approved');
+                
+                displayPendingUsers(pending);
+                displayActiveUsers(active);
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+        
+        function displayPendingUsers(users) {
+            const container = document.getElementById('pendingUsers');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No pending approvals</p>';
+                return;
+            }
+            
+            container.innerHTML = users.map(user => `
+                <div class="form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4><i class="fas fa-user"></i> ${user.robloxUsername}</h4>
+                            <p><strong>Discord:</strong> ${user.discordUsername}</p>
+                            <p><strong>Requested Rank:</strong> ${user.requestedRank}</p>
+                            <p><strong>Registered:</strong> ${new Date(user.registeredAt).toLocaleDateString()}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <select id="rank_${user.id}" style="margin-bottom: 10px;">
+                                <option value="moderation">Moderation</option>
+                                <option value="administration">Administration</option>
+                                <option value="human_resources">Human Resources</option>
+                                <option value="oversight_enforcement">Oversight & Enforcement</option>
+                                <option value="advisory_board">Advisory Board</option>
+                                <option value="developer">Developer</option>
+                                <option value="assistant_founder">Assistant Founder</option>
+                                <option value="founder">Founder</option>
+                            </select><br>
+                            <button class="btn-glass" onclick="approveUser('${user.id}')" style="background: rgba(0, 255, 0, 0.3);">Approve</button>
+                            <button class="btn-glass" onclick="rejectUser('${user.id}')" style="background: rgba(220, 38, 38, 0.3);">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Set default rank to requested rank
+            users.forEach(user => {
+                const select = document.getElementById(`rank_${user.id}`);
+                if (select) select.value = user.requestedRank;
+            });
+        }
+        
+        function displayActiveUsers(users) {
+            const container = document.getElementById('activeUsers');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No active users</p>';
+                return;
+            }
+            
+            container.innerHTML = users.map(user => `
+                <div class="form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4><i class="fas fa-user-check"></i> ${user.robloxUsername}</h4>
+                            <p><strong>Discord:</strong> ${user.discordUsername}</p>
+                            <p><strong>Rank:</strong> <span style="color: var(--orange-accent);">${user.rank}</span></p>
+                            <p><strong>Approved:</strong> ${new Date(user.approvedAt).toLocaleDateString()}</p>
+                            <p><strong>Status:</strong> <span style="color: #00ff00;">Active</span></p>
+                        </div>
+                        <div style="text-align: right;">
+                            <select id="newrank_${user.id}" style="margin-bottom: 10px;">
+                                <option value="moderation">Moderation</option>
+                                <option value="administration">Administration</option>
+                                <option value="human_resources">Human Resources</option>
+                                <option value="oversight_enforcement">Oversight & Enforcement</option>
+                                <option value="advisory_board">Advisory Board</option>
+                                <option value="developer">Developer</option>
+                                <option value="assistant_founder">Assistant Founder</option>
+                                <option value="founder">Founder</option>
+                            </select><br>
+                            <button class="btn-glass" onclick="changeRank('${user.id}')">Change Rank</button><br>
+                            <button class="btn-glass" onclick="resetPassword('${user.id}')">Reset Password</button><br>
+                            <button class="btn-glass" onclick="suspendUser('${user.id}')" style="background: rgba(255, 165, 0, 0.3);">Suspend</button>
+                            <button class="btn-glass" onclick="deleteUser('${user.id}')" style="background: rgba(220, 38, 38, 0.3);">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Set current rank
+            users.forEach(user => {
+                const select = document.getElementById(`newrank_${user.id}`);
+                if (select) select.value = user.rank;
+            });
+        }
+        
+        async function approveUser(userId) {
+            const rankSelect = document.getElementById(`rank_${userId}`);
+            const rank = rankSelect.value;
+            
+            if (confirm(`Approve user with rank: ${rank}?`)) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'approve_user',
+                            userId,
+                            rank
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('User approved successfully!');
+                        loadUsers();
+                    }
+                } catch (error) {
+                    alert('Error approving user');
+                }
+            }
+        }
+        
+        async function rejectUser(userId) {
+            if (confirm('Reject this user registration? This will permanently delete their application.')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'reject_user',
+                            userId
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('User rejected and removed.');
+                        loadUsers();
+                    }
+                } catch (error) {
+                    alert('Error rejecting user');
+                }
+            }
+        }
+        
+        async function changeRank(userId) {
+            const rankSelect = document.getElementById(`newrank_${userId}`);
+            const newRank = rankSelect.value;
+            
+            if (confirm(`Change user rank to: ${newRank}?`)) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'change_rank',
+                            userId,
+                            newRank
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('Rank changed successfully!');
+                        loadUsers();
+                    }
+                } catch (error) {
+                    alert('Error changing rank');
+                }
+            }
+        }
+        
+        async function resetPassword(userId) {
+            const newPassword = prompt('Enter new password for user:');
+            if (newPassword && newPassword.length >= 6) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'reset_password',
+                            userId,
+                            newPassword
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('Password reset successfully!');
+                    }
+                } catch (error) {
+                    alert('Error resetting password');
+                }
+            } else {
+                alert('Password must be at least 6 characters');
+            }
+        }
+        
+        async function suspendUser(userId) {
+            if (confirm('Suspend this user account?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'suspend_user',
+                            userId
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('User suspended successfully!');
+                        loadUsers();
+                    }
+                } catch (error) {
+                    alert('Error suspending user');
+                }
+            }
+        }
+        
+        async function deleteUser(userId) {
+            if (confirm('PERMANENTLY DELETE this user account? This cannot be undone!')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'delete_user',
+                            userId
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('User deleted successfully!');
+                        loadUsers();
+                    }
+                } catch (error) {
+                    alert('Error deleting user');
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

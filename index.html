@@ -181,7 +181,7 @@
 
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/new-auth.js"></script>
     <script src="js/security.js"></script>
     <script src="js/forms.js"></script>
     <script src="js/roblox-search.js"></script>
@@ -236,9 +236,10 @@
             else greeting = 'Good Evening';
             
             const greetingEl = document.getElementById('dynamicGreeting');
-            const authData = localStorage.getItem('ukbrum_auth');
+            const user = newAuthSystem.getCurrentUser();
+            const userName = user ? user.robloxUsername : 'Staff Member';
             
-            greetingEl.innerHTML = `<span style="font-size: 1.2em; font-weight: 800;">${greeting}</span><br><span style="font-size: 0.6em; opacity: 0.7; margin-top: 10px; display: block;">Welcome back to the Sharepoint!</span>`;
+            greetingEl.innerHTML = `<span style="font-size: 1.2em; font-weight: 800;">${greeting}, ${userName}</span><br><span style="font-size: 0.6em; opacity: 0.7; margin-top: 10px; display: block;">Welcome back to the Sharepoint!</span>`;
         }
         
         function toggleSidebar() {
@@ -288,20 +289,13 @@
         }
         
         function openAnnouncementForm() {
-            const authData = localStorage.getItem('ukbrum_auth');
-            if (!authData) {
+            if (!newAuthSystem.isAuthenticated()) {
                 alert('Please log in first.');
                 return;
             }
             
-            try {
-                const user = JSON.parse(authData);
-                if (user.rank !== 'senior_management') {
-                    alert('Access denied. Only Senior Management can create announcements.');
-                    return;
-                }
-            } catch (e) {
-                alert('Authentication error. Please log in again.');
+            if (!newAuthSystem.hasPermission('senior_management')) {
+                alert('Access denied. Only Senior Management+ can create announcements.');
                 return;
             }
             
@@ -361,21 +355,13 @@
         }
         
         function openFormBuilder() {
-            const authData = localStorage.getItem('ukbrum_auth');
-            if (!authData) {
-                securityManager.showNotification('Please log in first.', 'warning');
+            if (!newAuthSystem.isAuthenticated()) {
+                alert('Please log in first.');
                 return;
             }
             
-            try {
-                const user = JSON.parse(authData);
-                if (user.rank !== 'senior_management' && user.rank !== 'founder') {
-                    securityManager.showNotification('Access denied. Only Senior Management can create forms.', 'warning');
-                    securityManager.logActivity('UNAUTHORIZED_FORM_ACCESS', { user: user.rank });
-                    return;
-                }
-            } catch (e) {
-                securityManager.showNotification('Authentication error. Please log in again.', 'warning');
+            if (!newAuthSystem.hasPermission('senior_management')) {
+                alert('Access denied. Only Senior Management+ can create forms.');
                 return;
             }
             
@@ -495,12 +481,7 @@
         }
         
         function logout() {
-            if (window.authSystem) {
-                window.authSystem.logout();
-            } else {
-                localStorage.removeItem('ukbrum_auth');
-                location.reload();
-            }
+            newAuthSystem.logout();
         }
         
         // Mobile menu functionality

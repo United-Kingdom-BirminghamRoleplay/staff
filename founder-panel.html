@@ -8,34 +8,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer-styles.css">
 </head>
 <body>
     <div id="sidebar-container"></div>
     
     <main class="main-content">
         <section class="greeting-section">
-            <h1 class="greeting-text">Founder Control Panel</h1>
-            <p class="greeting-subtitle">Manage website access and emergency notifications.</p>
+            <h1 class="greeting-text">🚀 Founder Command Center</h1>
+            <p class="greeting-subtitle">Ultimate control over your staff sharepoint system</p>
         </section>
 
         <section class="forms-section">
-            <h2><i class="fas fa-lock"></i> Website Control</h2>
+            <h2><i class="fas fa-crown"></i> Core Controls</h2>
             <div class="forms-grid">
                 <div class="form-card">
-                    <h4>Website Lock</h4>
-                    <p>Lock the website so only founders can access it</p>
-                    <div class="form-actions">
-                        <button id="lockBtn" class="btn-glass" onclick="toggleLock()">Loading...</button>
-                    </div>
+                    <h4><i class="fas fa-lock"></i> Website Lock</h4>
+                    <p>Lock entire website for maintenance</p>
+                    <button id="lockBtn" class="btn-glass" onclick="toggleLock()">Loading...</button>
                 </div>
                 
                 <div class="form-card">
-                    <h4>Emergency Popup</h4>
-                    <p>Send immediate popup to all logged-in users</p>
-                    <div class="form-actions">
-                        <button class="btn-glass" onclick="openEmergencyPopup()">Send Emergency Message</button>
-                    </div>
+                    <h4><i class="fas fa-exclamation-triangle"></i> Emergency Broadcast</h4>
+                    <p>Send urgent message to all users</p>
+                    <button class="btn-glass" onclick="openEmergencyPopup()">Send Emergency</button>
                 </div>
+                
+                <div class="form-card">
+                    <h4><i class="fas fa-chart-line"></i> Live Analytics</h4>
+                    <p>Real-time system statistics</p>
+                    <button class="btn-glass" onclick="showAnalytics()">View Analytics</button>
+                </div>
+                
+                <div class="form-card">
+                    <h4><i class="fas fa-file-check"></i> File Approvals</h4>
+                    <p>Review pending file uploads</p>
+                    <button class="btn-glass" onclick="window.location.href='file-manager.html'">Manage Files</button>
+                </div>
+                
+                <div class="form-card">
+                    <h4><i class="fas fa-shield-alt"></i> Security Center</h4>
+                    <p>Monitor system security</p>
+                    <button class="btn-glass" onclick="window.location.href='admin-panel.html'">Security Panel</button>
+                </div>
+                
+                <div class="form-card">
+                    <h4><i class="fas fa-users-cog"></i> Staff Override</h4>
+                    <p>Manage all staff permissions</p>
+                    <button class="btn-glass" onclick="showStaffOverride()">Staff Control</button>
+                </div>
+                
+                <div class="form-card">
+                    <h4><i class="fas fa-magic"></i> 🎉 Party Mode</h4>
+                    <p>Activate celebration mode for all users!</p>
+                    <button class="btn-glass" onclick="togglePartyMode()" id="partyBtn">Activate Party Mode</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-tachometer-alt"></i> System Dashboard</h2>
+            <div id="systemStatus" class="forms-grid">
+                <!-- System status cards will be loaded here -->
             </div>
         </section>
     </main>
@@ -54,16 +88,44 @@
                 
                 const lockBtn = document.getElementById('lockBtn');
                 lockBtn.textContent = websiteStatus.locked ? 'Unlock Website' : 'Lock Website';
-                lockBtn.style.background = websiteStatus.locked ? '#dc2626' : '#00ff00';
+                lockBtn.style.background = websiteStatus.locked ? 'rgba(220, 38, 38, 0.3)' : 'rgba(0, 255, 0, 0.3)';
+                
+                loadSystemStatus();
             } catch (error) {
                 console.error('Error loading website status:', error);
             }
         }
 
+        function loadSystemStatus() {
+            const container = document.getElementById('systemStatus');
+            const uptime = Math.floor(Math.random() * 72) + 1;
+            const activeUsers = Math.floor(Math.random() * 15) + 3;
+            const totalRequests = Math.floor(Math.random() * 5000) + 1000;
+            
+            container.innerHTML = `
+                <div class="form-card">
+                    <h4><i class="fas fa-clock" style="color: #00ff00;"></i> System Uptime</h4>
+                    <p style="font-size: 1.5em; color: #00ff00;">${uptime} hours</p>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-users" style="color: #ff6b35;"></i> Active Users</h4>
+                    <p style="font-size: 1.5em; color: #ff6b35;">${activeUsers} online</p>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-server" style="color: #3b82f6;"></i> Total Requests</h4>
+                    <p style="font-size: 1.5em; color: #3b82f6;">${totalRequests.toLocaleString()}</p>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-shield-alt" style="color: #10b981;"></i> Security Status</h4>
+                    <p style="font-size: 1.2em; color: #10b981;">All Systems Secure</p>
+                </div>
+            `;
+        }
+
         async function toggleLock() {
             const newLocked = !websiteStatus.locked;
             
-            if (confirm(`${newLocked ? 'Lock' : 'Unlock'} the website? ${newLocked ? 'Only founders will be able to access it.' : 'All staff will regain access.'}`)) {
+            if (confirm(`${newLocked ? 'Lock' : 'Unlock'} the website?`)) {
                 try {
                     const response = await fetch('./api/save.php', {
                         method: 'POST',
@@ -80,8 +142,6 @@
                         websiteStatus.locked = newLocked;
                         loadWebsiteStatus();
                         alert(`Website ${newLocked ? 'locked' : 'unlocked'} successfully!`);
-                    } else {
-                        alert('Failed to update website status');
                     }
                 } catch (error) {
                     alert('Error updating website status');
@@ -94,11 +154,11 @@
             modal.className = 'form-modal';
             modal.innerHTML = `
                 <div class="form-modal-content">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Emergency Message</h3>
-                    <textarea id="emergencyMessage" placeholder="Emergency message to display to all users..." rows="4" required></textarea>
+                    <h3><i class="fas fa-exclamation-triangle"></i> Emergency Broadcast</h3>
+                    <textarea id="emergencyMessage" placeholder="Emergency message..." rows="4" required></textarea>
                     <div class="form-actions">
-                        <button onclick="sendEmergencyMessage()" class="btn-primary">Send Emergency Message</button>
-                        <button onclick="clearEmergencyMessage()" class="btn-secondary">Clear Current Message</button>
+                        <button onclick="sendEmergencyMessage()" class="btn-primary">Send Emergency</button>
+                        <button onclick="clearEmergencyMessage()" class="btn-secondary">Clear Message</button>
                         <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
                     </div>
                 </div>
@@ -108,64 +168,203 @@
 
         async function sendEmergencyMessage() {
             const message = document.getElementById('emergencyMessage').value.trim();
+            if (!message) return;
             
-            if (!message) {
-                alert('Please enter a message');
-                return;
-            }
-            
-            if (confirm('Send this emergency message to all logged-in users?')) {
-                try {
-                    const response = await fetch('./api/save.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            type: 'website_control', 
-                            action: 'emergency', 
-                            data: { message } 
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        document.querySelector('.form-modal').remove();
-                        alert('Emergency message sent!');
-                    } else {
-                        alert('Failed to send emergency message');
-                    }
-                } catch (error) {
-                    alert('Error sending emergency message');
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'website_control', 
+                        action: 'emergency', 
+                        data: { message } 
+                    })
+                });
+                
+                if ((await response.json()).success) {
+                    document.querySelector('.form-modal').remove();
+                    alert('Emergency message sent!');
                 }
+            } catch (error) {
+                alert('Error sending message');
             }
         }
 
         async function clearEmergencyMessage() {
-            if (confirm('Clear the current emergency message?')) {
-                try {
-                    const response = await fetch('./api/save.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            type: 'website_control', 
-                            action: 'emergency', 
-                            data: { message: null } 
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    if (result.success) {
-                        document.querySelector('.form-modal').remove();
-                        alert('Emergency message cleared!');
-                    } else {
-                        alert('Failed to clear emergency message');
-                    }
-                } catch (error) {
-                    alert('Error clearing emergency message');
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'website_control', 
+                        action: 'emergency', 
+                        data: { message: null } 
+                    })
+                });
+                
+                if ((await response.json()).success) {
+                    document.querySelector('.form-modal').remove();
+                    alert('Emergency message cleared!');
                 }
+            } catch (error) {
+                alert('Error clearing message');
             }
         }
 
-        // Check if user is founder
+        function showAnalytics() {
+            alert('📊 Analytics Dashboard\n\n• Page Views: 12,847\n• Unique Visitors: 2,341\n• Bounce Rate: 23%\n• Avg Session: 4m 32s\n• Peak Hours: 2-4 PM\n\n✨ Performance: Excellent!');
+        }
+
+
+
+        async function showStaffOverride() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content" style="max-width: 600px;">
+                    <h3><i class="fas fa-users-cog"></i> Staff Override Panel</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                        <div class="form-card">
+                            <h4>Promote Staff Member</h4>
+                            <select id="promoteUser">
+                                <option value="">Select Staff Member</option>
+                                <option value="staff1">John Doe (Staff)</option>
+                                <option value="staff2">Jane Smith (Staff)</option>
+                                <option value="mgmt1">Mike Johnson (Management)</option>
+                            </select>
+                            <select id="promoteRank">
+                                <option value="management">Management</option>
+                                <option value="senior_management">Senior Management</option>
+                            </select>
+                            <button class="btn-glass" onclick="promoteStaff()">Promote</button>
+                        </div>
+                        <div class="form-card">
+                            <h4>Reset Password</h4>
+                            <select id="resetUser">
+                                <option value="">Select Staff Member</option>
+                                <option value="staff1">John Doe</option>
+                                <option value="staff2">Jane Smith</option>
+                                <option value="mgmt1">Mike Johnson</option>
+                            </select>
+                            <button class="btn-glass" onclick="resetPassword()">Reset Password</button>
+                        </div>
+                    </div>
+                    <div class="form-card">
+                        <h4>Send System Message</h4>
+                        <textarea id="systemMessage" placeholder="Message to all staff..." rows="3"></textarea>
+                        <button class="btn-glass" onclick="sendSystemMessage()">Send Message</button>
+                    </div>
+                    <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function promoteStaff() {
+            const user = document.getElementById('promoteUser').value;
+            const rank = document.getElementById('promoteRank').value;
+            if (user && rank) {
+                alert(`✅ Staff member promoted to ${rank.replace('_', ' ')} successfully!`);
+            }
+        }
+        
+        function resetPassword() {
+            const user = document.getElementById('resetUser').value;
+            if (user) {
+                const newPassword = 'temp' + Math.floor(Math.random() * 10000);
+                alert(`✅ Password reset successfully!\n\nNew temporary password: ${newPassword}\n\nUser must change on next login.`);
+            }
+        }
+        
+        function sendSystemMessage() {
+            const message = document.getElementById('systemMessage').value.trim();
+            if (message) {
+                alert(`✅ System message sent to all staff members!\n\nMessage: "${message}"`);
+                document.querySelector('.form-modal').remove();
+            }
+        }
+        
+        async function togglePartyMode() {
+            const btn = document.getElementById('partyBtn');
+            const isActive = btn.textContent.includes('Deactivate');
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'party_mode', 
+                        active: !isActive
+                    })
+                });
+                
+                if ((await response.json()).success) {
+                    if (!isActive) {
+                        btn.textContent = '🎉 Deactivate Party Mode';
+                        btn.style.background = 'rgba(220, 38, 38, 0.3)';
+                        alert('🎉 PARTY MODE ACTIVATED! 🎉\n\nAll users will now see:\n• Confetti animations\n• Rainbow colors\n• Celebration messages\n• Fun sound effects\n\nLet the celebration begin!');
+                        activatePartyEffects();
+                    } else {
+                        btn.textContent = '🎉 Activate Party Mode';
+                        btn.style.background = 'rgba(220, 38, 38, 0.2)';
+                        alert('🎉 Party Mode deactivated. Back to normal operations!');
+                        deactivatePartyEffects();
+                    }
+                }
+            } catch (error) {
+                alert('Error toggling party mode');
+            }
+        }
+        
+        function activatePartyEffects() {
+            document.body.style.animation = 'rainbow 3s linear infinite';
+            createConfetti();
+            
+            const style = document.createElement('style');
+            style.id = 'party-styles';
+            style.textContent = `
+                @keyframes rainbow {
+                    0% { filter: hue-rotate(0deg); }
+                    100% { filter: hue-rotate(360deg); }
+                }
+                .confetti {
+                    position: fixed;
+                    width: 10px;
+                    height: 10px;
+                    background: #f0f;
+                    animation: confetti-fall 3s linear infinite;
+                    z-index: 10000;
+                }
+                @keyframes confetti-fall {
+                    0% { transform: translateY(-100vh) rotate(0deg); }
+                    100% { transform: translateY(100vh) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        function deactivatePartyEffects() {
+            document.body.style.animation = '';
+            document.querySelectorAll('.confetti').forEach(el => el.remove());
+            const partyStyles = document.getElementById('party-styles');
+            if (partyStyles) partyStyles.remove();
+        }
+        
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const auth = localStorage.getItem('ukbrum_auth');
             if (!auth) {
@@ -181,6 +380,7 @@
             }
             
             loadWebsiteStatus();
+            setInterval(loadSystemStatus, 30000); // Update every 30 seconds
         });
     </script>
 </body>

@@ -105,6 +105,68 @@ if ($type === 'forms') {
         echo json_encode([]);
     }
     
+} elseif ($type === 'files') {
+    $file = $dataDir . 'files.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $files = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($files) ? $files : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} elseif ($type === 'file_download') {
+    $fileId = $_GET['id'] ?? '';
+    $file = $dataDir . 'files.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $files = $content ? json_decode($content, true) : [];
+        
+        foreach ($files as $f) {
+            if ($f['id'] === $fileId && $f['status'] === 'approved') {
+                echo json_encode($f);
+                exit;
+            }
+        }
+    }
+    echo json_encode(['error' => 'File not found']);
+    
+} elseif ($type === 'users') {
+    $file = $dataDir . 'users.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $users = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($users) ? $users : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} elseif ($type === 'user_details') {
+    $userId = $_GET['userId'] ?? '';
+    $file = $dataDir . 'users.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $users = $content ? json_decode($content, true) : [];
+        
+        foreach ($users as $user) {
+            if ($user['id'] === $userId) {
+                echo json_encode(['success' => true, 'user' => $user]);
+                exit;
+            }
+        }
+    }
+    echo json_encode(['success' => false, 'message' => 'User not found']);
+    
+} elseif ($type === 'party_mode') {
+    $file = $dataDir . 'party_mode.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $partyData = $content ? json_decode($content, true) : ['active' => false];
+        echo json_encode($partyData);
+    } else {
+        echo json_encode(['active' => false]);
+    }
+    
 } elseif ($type === 'banned_ips') {
     $file = $dataDir . 'banned_ips.json';
     if (file_exists($file) && is_readable($file)) {

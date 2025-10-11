@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="slideshow-bg">
+        <div class="slide active"></div>
+        <div class="slide"></div>
+        <div class="slide"></div>
+    </div>
+    <div class="auth-overlay">
+        <div class="auth-modal register-modal">
+            <div class="auth-header">
+                <h2><i class="fas fa-user-plus"></i> Staff Registration</h2>
+                <p>Step <span id="stepNumber">1</span> of 3</p>
+            </div>
+            <div class="auth-form">
+                <!-- Step 1: Usernames -->
+                <div id="step1" class="step active">
+                    <div class="form-group">
+                        <label>Roblox Username</label>
+                        <input type="text" id="robloxUsername" placeholder="Your Roblox username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Discord Username</label>
+                        <input type="text" id="discordUsername" placeholder="Your Discord username" required>
+                    </div>
+                    <button class="auth-btn" onclick="nextStep(1)">
+                        <i class="fas fa-arrow-right"></i> Next
+                    </button>
+                </div>
+                
+                <!-- Step 2: Rank -->
+                <div id="step2" class="step">
+                    <div class="form-group">
+                        <label>Requested Rank</label>
+                        <div class="custom-select">
+                            <div class="select-selected" onclick="toggleDropdown()">Select your current rank</div>
+                            <div class="select-items">
+                                <div onclick="selectRank('moderation', 'Moderation')">Moderation</div>
+                                <div onclick="selectRank('administration', 'Administration')">Administration</div>
+                                <div onclick="selectRank('human_resources', 'Human Resources')">Human Resources</div>
+                                <div onclick="selectRank('oversight_enforcement', 'Oversight & Enforcement')">Oversight & Enforcement</div>
+                                <div onclick="selectRank('advisory_board', 'Advisory Board')">Advisory Board</div>
+                                <div onclick="selectRank('assistant_founder', 'Assistant Founder')">Assistant Founder</div>
+                                <div onclick="selectRank('founder', 'Founder')">Founder</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="requestedRank" required>
+                    </div>
+                    <div class="step-buttons">
+                        <button class="auth-btn secondary" onclick="prevStep(2)">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="auth-btn" onclick="nextStep(2)">
+                            <i class="fas fa-arrow-right"></i> Next
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Password -->
+                <div id="step3" class="step">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Create a secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="step-buttons">
+                        <button class="auth-btn secondary" onclick="prevStep(3)">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button class="auth-btn" onclick="register()">
+                            <i class="fas fa-user-plus"></i> Register
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="auth-error" id="authError"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: rgba(255,255,255,0.7);">Already have an account?</p>
+                    <a href="login.html" style="color: var(--orange-accent); text-decoration: none; font-weight: 600;">Login Here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function register() {
+            const robloxUsername = document.getElementById('robloxUsername').value.trim();
+            const discordUsername = document.getElementById('discordUsername').value.trim();
+            const requestedRank = document.getElementById('requestedRank').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorEl = document.getElementById('authError');
+            
+            if (!robloxUsername || !discordUsername || !requestedRank || !password || !confirmPassword) {
+                errorEl.textContent = 'Please fill in all fields';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorEl.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorEl.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'register',
+                        robloxUsername,
+                        discordUsername,
+                        requestedRank,
+                        password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Registration submitted successfully!\\n\\nYour login credentials will be approved within 48-72 hours. You will be notified once your account is activated.');
+                    window.location.href = 'login.html';
+                } else {
+                    errorEl.textContent = result.message || 'Registration failed';
+                }
+            } catch (error) {
+                errorEl.textContent = 'Connection error. Please try again.';
+            }
+        }
+        
+        let selectedRank = '';
+        let currentStep = 1;
+        
+        function nextStep(step) {
+            const errorEl = document.getElementById('authError');
+            errorEl.textContent = '';
+            
+            if (step === 1) {
+                const roblox = document.getElementById('robloxUsername').value.trim();
+                const discord = document.getElementById('discordUsername').value.trim();
+                if (!roblox || !discord) {
+                    errorEl.textContent = 'Please fill in both usernames';
+                    return;
+                }
+            } else if (step === 2) {
+                if (!selectedRank) {
+                    errorEl.textContent = 'Please select your rank';
+                    return;
+                }
+            }
+            
+            document.getElementById(`step${step}`).classList.remove('active');
+            document.getElementById(`step${step + 1}`).classList.add('active');
+            document.getElementById('stepNumber').textContent = step + 1;
+            currentStep = step + 1;
+        }
+        
+        function prevStep(step) {
+            document.getElementById(`step${step}`).classList.remove('active');
+            document.getElementById(`step${step - 1}`).classList.add('active');
+            document.getElementById('stepNumber').textContent = step - 1;
+            currentStep = step - 1;
+        }
+        
+        function toggleDropdown() {
+            document.querySelector('.select-items').classList.toggle('show');
+        }
+        
+        function selectRank(value, text) {
+            selectedRank = value;
+            document.querySelector('.select-selected').textContent = text;
+            document.getElementById('requestedRank').value = value;
+            document.querySelector('.select-items').classList.remove('show');
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-select')) {
+                document.querySelector('.select-items').classList.remove('show');
+            }
+        });
+        
+        // Slideshow functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function nextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }
+        
+        setInterval(nextSlide, 4000);
+        
+        // Check if already logged in
+        if (localStorage.getItem('staff_auth')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

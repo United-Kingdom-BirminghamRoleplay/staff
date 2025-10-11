@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer-styles.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">My Account</h1>
+            <p class="greeting-subtitle">Manage your personal account settings</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-user"></i> Account Information</h2>
+            <div class="form-card">
+                <div id="accountInfo">
+                    <!-- Account info will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-sticky-note"></i> My Notes</h2>
+            <div class="form-card">
+                <textarea id="userNotes" placeholder="Write your personal notes here..." rows="8" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; padding: 15px; resize: vertical;"></textarea>
+                <button class="btn-glass" onclick="saveNotes()" style="margin-top: 15px;">
+                    <i class="fas fa-save"></i> Save Notes
+                </button>
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-history"></i> Staff Actions</h2>
+            <div class="form-card">
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                    <i class="fas fa-clock" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                    <h3>Coming Soon</h3>
+                    <p>Staff action history will be available here soon. This will show promotions, warnings, and other actions taken on your account.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-key"></i> Security</h2>
+            <div class="form-card">
+                <button class="btn-glass" onclick="changePassword()">
+                    <i class="fas fa-lock"></i> Change Password
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        let currentUser = null;
+        
+        async function loadAccountInfo() {
+            const auth = localStorage.getItem('staff_auth');
+            if (!auth) return;
+            
+            currentUser = JSON.parse(auth);
+            
+            try {
+                const response = await fetch(`./api/load.php?type=user_details&userId=${currentUser.userId}`);
+                const userDetails = await response.json();
+                
+                if (userDetails.success) {
+                    const user = userDetails.user;
+                    document.getElementById('accountInfo').innerHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4><i class="fas fa-gamepad"></i> Roblox Username</h4>
+                                <p style="color: var(--orange-accent); font-size: 1.1em;">${user.robloxUsername}</p>
+                            </div>
+                            <div>
+                                <h4><i class="fab fa-discord"></i> Discord Username</h4>
+                                <p style="color: var(--orange-accent); font-size: 1.1em;">${user.discordUsername}</p>
+                            </div>
+                            <div>
+                                <h4><i class="fas fa-star"></i> Current Rank</h4>
+                                <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${user.rank.replace('_', ' ').toUpperCase()}</p>
+                            </div>
+                            <div>
+                                <h4><i class="fas fa-calendar"></i> Member Since</h4>
+                                <p>${new Date(user.approvedAt || user.registeredAt).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px; border: 1px solid rgba(0,255,0,0.3);">
+                            <h4><i class="fas fa-id-card"></i> User ID</h4>
+                            <p style="font-family: monospace; color: rgba(255,255,255,0.8);">${user.id}</p>
+                        </div>
+                    `;
+                    
+                    // Load notes
+                    document.getElementById('userNotes').value = user.notes || '';
+                }
+            } catch (error) {
+                console.error('Error loading account info:', error);
+            }
+        }
+        
+        async function saveNotes() {
+            const notes = document.getElementById('userNotes').value;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'save_notes',
+                        userId: currentUser.userId,
+                        notes
+                    })
+                });
+                
+                if ((await response.json()).success) {
+                    alert('Notes saved successfully!');
+                } else {
+                    alert('Failed to save notes');
+                }
+            } catch (error) {
+                alert('Error saving notes');
+            }
+        }
+        
+        async function changePassword() {
+            const currentPassword = prompt('Enter your current password:');
+            if (!currentPassword) return;
+            
+            const newPassword = prompt('Enter your new password (minimum 6 characters):');
+            if (!newPassword || newPassword.length < 6) {
+                alert('New password must be at least 6 characters');
+                return;
+            }
+            
+            const confirmPassword = prompt('Confirm your new password:');
+            if (newPassword !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'change_password',
+                        userId: currentUser.userId,
+                        currentPassword,
+                        newPassword
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Password changed successfully!');
+                } else {
+                    alert(result.message || 'Failed to change password');
+                }
+            } catch (error) {
+                alert('Error changing password');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAccountInfo();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer-styles.css">
+    <style>
+        .file-upload-zone {
+            border: 2px dashed rgba(255, 107, 53, 0.5);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(255, 107, 53, 0.05);
+        }
+        .file-upload-zone:hover {
+            border-color: var(--orange-accent);
+            background: rgba(255, 107, 53, 0.1);
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+        .file-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--orange-accent);
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.1));
+            border: 2px solid rgba(220, 38, 38, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: warningPulse 3s ease-in-out infinite;
+        }
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.6); }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">File Manager</h1>
+            <p class="greeting-subtitle">Upload and manage shared files (Senior Management+ only)</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-upload"></i> File Upload</h2>
+            <div class="warning-box">
+                <h4><i class="fas fa-exclamation-triangle"></i> Important Notice</h4>
+                <p><strong>All uploaded files are subject to review and approval by the Founder before becoming visible to other users. Files may be rejected or removed at any time without notice.</strong></p>
+                <p>By uploading files, you agree that content is appropriate, work-related, and complies with all organizational policies.</p>
+            </div>
+            
+            <div class="form-card">
+                <div class="file-upload-zone">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--orange-accent); margin-bottom: 15px;"></i>
+                    <h4>Upload New File</h4>
+                    <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Drag & drop or click to select files</p>
+                    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip,.rar" style="margin-bottom: 15px;">
+                    <input type="text" id="fileDescription" placeholder="File description (optional)" style="margin-bottom: 15px;">
+                    <button class="btn-glass" onclick="uploadFile()"><i class="fas fa-upload"></i> Upload File</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-folder-open"></i> Approved Files</h2>
+            <div id="approvedFiles">
+                <!-- Approved files will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section" id="pendingSection" style="display: none;">
+            <h2><i class="fas fa-clock"></i> Pending Approval</h2>
+            <div id="pendingFiles">
+                <!-- Pending files will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const description = document.getElementById('fileDescription').value.trim();
+            
+            if (!fileInput.files[0]) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            
+            if (file.size > maxSize) {
+                alert('File size must be less than 10MB');
+                return;
+            }
+            
+            const authData = localStorage.getItem('ukbrum_auth');
+            const user = JSON.parse(authData);
+            
+            const fileData = {
+                id: Date.now().toString(),
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                description: description,
+                uploadedBy: user.rank,
+                uploadDate: new Date().toISOString(),
+                status: 'pending',
+                fileData: await fileToBase64(file)
+            };
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'upload_file', file: fileData })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('File uploaded successfully! Awaiting founder approval.');
+                    fileInput.value = '';
+                    document.getElementById('fileDescription').value = '';
+                    loadFiles();
+                } else {
+                    alert('Failed to upload file');
+                }
+            } catch (error) {
+                alert('Error uploading file');
+            }
+        }
+        
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+        
+        async function loadFiles() {
+            try {
+                const response = await fetch('./api/load.php?type=files');
+                const files = await response.json();
+                
+                const authData = localStorage.getItem('ukbrum_auth');
+                const user = JSON.parse(authData);
+                const isFounder = user.rank === 'founder';
+                
+                const approved = files.filter(f => f.status === 'approved');
+                const pending = files.filter(f => f.status === 'pending');
+                
+                displayFiles('approvedFiles', approved, true);
+                
+                if (isFounder && pending.length > 0) {
+                    document.getElementById('pendingSection').style.display = 'block';
+                    displayFiles('pendingFiles', pending, false);
+                } else {
+                    document.getElementById('pendingSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+            }
+        }
+        
+        function displayFiles(containerId, files, showDownload) {
+            const container = document.getElementById(containerId);
+            
+            if (files.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No files available</p>';
+                return;
+            }
+            
+            const authData = localStorage.getItem('ukbrum_auth');
+            const user = JSON.parse(authData);
+            const isFounder = user.rank === 'founder';
+            
+            container.innerHTML = files.map(file => `
+                <div class="form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4><i class="fas fa-file"></i> ${file.name}</h4>
+                            <p><strong>Size:</strong> ${formatFileSize(file.size)}</p>
+                            <p><strong>Uploaded by:</strong> ${file.uploadedBy}</p>
+                            <p><strong>Date:</strong> ${new Date(file.uploadDate).toLocaleDateString()}</p>
+                            ${file.description ? `<p><strong>Description:</strong> ${file.description}</p>` : ''}
+                        </div>
+                        <div style="text-align: right;">
+                            ${showDownload ? `<button class="btn-glass" onclick="downloadFile('${file.id}')">Download</button>` : ''}
+                            ${!showDownload && isFounder ? `
+                                <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(0, 255, 0, 0.3);">Approve</button>
+                                <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Reject</button>
+                            ` : ''}
+                            ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Delete</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        async function downloadFile(fileId) {
+            try {
+                const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+                const file = await response.json();
+                
+                if (file.fileData) {
+                    const link = document.createElement('a');
+                    link.href = file.fileData;
+                    link.download = file.name;
+                    link.click();
+                }
+            } catch (error) {
+                alert('Error downloading file');
+            }
+        }
+        
+        async function approveFile(fileId) {
+            if (confirm('Approve this file for all users to see?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'approve_file', fileId })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('File approved successfully!');
+                        loadFiles();
+                    }
+                } catch (error) {
+                    alert('Error approving file');
+                }
+            }
+        }
+        
+        async function rejectFile(fileId) {
+            if (confirm('Reject this file? It will be permanently deleted.')) {
+                await deleteFile(fileId);
+            }
+        }
+        
+        async function deleteFile(fileId) {
+            if (confirm('Delete this file permanently?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'delete_file', fileId })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('File deleted successfully!');
+                        loadFiles();
+                    }
+                } catch (error) {
+                    alert('Error deleting file');
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = localStorage.getItem('ukbrum_auth');
+            if (!auth) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const user = JSON.parse(auth);
+            if (user.rank !== 'senior_management' && user.rank !== 'founder') {
+                alert('Access denied. Senior Management+ only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadFiles();
+        });
+    </script>
+</body>
+</html>

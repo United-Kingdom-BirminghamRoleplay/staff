@@ -22,6 +22,14 @@
 
         <section class="forms-section">
             <h2><i class="fas fa-network-wired"></i> IP Access Logs</h2>
+            <div class="form-card">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <input type="text" id="filterIp" placeholder="Filter by IP" style="flex: 1; min-width: 150px;">
+                    <input type="text" id="filterUser" placeholder="Filter by User" style="flex: 1; min-width: 150px;">
+                    <button class="btn-glass" onclick="filterLogs()">Filter</button>
+                    <button class="btn-glass" onclick="clearAllLogs()" style="background: rgba(220, 38, 38, 0.3);">Clear All Logs</button>
+                </div>
+            </div>
             <div id="ipLogsContainer">
                 <!-- IP logs will be loaded here -->
             </div>
@@ -46,7 +54,78 @@
     <script src="js/components.js"></script>
     <script src="js/auth.js"></script>
     <script>
+        let allLogs = [];
+        
         async function loadIpLogs() {
+            try {
+                const response = await fetch('./api/load.php?type=ip_logs');
+                allLogs = await response.json();
+                displayLogs(allLogs);
+            } catch (error) {
+                console.error('Error loading IP logs:', error);
+            }
+        }
+        
+        function displayLogs(logs) {
+            const container = document.getElementById('ipLogsContainer');
+            if (logs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No access logs yet</p>';
+                return;
+            }
+            
+            container.innerHTML = logs.slice(0, 50).map(log => `
+                <div class="form-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4>${log.ip}</h4>
+                            <p><strong>User:</strong> ${log.user || 'Unknown'}</p>
+                            <p><strong>User Agent:</strong> ${log.userAgent || 'Unknown'}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p><small>${new Date(log.timestamp).toLocaleString()}</small></p>
+                            <button class="btn-glass" onclick="banIp('${log.ip}', 'Suspicious activity')">Ban IP</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterLogs() {
+            const ipFilter = document.getElementById('filterIp').value.toLowerCase();
+            const userFilter = document.getElementById('filterUser').value.toLowerCase();
+            
+            const filtered = allLogs.filter(log => {
+                const matchesIp = !ipFilter || log.ip.toLowerCase().includes(ipFilter);
+                const matchesUser = !userFilter || (log.user && log.user.toLowerCase().includes(userFilter));
+                return matchesIp && matchesUser;
+            });
+            
+            displayLogs(filtered);
+        }
+        
+        async function clearAllLogs() {
+            if (!confirm('Clear all IP logs? This cannot be undone.')) return;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'clear_logs' })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('All logs cleared successfully');
+                    loadIpLogs();
+                } else {
+                    alert('Failed to clear logs');
+                }
+            } catch (error) {
+                alert('Error clearing logs');
+            }
+        }
+        
+        async function oldLoadIpLogs() {
             try {
                 const response = await fetch('./api/load.php?type=ip_logs');
                 const logs = await response.json();

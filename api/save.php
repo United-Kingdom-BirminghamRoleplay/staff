@@ -346,6 +346,297 @@ if ($type === 'forms') {
     
     echo json_encode(['success' => true]);
     
+} elseif ($type === 'upload_file') {
+    $file = $input['file'];
+    
+    $filesFile = $dataDir . 'files.json';
+    $files = [];
+    if (file_exists($filesFile)) {
+        $content = file_get_contents($filesFile);
+        $files = $content ? json_decode($content, true) : [];
+        if (!is_array($files)) $files = [];
+    }
+    
+    $files[] = $file;
+    
+    if (file_put_contents($filesFile, json_encode($files, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot upload file']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'approve_file') {
+    $fileId = $input['fileId'];
+    
+    $filesFile = $dataDir . 'files.json';
+    $files = [];
+    if (file_exists($filesFile)) {
+        $content = file_get_contents($filesFile);
+        $files = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($files as &$file) {
+        if ($file['id'] === $fileId) {
+            $file['status'] = 'approved';
+            break;
+        }
+    }
+    
+    if (file_put_contents($filesFile, json_encode($files, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot approve file']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'delete_file') {
+    $fileId = $input['fileId'];
+    
+    $filesFile = $dataDir . 'files.json';
+    $files = [];
+    if (file_exists($filesFile)) {
+        $content = file_get_contents($filesFile);
+        $files = $content ? json_decode($content, true) : [];
+    }
+    
+    $files = array_filter($files, function($file) use ($fileId) {
+        return $file['id'] !== $fileId;
+    });
+    
+    $files = array_values($files);
+    
+    if (file_put_contents($filesFile, json_encode($files, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot delete file']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'approve_user') {
+    $userId = $input['userId'];
+    $rank = $input['rank'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            $user['status'] = 'approved';
+            $user['rank'] = $rank;
+            $user['approvedAt'] = date('c');
+            break;
+        }
+    }
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot approve user']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'reject_user') {
+    $userId = $input['userId'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    $users = array_filter($users, function($user) use ($userId) {
+        return $user['id'] !== $userId;
+    });
+    
+    $users = array_values($users);
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot reject user']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'change_rank') {
+    $userId = $input['userId'];
+    $newRank = $input['newRank'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            $user['rank'] = $newRank;
+            break;
+        }
+    }
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot change rank']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'reset_password') {
+    $userId = $input['userId'];
+    $newPassword = $input['newPassword'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            $user['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+            break;
+        }
+    }
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot reset password']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'suspend_user') {
+    $userId = $input['userId'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            $user['status'] = 'suspended';
+            break;
+        }
+    }
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot suspend user']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'delete_user') {
+    $userId = $input['userId'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    $users = array_filter($users, function($user) use ($userId) {
+        return $user['id'] !== $userId;
+    });
+    
+    $users = array_values($users);
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot delete user']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'save_notes') {
+    $userId = $input['userId'];
+    $notes = $input['notes'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            $user['notes'] = $notes;
+            break;
+        }
+    }
+    
+    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot save notes']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'change_password') {
+    $userId = $input['userId'];
+    $currentPassword = $input['currentPassword'];
+    $newPassword = $input['newPassword'];
+    
+    $usersFile = $dataDir . 'users.json';
+    $users = [];
+    if (file_exists($usersFile)) {
+        $content = file_get_contents($usersFile);
+        $users = $content ? json_decode($content, true) : [];
+    }
+    
+    foreach ($users as &$user) {
+        if ($user['id'] === $userId) {
+            if (password_verify($currentPassword, $user['password'])) {
+                $user['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+                
+                if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) !== false) {
+                    echo json_encode(['success' => true]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Cannot save new password']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
+            }
+            exit;
+        }
+    }
+    
+    echo json_encode(['success' => false, 'message' => 'User not found']);
+    
+} elseif ($type === 'party_mode') {
+    $active = $input['active'] ?? false;
+    
+    $file = $dataDir . 'party_mode.json';
+    $partyData = ['active' => $active, 'timestamp' => date('c')];
+    
+    if (file_put_contents($file, json_encode($partyData, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot update party mode']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'clear_logs') {
+    $file = $dataDir . 'ip_logs.json';
+    if (file_put_contents($file, json_encode([], JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot clear logs']);
+        exit;
+    }
+    echo json_encode(['success' => true]);
+    
 } elseif ($type === 'unban_ip') {
     $ip = $input['ip'];
     
