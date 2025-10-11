@@ -148,12 +148,13 @@ class FormSystem {
         return this.forms.find(form => form.id === id);
     }
 
-    async createAnnouncement(title, content) {
+    async createAnnouncement(title, content, postedBy, roleId) {
         try {
+            const announcement = { title, content, postedBy, roleId };
             const response = await fetch('./api/save.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'announcements', announcement: { title, content } })
+                body: JSON.stringify({ type: 'announcements', announcement })
             });
             
             if (!response.ok) {
@@ -165,16 +166,23 @@ class FormSystem {
                 throw new Error(result.error || 'Save failed');
             }
             
+            const announcementUrl = `${window.location.origin}/staff/announcement.html?id=${result.id}`;
+            
             this.sendToDiscord({
+                content: roleId ? `<@&${roleId}>` : '',
                 embeds: [{
-                    title: '📢 New Announcement',
-                    description: `**${title}**\n\n${content}`,
+                    title: '📢 New Staff Announcement Posted!',
+                    fields: [
+                        { name: 'Title of Post:', value: title, inline: false },
+                        { name: 'Posted by:', value: postedBy, inline: true },
+                        { name: 'Link to view announcement:', value: `[Click here](${announcementUrl})`, inline: false }
+                    ],
                     color: 0xff6b35,
                     timestamp: new Date().toISOString()
                 }]
             });
             
-            return { title, content };
+            return announcement;
         } catch (error) {
             console.error('Announcement error:', error);
             throw error;

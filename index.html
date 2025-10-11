@@ -17,7 +17,6 @@
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
-<script defer src="/_vercel/insights/script.js"></script>
 
 <body>
     <button class="mobile-menu-btn" id="mobileMenuBtn" style="position: fixed; top: 20px; left: 20px; z-index: 10002; background: #dc2626; color: white; border: none; border-radius: 8px; padding: 12px; width: 48px; height: 48px; display: block;">
@@ -83,6 +82,10 @@
                     <i class="fas fa-exclamation-triangle"></i>
                     <h4>Incident Report</h4>
                 </div>
+                <div class="quick-box" onclick="window.location.href='forms.html'">
+                    <i class="fas fa-file-alt"></i>
+                    <h4>Trial Logs</h4>
+                </div>
                 <div class="quick-box" onclick="window.location.href='resources.html'">
                     <i class="fas fa-tools"></i>
                     <h4>Staff Material</h4>
@@ -118,14 +121,14 @@
         
         <section class="info-grid">
             <div class="info-box" onclick="window.location.href='ranks.html'">
-                <i class="fas fa-users info-box-icon"></i>
-                <h3>Rank Structure</h3>
-                <p>View staff hierarchy and responsibilities</p>
+                <i class="fas fa-calendar-alt info-box-icon"></i>
+                <h3>Staff Schedule</h3>
+                <p>View all events and upcoming meetings for the Staff team</p>
             </div>
-            <div class="info-box" onclick="window.location.href='melonlysystem.html'">
+            <div class="info-box" onclick="window.location.href='forms.html'">
                 <i class="fas fa-clipboard-list info-box-icon"></i>
-                <h3>Melonly System</h3>
-                <p>Access external logging system for violations</p>
+                <h3>Trial Logs</h3>
+                <p>Log and manage staff member trials</p>
             </div>
             <div class="info-box" onclick="window.location.href='resources.html'">
                 <i class="fas fa-tools info-box-icon"></i>
@@ -134,58 +137,6 @@
             </div>
         </section>
         
-        <section id="contacts" class="announcements">
-            <h2><i class="fa-solid fa-address-book"></i>High Ranking Leaders Contact</h2>
-            <p>These are all the contacts you will mainly need when being a High Ranking. If you have any issues regarding sessions, please contact your advisor as we do not have an team lead for sessions.</p>
-            <br>
-            <div class="staff-grid">
-                <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="" alt="" onerror="this.src='images/muddy.png'">
-                            <div class="role-badge">Oversight Advisor</div>
-                        </div>
-                        <div class="staff-info">
-                            <h3>Muddy</h3>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="" alt="" onerror="this.src='images/maxx.png'">
-                            <div class="role-badge">Oversight Advisor</div>
-                        </div>
-                        <div class="staff-info">
-                            <h3>Max</h3>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="" alt="" onerror="this.src='images/bobmanjeff.png'">
-                            <div class="role-badge">Human Resources Advisor</div>
-                        </div>
-                        <div class="staff-info">
-                            <h3>Bobman</h3>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="" alt="" onerror="this.src='images/bracelet.png'">
-                            <div class="role-badge">Head of Training</div>
-                        </div>
-                        <div class="staff-info">
-                            <h3>Ryan</h3>
-                        </div>
-                    </div>
-                    <div class="staff-card">
-                        <div class="staff-avatar">
-                            <img src="" alt="" onerror="this.src='images/karam.png'">
-                            <div class="role-badge">Head of Training</div>
-                        </div>
-                        <div class="staff-info">
-                            <h3>act1v.bov</h3>
-                        </div>
-                    </div>
-            </div>
-        </section>
         <section class="announcements"> 
             <h2><i class="fa-solid fa-bug"></i>Website Administrators</h2>
             <p>Please also notify one of our Website Administrators when one of the guidelines are outdated.</p>
@@ -226,9 +177,7 @@
     </main>
 
     <div id="footer-container"></div>
-    <!-- <footer>
-        <p>&copy; 2025 Staff Sharepoint. All rights reserved. | <a href="privacy-policy.html" style="color: var(--orange-accent);">Privacy Policy</a></p>
-    </footer> -->
+
 
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
@@ -259,7 +208,7 @@
                             <div class="announcement-content">
                                 <h4>${announcement.title}</h4>
                                 <p>${announcement.content}</p>
-                                <span class="date">Posted: ${new Date(announcement.created).toLocaleDateString()}</span>
+                                <span class="date">Posted: ${new Date(announcement.created).toLocaleDateString()}${announcement.postedBy ? ` by ${announcement.postedBy}` : ''}</span>
                             </div>
                         </div>
                     `).join('');

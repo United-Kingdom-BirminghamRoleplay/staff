@@ -5,9 +5,21 @@ async function loadComponent(elementId, componentPath) {
         const html = await response.text();
         document.getElementById(elementId).innerHTML = html;
         
-        // Set active nav link
+        // Set active nav link and show founder panel
         if (componentPath.includes('sidebar')) {
             setActiveNavLink();
+            
+            // Show founder panel for founders
+            const auth = localStorage.getItem('ukbrum_auth');
+            if (auth) {
+                const user = JSON.parse(auth);
+                if (user.rank === 'founder') {
+                    setTimeout(() => {
+                        const founderLink = document.querySelector('.founder-only');
+                        if (founderLink) founderLink.style.display = 'block';
+                    }, 100);
+                }
+            }
         }
     } catch (error) {
         console.error('Failed to load component:', error);
@@ -30,6 +42,16 @@ function setActiveNavLink() {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadComponent('sidebar-container', 'sidebar.html');
     await loadComponent('footer-container', 'footer.html');
+    
+    // Show founder panel for founders
+    const auth = localStorage.getItem('ukbrum_auth');
+    if (auth) {
+        const user = JSON.parse(auth);
+        if (user.rank === 'founder') {
+            const founderLink = document.querySelector('.founder-only');
+            if (founderLink) founderLink.style.display = 'block';
+        }
+    }
 });
 
 // Security measures

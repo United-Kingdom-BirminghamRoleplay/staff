@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder Panel - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Founder Control Panel</h1>
+            <p class="greeting-subtitle">Manage website access and emergency notifications.</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-lock"></i> Website Control</h2>
+            <div class="forms-grid">
+                <div class="form-card">
+                    <h4>Website Lock</h4>
+                    <p>Lock the website so only founders can access it</p>
+                    <div class="form-actions">
+                        <button id="lockBtn" class="btn-glass" onclick="toggleLock()">Loading...</button>
+                    </div>
+                </div>
+                
+                <div class="form-card">
+                    <h4>Emergency Popup</h4>
+                    <p>Send immediate popup to all logged-in users</p>
+                    <div class="form-actions">
+                        <button class="btn-glass" onclick="openEmergencyPopup()">Send Emergency Message</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/forms.js"></script>
+    <script>
+        let websiteStatus = { locked: false, emergency_popup: null };
+
+        async function loadWebsiteStatus() {
+            try {
+                const response = await fetch('./api/load.php?type=website_control');
+                websiteStatus = await response.json();
+                
+                const lockBtn = document.getElementById('lockBtn');
+                lockBtn.textContent = websiteStatus.locked ? 'Unlock Website' : 'Lock Website';
+                lockBtn.style.background = websiteStatus.locked ? '#dc2626' : '#00ff00';
+            } catch (error) {
+                console.error('Error loading website status:', error);
+            }
+        }
+
+        async function toggleLock() {
+            const newLocked = !websiteStatus.locked;
+            
+            if (confirm(`${newLocked ? 'Lock' : 'Unlock'} the website? ${newLocked ? 'Only founders will be able to access it.' : 'All staff will regain access.'}`)) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            type: 'website_control', 
+                            action: 'lock', 
+                            data: { locked: newLocked } 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        websiteStatus.locked = newLocked;
+                        loadWebsiteStatus();
+                        alert(`Website ${newLocked ? 'locked' : 'unlocked'} successfully!`);
+                    } else {
+                        alert('Failed to update website status');
+                    }
+                } catch (error) {
+                    alert('Error updating website status');
+                }
+            }
+        }
+
+        function openEmergencyPopup() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Emergency Message</h3>
+                    <textarea id="emergencyMessage" placeholder="Emergency message to display to all users..." rows="4" required></textarea>
+                    <div class="form-actions">
+                        <button onclick="sendEmergencyMessage()" class="btn-primary">Send Emergency Message</button>
+                        <button onclick="clearEmergencyMessage()" class="btn-secondary">Clear Current Message</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function sendEmergencyMessage() {
+            const message = document.getElementById('emergencyMessage').value.trim();
+            
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+            
+            if (confirm('Send this emergency message to all logged-in users?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            type: 'website_control', 
+                            action: 'emergency', 
+                            data: { message } 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        document.querySelector('.form-modal').remove();
+                        alert('Emergency message sent!');
+                    } else {
+                        alert('Failed to send emergency message');
+                    }
+                } catch (error) {
+                    alert('Error sending emergency message');
+                }
+            }
+        }
+
+        async function clearEmergencyMessage() {
+            if (confirm('Clear the current emergency message?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            type: 'website_control', 
+                            action: 'emergency', 
+                            data: { message: null } 
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        document.querySelector('.form-modal').remove();
+                        alert('Emergency message cleared!');
+                    } else {
+                        alert('Failed to clear emergency message');
+                    }
+                } catch (error) {
+                    alert('Error clearing emergency message');
+                }
+            }
+        }
+
+        // Check if user is founder
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = localStorage.getItem('ukbrum_auth');
+            if (!auth) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const user = JSON.parse(auth);
+            if (user.rank !== 'founder') {
+                alert('Access denied. Founder only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadWebsiteStatus();
+        });
+    </script>
+</body>
+</html>

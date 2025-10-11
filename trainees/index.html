@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Portal - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="../images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .training-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .attendance-btn {
+            background: #00ff00;
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .attendance-btn.confirmed {
+            background: #ff6b35;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Training Portal</h1>
+            <p class="greeting-subtitle">View upcoming trainings and confirm your attendance.</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-graduation-cap"></i> Upcoming Trainings</h2>
+            <div id="trainingsContainer">
+                <!-- Trainings will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function loadTrainings() {
+            try {
+                const response = await fetch('../api/load.php?type=trainings');
+                const trainings = await response.json();
+                
+                const container = document.getElementById('trainingsContainer');
+                
+                if (trainings.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No trainings scheduled</p>';
+                    return;
+                }
+                
+                const deviceId = localStorage.getItem('device_id') || generateDeviceId();
+                
+                container.innerHTML = trainings.map(training => {
+                    const isConfirmed = training.attendees && training.attendees.includes(deviceId);
+                    return `
+                        <div class="training-card">
+                            <div class="training-header">
+                                <h4>${training.title}</h4>
+                                <button class="attendance-btn ${isConfirmed ? 'confirmed' : ''}" 
+                                        onclick="toggleAttendance('${training.id}')">
+                                    <i class="fas fa-${isConfirmed ? 'check' : 'plus'}"></i> 
+                                    ${isConfirmed ? 'Confirmed' : 'Confirm Attendance'}
+                                </button>
+                            </div>
+                            <p>${training.description}</p>
+                            <p><strong>Date:</strong> ${new Date(training.date).toLocaleDateString()}</p>
+                            <p><strong>Time:</strong> ${training.time}</p>
+                            <p><strong>Posted by:</strong> ${training.postedBy}</p>
+                            <p><small>Confirmed: ${training.attendees ? training.attendees.length : 0} trainees</small></p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading trainings:', error);
+            }
+        }
+
+        function generateDeviceId() {
+            const id = 'trainee_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('device_id', id);
+            return id;
+        }
+
+        async function toggleAttendance(trainingId) {
+            const deviceId = localStorage.getItem('device_id');
+            
+            try {
+                const response = await fetch('../api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'training_attendance', 
+                        trainingId, 
+                        deviceId 
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    loadTrainings();
+                }
+            } catch (error) {
+                console.error('Error updating attendance:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTrainings);
+    </script>
+</body>
+</html>

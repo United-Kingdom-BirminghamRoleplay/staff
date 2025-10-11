@@ -65,6 +65,36 @@ if ($type === 'forms') {
         echo json_encode([]);
     }
     
+} elseif ($type === 'trial_logs') {
+    $file = $dataDir . 'trial_logs.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $logs = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($logs) ? $logs : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} elseif ($type === 'website_control') {
+    $file = $dataDir . 'website_control.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $control = $content ? json_decode($content, true) : ['locked' => false, 'emergency_popup' => null];
+        echo json_encode($control);
+    } else {
+        echo json_encode(['locked' => false, 'emergency_popup' => null]);
+    }
+    
+} elseif ($type === 'trainings') {
+    $file = $dataDir . 'trainings.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $trainings = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($trainings) ? $trainings : []);
+    } else {
+        echo json_encode([]);
+    }
+    
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

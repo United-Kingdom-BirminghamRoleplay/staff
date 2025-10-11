@@ -111,7 +111,7 @@
             <div class="search-container">
                 <div class="search-input-wrapper">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="siteSearch" placeholder="Search site content..." class="search-input" autocomplete="off">
+                    <input type="text" id="siteSearch" placeholder="Search Sharepoint content..." class="search-input" autocomplete="off">
                     <button class="filter-btn"><i class="fas fa-filter"></i></button>
                 </div>
             </div>
@@ -143,6 +143,18 @@
                     <p>Submit reports for staff review</p>
                     <button class="btn-glass">Submit Report</button>
                 </div>
+                
+                <div class="form-card" onclick="openTrialLog()">
+                    <h4>Trial Logs</h4>
+                    <p>Log staff member trials and results</p>
+                    <button class="btn-glass">Log Trial</button>
+                </div>
+                
+                <div class="form-card management-only" onclick="openTrainingForm()" style="display: none;">
+                    <h4>Training Management</h4>
+                    <p>Create and manage training sessions</p>
+                    <button class="btn-glass">Create Training</button>
+                </div>
             </div>
         </section>
         
@@ -157,6 +169,20 @@
             <h2><i class="fas fa-bullhorn"></i> Recent Announcements</h2>
             <div id="announcements" class="forms-grid">
                 <!-- Announcements will be loaded here -->
+            </div>
+        </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-clipboard-check"></i> Trial Logs</h2>
+            <div id="trialLogsContainer" class="forms-grid">
+                <!-- Trial logs will be loaded here -->
+            </div>
+        </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-graduation-cap"></i> Training Sessions</h2>
+            <div id="trainingsContainer" class="forms-grid">
+                <!-- Trainings will be loaded here -->
             </div>
         </section>
     </main>
@@ -385,6 +411,8 @@
                     <h3><i class="fas fa-bullhorn"></i> Create Announcement</h3>
                     <input type="text" id="announcementTitle" placeholder="Announcement Title" required>
                     <textarea id="announcementContent" placeholder="Announcement Content" rows="6" required></textarea>
+                    <input type="text" id="announcementPostedBy" placeholder="Posted by (your name)" required>
+                    <input type="text" id="roleIdToPing" placeholder="Role ID to ping (optional)">
                     <div class="form-actions">
                         <button onclick="createAnnouncement()" class="btn-primary">Create Announcement</button>
                         <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
@@ -397,13 +425,15 @@
         async function createAnnouncement() {
             const title = document.getElementById('announcementTitle').value.trim();
             const content = document.getElementById('announcementContent').value.trim();
+            const postedBy = document.getElementById('announcementPostedBy').value.trim();
+            const roleId = document.getElementById('roleIdToPing').value.trim();
             
-            if (!title || !content) {
-                alert('Please fill in all fields');
+            if (!title || !content || !postedBy) {
+                alert('Please fill in all required fields');
                 return;
             }
             
-            await formSystem.createAnnouncement(title, content);
+            await formSystem.createAnnouncement(title, content, postedBy, roleId);
             document.querySelector('.form-modal').remove();
             alert('Announcement created and will be posted shortly!');
             
@@ -585,9 +615,252 @@
             }
         }
         
+        function openTrialLog() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-clipboard-check"></i> Trial Log</h3>
+                    <input type="text" id="trialLogNum" placeholder="Trial Log Number" required>
+                    <input type="text" id="staffMember" placeholder="Staff Member Name" required>
+                    <input type="text" id="oldRank" placeholder="Old Rank" required>
+                    <input type="text" id="newRank" placeholder="New Rank" required>
+                    <input type="date" id="trialStartDate" required>
+                    <input type="date" id="trialEndDate" required>
+                    <select id="trialResult" required>
+                        <option value="">Select Result</option>
+                        <option value="Passed">Passed</option>
+                        <option value="Failed">Failed</option>
+                        <option value="Extended">Extended</option>
+                        <option value="Ongoing">Ongoing</option>
+                    </select>
+                    <input type="text" id="signedBy" placeholder="Signed by (your name)" required>
+                    <div class="form-actions">
+                        <button onclick="submitTrialLog()" class="btn-primary">Submit Trial Log</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function submitTrialLog() {
+            const data = {
+                trialLogNum: document.getElementById('trialLogNum').value.trim(),
+                staffMember: document.getElementById('staffMember').value.trim(),
+                oldRank: document.getElementById('oldRank').value.trim(),
+                newRank: document.getElementById('newRank').value.trim(),
+                trialStartDate: document.getElementById('trialStartDate').value,
+                trialEndDate: document.getElementById('trialEndDate').value,
+                trialResult: document.getElementById('trialResult').value,
+                signedBy: document.getElementById('signedBy').value.trim()
+            };
+            
+            if (!data.trialLogNum || !data.staffMember || !data.oldRank || !data.newRank || !data.trialStartDate || !data.trialEndDate || !data.trialResult || !data.signedBy) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'trial_logs', trialLog: data })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('.form-modal').remove();
+                    alert('Trial log submitted successfully!');
+                    loadTrialLogs();
+                } else {
+                    alert('Failed to submit trial log');
+                }
+            } catch (error) {
+                alert('Error submitting trial log');
+            }
+        }
+        
+        async function loadTrialLogs() {
+            try {
+                const response = await fetch('./api/load.php?type=trial_logs');
+                const logs = await response.json();
+                
+                const container = document.getElementById('trialLogsContainer');
+                if (!container) return;
+                
+                if (logs.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No trial logs yet</p>';
+                    return;
+                }
+                
+                const canManage = formSystem.canViewPin();
+                
+                container.innerHTML = logs.map(log => `
+                    <div class="form-card">
+                        <h4>Trial Log #${log.trialLogNum}</h4>
+                        <p><strong>Staff Member:</strong> ${log.staffMember}</p>
+                        <p><strong>Rank Change:</strong> ${log.oldRank} → ${log.newRank}</p>
+                        <p><strong>Trial Period:</strong> ${new Date(log.trialStartDate).toLocaleDateString()} - ${new Date(log.trialEndDate).toLocaleDateString()}</p>
+                        <p><strong>Result:</strong> <span style="color: ${log.trialResult === 'Passed' ? '#00ff00' : log.trialResult === 'Failed' ? '#ff0000' : '#ff6b35'}">${log.trialResult}</span></p>
+                        <p><small>Signed by: ${log.signedBy}</small></p>
+                        <p><small>Created: ${new Date(log.created).toLocaleDateString()}</small></p>
+                        ${canManage && log.trialResult === 'Ongoing' ? `
+                            <div class="form-actions">
+                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Passed')">Pass</button>
+                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Failed')">Fail</button>
+                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Extended')">Extend</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading trial logs:', error);
+            }
+        }
+        
+        async function updateTrialResult(logId, result) {
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'update_trial', logId, result })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadTrialLogs();
+                } else {
+                    alert('Failed to update trial result');
+                }
+            } catch (error) {
+                alert('Error updating trial result');
+            }
+        }
+        
+        function openTrainingForm() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-graduation-cap"></i> Create Training</h3>
+                    <input type="text" id="trainingTitle" placeholder="Training Title" required>
+                    <textarea id="trainingDescription" placeholder="Training Description" rows="4" required></textarea>
+                    <input type="date" id="trainingDate" required>
+                    <input type="time" id="trainingTime" required>
+                    <input type="text" id="trainingPostedBy" placeholder="Posted by (your name)" required>
+                    <div class="form-actions">
+                        <button onclick="createTraining()" class="btn-primary">Create Training</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function createTraining() {
+            const data = {
+                title: document.getElementById('trainingTitle').value.trim(),
+                description: document.getElementById('trainingDescription').value.trim(),
+                date: document.getElementById('trainingDate').value,
+                time: document.getElementById('trainingTime').value,
+                postedBy: document.getElementById('trainingPostedBy').value.trim()
+            };
+
+            if (!data.title || !data.description || !data.date || !data.time || !data.postedBy) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'trainings', training: data })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('.form-modal').remove();
+                    alert('Training created successfully!');
+                    loadTrainings();
+                } else {
+                    alert('Failed to create training');
+                }
+            } catch (error) {
+                alert('Error creating training');
+            }
+        }
+        
+        async function loadTrainings() {
+            try {
+                const response = await fetch('./api/load.php?type=trainings');
+                const trainings = await response.json();
+                
+                const container = document.getElementById('trainingsContainer');
+                if (!container) return;
+                
+                if (trainings.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No trainings scheduled</p>';
+                    return;
+                }
+                
+                const canManage = formSystem.canViewPin();
+                
+                container.innerHTML = trainings.map(training => `
+                    <div class="form-card">
+                        <h4>${training.title}</h4>
+                        <p>${training.description}</p>
+                        <p><strong>Date:</strong> ${new Date(training.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${training.time}</p>
+                        <p><strong>Posted by:</strong> ${training.postedBy}</p>
+                        <p><small>Confirmed: ${training.attendees ? training.attendees.length : 0} trainees</small></p>
+                        ${canManage ? `
+                            <div class="form-actions">
+                                <button class="btn-glass" onclick="deleteTraining('${training.id}')">Delete</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading trainings:', error);
+            }
+        }
+        
+        async function deleteTraining(id) {
+            if (confirm('Delete this training?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'delete_training', trainingId: id })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        loadTrainings();
+                    }
+                } catch (error) {
+                    alert('Error deleting training');
+                }
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', async () => {
             await loadForms();
             await loadAnnouncements();
+            await loadTrialLogs();
+            await loadTrainings();
+            
+            // Show training management for Management+
+            const auth = localStorage.getItem('ukbrum_auth');
+            if (auth) {
+                const user = JSON.parse(auth);
+                if (user.rank === 'management' || user.rank === 'senior_management' || user.rank === 'founder') {
+                    const managementCard = document.querySelector('.management-only');
+                    if (managementCard) managementCard.style.display = 'block';
+                }
+            }
             
             const searchInput = document.getElementById('siteSearch');
             if (searchInput) {

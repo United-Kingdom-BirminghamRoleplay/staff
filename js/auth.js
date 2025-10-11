@@ -11,7 +11,83 @@ class AuthSystem {
 
     async init() {
         await this.loadAuthData();
+        await this.checkWebsiteControl();
         this.checkExistingAuth();
+        this.checkEmergencyPopup();
+    }
+
+    async checkWebsiteControl() {
+        try {
+            const response = await fetch('./api/load.php?type=website_control');
+            const control = await response.json();
+            
+            if (control.locked) {
+                const auth = localStorage.getItem('ukbrum_auth');
+                if (!auth) {
+                    this.showLockedScreen();
+                    return;
+                }
+                
+                const user = JSON.parse(auth);
+                if (user.rank !== 'founder') {
+                    this.showLockedScreen();
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking website control:', error);
+        }
+    }
+
+    showLockedScreen() {
+        document.body.innerHTML = `
+            <div class="maintenance-screen">
+                <div class="maintenance-content">
+                    <i class="fas fa-lock maintenance-icon"></i>
+                    <h1>Website Locked</h1>
+                    <p>The website is currently locked by the founder. Only founders can access it at this time.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    async checkEmergencyPopup() {
+        try {
+            const response = await fetch('./api/load.php?type=website_control');
+            const control = await response.json();
+            
+            if (control.emergency_popup && control.emergency_popup.message) {
+                const lastShown = localStorage.getItem('last_emergency_popup');
+                const popupTime = control.emergency_popup.created;
+                
+                if (lastShown !== popupTime) {
+                    this.showEmergencyPopup(control.emergency_popup.message);
+                    localStorage.setItem('last_emergency_popup', popupTime);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking emergency popup:', error);
+        }
+    }
+
+    showEmergencyPopup(message) {
+        const popup = document.createElement('div');
+        popup.className = 'auth-overlay';
+        popup.style.zIndex = '10000';
+        popup.innerHTML = `
+            <div class="auth-modal" style="border: 3px solid #dc2626;">
+                <div class="auth-header" style="background: #dc2626; color: white;">
+                    <h2><i class="fas fa-exclamation-triangle"></i> EMERGENCY NOTICE</h2>
+                </div>
+                <div class="auth-form">
+                    <p style="color: #dc2626; font-size: 1.1rem; font-weight: bold; line-height: 1.6; margin-bottom: 2rem;">${message}</p>
+                    <button onclick="this.closest('.auth-overlay').remove()" class="btn auth-btn" style="background: #dc2626;">
+                        <i class="fas fa-check"></i> Acknowledged
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(popup);
     }
 
     async loadAuthData() {
@@ -42,6 +118,11 @@ class AuthSystem {
         authContainer.className = 'auth-overlay';
         authContainer.innerHTML = `
             <div class="auth-modal">
+                <div class="auth-photos">
+                    <img src="./images/ukbrum_1.png" alt="UKBRUM" onerror="this.style.display='none'">
+                    <img src="./images/ukbrum_2.png" alt="UKBRUM" onerror="this.style.display='none'">
+                    <img src="./images/ukbrum_3.png" alt="UKBRUM" onerror="this.style.display='none'">
+                </div>
                 <div class="auth-header">
                     <h2>Staff Sharepoint Login</h2>
                     <p>United Kingdom: Birmingham Roleplay</p>
@@ -77,6 +158,9 @@ class AuthSystem {
                     </div>
                     <button type="submit" class="btn auth-btn">
                         <i class="fas fa-sign-in-alt"></i> Access Portal
+                    </button>
+                    <button type="button" onclick="window.location.href='trainees/index.html'" class="btn auth-btn" style="background: #ff6b35; margin-top: 10px;">
+                        <i class="fas fa-graduation-cap"></i> Are you in-training? Click here
                     </button>
                     <div id="authError" class="auth-error"></div>
                 </form>

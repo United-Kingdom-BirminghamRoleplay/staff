@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcement - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .reaction-bar {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        .reaction-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .reaction-btn.reacted {
+            background: #ff6b35;
+            border-color: #ff6b35;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <main class="main-content">
+        <div id="content">Loading...</div>
+    </main>
+
+    <script src="js/components.js"></script>
+    <script src="js/forms.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const announcementId = params.get('id');
+
+        async function init() {
+            if (!announcementId) {
+                document.getElementById('content').innerHTML = '<div class="error">No announcement ID provided</div>';
+                return;
+            }
+            
+            const announcements = await formSystem.loadAnnouncements();
+            const announcement = announcements.find(a => a.id === announcementId);
+            
+            if (!announcement) {
+                document.getElementById('content').innerHTML = '<div class="error">Announcement not found</div>';
+                return;
+            }
+
+            const deviceId = localStorage.getItem('device_id') || generateDeviceId();
+            const reactions = JSON.parse(localStorage.getItem(`reactions_${announcementId}`) || '{}');
+
+            document.getElementById('content').innerHTML = `
+                <div class="announcement-view">
+                    <h1>${announcement.title}</h1>
+                    <p class="announcement-meta">Posted: ${new Date(announcement.created).toLocaleDateString()} ${announcement.postedBy ? `by ${announcement.postedBy}` : ''}</p>
+                    <div class="announcement-content">
+                        <p>${announcement.content}</p>
+                    </div>
+                    <div class="reaction-bar">
+                        <button class="reaction-btn ${reactions[deviceId] === '👍' ? 'reacted' : ''}" onclick="react('👍')">
+                            👍 <span id="like-count">${Object.values(reactions).filter(r => r === '👍').length}</span>
+                        </button>
+                        <button class="reaction-btn ${reactions[deviceId] === '❤️' ? 'reacted' : ''}" onclick="react('❤️')">
+                            ❤️ <span id="heart-count">${Object.values(reactions).filter(r => r === '❤️').length}</span>
+                        </button>
+                        <button class="reaction-btn ${reactions[deviceId] === '👏' ? 'reacted' : ''}" onclick="react('👏')">
+                            👏 <span id="clap-count">${Object.values(reactions).filter(r => r === '👏').length}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateDeviceId() {
+            const id = 'device_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('device_id', id);
+            return id;
+        }
+
+        function react(emoji) {
+            const deviceId = localStorage.getItem('device_id');
+            const reactions = JSON.parse(localStorage.getItem(`reactions_${announcementId}`) || '{}');
+            
+            if (reactions[deviceId] === emoji) {
+                delete reactions[deviceId];
+            } else {
+                reactions[deviceId] = emoji;
+            }
+            
+            localStorage.setItem(`reactions_${announcementId}`, JSON.stringify(reactions));
+            init(); // Refresh display
+        }
+
+        init();
+    </script>
+</body>
+</html>
