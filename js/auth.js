@@ -214,7 +214,7 @@ class AuthSystem {
 
         // Hardcoded passwords for immediate fix
         const passwords = {
-            'founder': '0000',
+            'founder': '6769',
             'senior_management': '4623',
             'management': '8835', 
             'staff': '6748'
