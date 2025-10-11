@@ -166,7 +166,7 @@ class FormSystem {
                 throw new Error(result.error || 'Save failed');
             }
             
-            const announcementUrl = `${window.location.origin}/staff/announcement.html?id=${result.id}`;
+            const announcementUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, '')}announcement.html?id=${result.id}`;
             
             this.sendToDiscord({
                 content: roleId ? `<@&${roleId}>` : '',
