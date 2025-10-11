@@ -95,6 +95,26 @@ if ($type === 'forms') {
         echo json_encode([]);
     }
     
+} elseif ($type === 'ip_logs') {
+    $file = $dataDir . 'ip_logs.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $logs = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($logs) ? $logs : []);
+    } else {
+        echo json_encode([]);
+    }
+    
+} elseif ($type === 'banned_ips') {
+    $file = $dataDir . 'banned_ips.json';
+    if (file_exists($file) && is_readable($file)) {
+        $content = file_get_contents($file);
+        $bannedIps = $content ? json_decode($content, true) : [];
+        echo json_encode(is_array($bannedIps) ? $bannedIps : []);
+    } else {
+        echo json_encode([]);
+    }
+    
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

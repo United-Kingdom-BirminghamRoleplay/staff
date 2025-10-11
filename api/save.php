@@ -316,6 +316,59 @@ if ($type === 'forms') {
     
     echo json_encode(['success' => true]);
     
+} elseif ($type === 'ban_ip') {
+    $ip = $input['ip'];
+    $reason = $input['reason'];
+    $bannedBy = $input['bannedBy'];
+    
+    $file = $dataDir . 'banned_ips.json';
+    $bannedIps = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $bannedIps = $content ? json_decode($content, true) : [];
+        if (!is_array($bannedIps)) $bannedIps = [];
+    }
+    
+    $newBan = [
+        'id' => uniqid(),
+        'ip' => $ip,
+        'reason' => $reason,
+        'bannedBy' => $bannedBy,
+        'timestamp' => date('c')
+    ];
+    
+    $bannedIps[] = $newBan;
+    
+    if (file_put_contents($file, json_encode($bannedIps, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot ban IP']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
+} elseif ($type === 'unban_ip') {
+    $ip = $input['ip'];
+    
+    $file = $dataDir . 'banned_ips.json';
+    $bannedIps = [];
+    if (file_exists($file)) {
+        $content = file_get_contents($file);
+        $bannedIps = $content ? json_decode($content, true) : [];
+    }
+    
+    $bannedIps = array_filter($bannedIps, function($ban) use ($ip) {
+        return $ban['ip'] !== $ip;
+    });
+    
+    $bannedIps = array_values($bannedIps);
+    
+    if (file_put_contents($file, json_encode($bannedIps, JSON_PRETTY_PRINT), LOCK_EX) === false) {
+        echo json_encode(['error' => 'Cannot unban IP']);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
+    
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

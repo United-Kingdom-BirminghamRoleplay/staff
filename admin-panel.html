@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="footer-styles.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Admin Panel</h1>
+            <p class="greeting-subtitle">IP Monitoring and Security Management</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-network-wired"></i> IP Access Logs</h2>
+            <div id="ipLogsContainer">
+                <!-- IP logs will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-ban"></i> IP Ban Management</h2>
+            <div class="form-card">
+                <h4>Add IP Ban</h4>
+                <input type="text" id="banIpInput" placeholder="Enter IP address to ban" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                <input type="text" id="banReasonInput" placeholder="Reason for ban">
+                <button class="btn-glass" onclick="addIpBan()">Ban IP</button>
+            </div>
+            <div id="bannedIpsContainer">
+                <!-- Banned IPs will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        async function loadIpLogs() {
+            try {
+                const response = await fetch('./api/load.php?type=ip_logs');
+                const logs = await response.json();
+                
+                const container = document.getElementById('ipLogsContainer');
+                if (logs.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No access logs yet</p>';
+                    return;
+                }
+                
+                container.innerHTML = logs.slice(0, 50).map(log => `
+                    <div class="form-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4>${log.ip}</h4>
+                                <p><strong>User:</strong> ${log.user || 'Unknown'}</p>
+                                <p><strong>Location:</strong> ${log.location || 'Unknown'}</p>
+                                <p><strong>User Agent:</strong> ${log.userAgent || 'Unknown'}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p><small>${new Date(log.timestamp).toLocaleString()}</small></p>
+                                <button class="btn-glass" onclick="banIp('${log.ip}', 'Suspicious activity')">Ban IP</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading IP logs:', error);
+            }
+        }
+
+        async function loadBannedIps() {
+            try {
+                const response = await fetch('./api/load.php?type=banned_ips');
+                const bannedIps = await response.json();
+                
+                const container = document.getElementById('bannedIpsContainer');
+                if (bannedIps.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No banned IPs</p>';
+                    return;
+                }
+                
+                container.innerHTML = bannedIps.map(ban => `
+                    <div class="form-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4>${ban.ip}</h4>
+                                <p><strong>Reason:</strong> ${ban.reason}</p>
+                                <p><strong>Banned by:</strong> ${ban.bannedBy}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <p><small>Banned: ${new Date(ban.timestamp).toLocaleString()}</small></p>
+                                <button class="btn-glass" onclick="unbanIp('${ban.ip}')">Unban</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading banned IPs:', error);
+            }
+        }
+
+        async function addIpBan() {
+            const ip = document.getElementById('banIpInput').value.trim();
+            const reason = document.getElementById('banReasonInput').value.trim();
+            
+            if (!ip || !reason) {
+                alert('Please enter both IP address and reason');
+                return;
+            }
+            
+            await banIp(ip, reason);
+            document.getElementById('banIpInput').value = '';
+            document.getElementById('banReasonInput').value = '';
+        }
+
+        async function banIp(ip, reason) {
+            try {
+                const authData = localStorage.getItem('ukbrum_auth');
+                const user = JSON.parse(authData);
+                
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'ban_ip',
+                        ip: ip,
+                        reason: reason,
+                        bannedBy: user.rank
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('IP banned successfully');
+                    loadBannedIps();
+                } else {
+                    alert('Failed to ban IP');
+                }
+            } catch (error) {
+                alert('Error banning IP');
+            }
+        }
+
+        async function unbanIp(ip) {
+            if (!confirm(`Unban IP ${ip}?`)) return;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'unban_ip',
+                        ip: ip
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('IP unbanned successfully');
+                    loadBannedIps();
+                } else {
+                    alert('Failed to unban IP');
+                }
+            } catch (error) {
+                alert('Error unbanning IP');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = localStorage.getItem('ukbrum_auth');
+            if (!auth) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const user = JSON.parse(auth);
+            if (user.rank !== 'founder') {
+                alert('Access denied. Founder only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadIpLogs();
+            loadBannedIps();
+            setInterval(loadIpLogs, 30000); // Refresh every 30 seconds
+        });
+    </script>
+</body>
+</html>

@@ -40,6 +40,19 @@ function setActiveNavLink() {
 
 // Load components on page load
 document.addEventListener('DOMContentLoaded', async () => {
+    // Track IP access
+    try {
+        const auth = localStorage.getItem('ukbrum_auth');
+        const user = auth ? JSON.parse(auth) : null;
+        await fetch('./api/ip-tracker.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user: user?.rank || null })
+        });
+    } catch (error) {
+        console.error('IP tracking failed:', error);
+    }
+    
     await loadComponent('sidebar-container', 'sidebar.html');
     await loadComponent('footer-container', 'footer.html');
     
@@ -48,8 +61,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (auth) {
         const user = JSON.parse(auth);
         if (user.rank === 'founder') {
-            const founderLink = document.querySelector('.founder-only');
-            if (founderLink) founderLink.style.display = 'block';
+            setTimeout(() => {
+                const founderLinks = document.querySelectorAll('.founder-only');
+                founderLinks.forEach(link => link.style.display = 'block');
+            }, 100);
         }
     }
 });
