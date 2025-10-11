@@ -48,26 +48,13 @@ function logAccess($ip, $userAgent, $user = null) {
         $logs = json_decode(file_get_contents($logsFile), true) ?: [];
     }
     
-    // Get location info (basic)
-    $location = 'Unknown';
-    try {
-        $locationData = @file_get_contents("http://ip-api.com/json/{$ip}");
-        if ($locationData) {
-            $locationInfo = json_decode($locationData, true);
-            if ($locationInfo && $locationInfo['status'] === 'success') {
-                $location = $locationInfo['city'] . ', ' . $locationInfo['country'];
-            }
-        }
-    } catch (Exception $e) {
-        // Ignore location errors
-    }
+    // Location tracking disabled for security
     
     $logEntry = [
         'ip' => $ip,
         'timestamp' => date('Y-m-d H:i:s'),
         'userAgent' => $userAgent,
-        'user' => $user,
-        'location' => $location
+        'user' => $user
     ];
     
     array_unshift($logs, $logEntry);
