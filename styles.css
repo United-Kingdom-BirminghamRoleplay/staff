@@ -1091,15 +1091,15 @@ footer::before {
 }
 
 .slide:nth-child(1) {
-    background-image: url('./images/slideshow/slide1.jpg');
+    background-image: url('./images/slideshow/slide1.png');
 }
 
 .slide:nth-child(2) {
-    background-image: url('./images/slideshow/slide2.jpg');
+    background-image: url('./images/slideshow/slide2.png');
 }
 
 .slide:nth-child(3) {
-    background-image: url('./images/slideshow/slide3.jpg');
+    background-image: url('./images/slideshow/slide3.png');
 }
 
 .slide.active {
