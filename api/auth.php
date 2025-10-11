@@ -8,13 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
+require_once __DIR__ . '/../backend/connect.php';
+ // <-- new database connection file
+
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
-
-$dataDir = __DIR__ . '/../data/';
-if (!is_dir($dataDir)) {
-    mkdir($dataDir, 0755, true);
-}
 
 function hashPassword($password) {
     return password_hash($password, PASSWORD_DEFAULT);
@@ -33,98 +31,111 @@ if ($action === 'register') {
     $discordUsername = trim($input['discordUsername'] ?? '');
     $requestedRank = $input['requestedRank'] ?? '';
     $password = $input['password'] ?? '';
-    
+
     if (empty($robloxUsername) || empty($discordUsername) || empty($requestedRank) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'All fields are required']);
         exit;
     }
-    
-    $usersFile = $dataDir . 'users.json';
-    $users = [];
-    if (file_exists($usersFile)) {
-        $content = file_get_contents($usersFile);
-        $users = $content ? json_decode($content, true) : [];
-        if (!is_array($users)) $users = [];
-    }
-    
-    // Check if user already exists
-    foreach ($users as $user) {
-        if (strtolower($user['robloxUsername']) === strtolower($robloxUsername)) {
-            echo json_encode(['success' => false, 'message' => 'Roblox username already registered']);
-            exit;
-        }
-    }
-    
-    $newUser = [
-        'id' => generateUserId(),
-        'robloxUsername' => $robloxUsername,
-        'discordUsername' => $discordUsername,
-        'requestedRank' => $requestedRank,
-        'rank' => null,
-        'password' => hashPassword($password),
-        'status' => 'pending',
-        'registeredAt' => date('c'),
-        'approvedAt' => null,
-        'approvedBy' => null,
-        'notes' => '',
-        'actions' => []
-    ];
-    
-    $users[] = $newUser;
-    
-    if (file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX) === false) {
-        echo json_encode(['success' => false, 'message' => 'Registration failed']);
+
+    // Check if Roblox username already exists
+    $check = $conn->prepare("SELECT id FROM users WHERE LOWER(robloxUsername) = LOWER(?)");
+    $check->bind_param("s", $robloxUsername);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Roblox username already registered']);
         exit;
     }
-    
-    echo json_encode(['success' => true]);
-    
+
+    $check->close();
+
+    $newUserId = generateUserId();
+    $hashedPassword = hashPassword($password);
+    $status = 'pending';
+    $registeredAt = date('c');
+    $null = null;
+    $empty = '';
+
+    $stmt = $conn->prepare("
+        INSERT INTO users 
+        (id, robloxUsername, discordUsername, requestedRank, rank, password, status, registeredAt, approvedAt, approvedBy, notes, actions)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $rank = null;
+    $actions = json_encode([]);
+
+    $stmt->bind_param(
+        "ssssssssssss",
+        $newUserId,
+        $robloxUsername,
+        $discordUsername,
+        $requestedRank,
+        $rank,
+        $hashedPassword,
+        $status,
+        $registeredAt,
+        $null,
+        $null,
+        $empty,
+        $actions
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Registration failed: ' . $stmt->error]);
+    }
+
+    $stmt->close();
+
 } elseif ($action === 'login') {
     $robloxUsername = trim($input['robloxUsername'] ?? '');
     $password = $input['password'] ?? '';
-    
+
     if (empty($robloxUsername) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'Username and password required']);
         exit;
     }
-    
-    $usersFile = $dataDir . 'users.json';
-    if (!file_exists($usersFile)) {
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE LOWER(robloxUsername) = LOWER(?) LIMIT 1");
+    $stmt->bind_param("s", $robloxUsername);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
         echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
         exit;
     }
-    
-    $users = json_decode(file_get_contents($usersFile), true) ?: [];
-    
-    foreach ($users as $user) {
-        if (strtolower($user['robloxUsername']) === strtolower($robloxUsername)) {
-            if ($user['status'] === 'pending') {
-                echo json_encode(['success' => false, 'message' => 'Account pending approval']);
-                exit;
-            }
-            
-            if ($user['status'] === 'suspended') {
-                echo json_encode(['success' => false, 'message' => 'Account suspended']);
-                exit;
-            }
-            
-            if ($user['status'] === 'approved' && verifyPassword($password, $user['password'])) {
-                echo json_encode([
-                    'success' => true,
-                    'user' => [
-                        'id' => $user['id'],
-                        'robloxUsername' => $user['robloxUsername'],
-                        'discordUsername' => $user['discordUsername'],
-                        'rank' => $user['rank']
-                    ]
-                ]);
-                exit;
-            }
-        }
+
+    $user = $result->fetch_assoc();
+
+    if ($user['status'] === 'pending') {
+        echo json_encode(['success' => false, 'message' => 'Account pending approval']);
+        exit;
     }
-    
+
+    if ($user['status'] === 'suspended') {
+        echo json_encode(['success' => false, 'message' => 'Account suspended']);
+        exit;
+    }
+
+    if ($user['status'] === 'approved' && verifyPassword($password, $user['password'])) {
+        echo json_encode([
+            'success' => true,
+            'user' => [
+                'id' => $user['id'],
+                'robloxUsername' => $user['robloxUsername'],
+                'discordUsername' => $user['discordUsername'],
+                'rank' => $user['rank']
+            ]
+        ]);
+        exit;
+    }
+
     echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
-    
+    $stmt->close();
+
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
