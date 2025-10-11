@@ -672,6 +672,10 @@
                 if (result.success) {
                     document.querySelector('.form-modal').remove();
                     alert('Trial log submitted successfully!');
+                    
+                    // Send Discord webhook
+                    formSystem.sendTrialLogWebhook(data);
+                    
                     loadTrialLogs();
                 } else {
                     alert('Failed to submit trial log');
@@ -783,6 +787,10 @@
                 if (result.success) {
                     document.querySelector('.form-modal').remove();
                     alert('Training created successfully!');
+                    
+                    // Send Discord webhook
+                    formSystem.sendTrainingWebhook(data);
+                    
                     loadTrainings();
                 } else {
                     alert('Failed to create training');

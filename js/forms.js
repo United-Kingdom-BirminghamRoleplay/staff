@@ -2,6 +2,8 @@ class FormSystem {
     constructor() {
         this.forms = [];
         this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
+        this.TRAINING_WEBHOOK = 'https://discord.com/api/webhooks/1426500062522900501/O1CoAt5wgF7d7CxdflrjOpz_uS1upyPK2pKoxjOX-XqJ-VEimT3oQl_inCMM900E4-8y';
+        this.TRIAL_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1426500158698295337/ky7tVcRgI-e3G2D4gsA2mXGx6k5zNlO6Gk5pfWJPFSfuqb6Bid2rgrRmpPFJs1J3aMQE';
     }
     
     async loadForms() {
@@ -214,6 +216,62 @@ class FormSystem {
 
     sendToDiscord(payload) {
         fetch(this.WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    }
+
+    sendTrainingWebhook(training) {
+        if (!this.TRAINING_WEBHOOK || this.TRAINING_WEBHOOK === 'YOUR_TRAINING_WEBHOOK_URL_HERE') return;
+        
+        const payload = {
+            embeds: [{
+                title: '📚 New Training Session Created',
+                color: 0x00ff00,
+                fields: [
+                    { name: 'Training Title:', value: training.title, inline: false },
+                    { name: 'Description:', value: training.description, inline: false },
+                    { name: 'Date:', value: new Date(training.date).toLocaleDateString(), inline: true },
+                    { name: 'Time:', value: training.time, inline: true },
+                    { name: 'Posted by:', value: training.postedBy, inline: true }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: 'Training Portal - Confirm your attendance!' }
+            }]
+        };
+        
+        fetch(this.TRAINING_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    }
+
+    sendTrialLogWebhook(trialLog) {
+        if (!this.TRIAL_LOG_WEBHOOK || this.TRIAL_LOG_WEBHOOK === 'YOUR_TRIAL_LOG_WEBHOOK_URL_HERE') return;
+        
+        const resultColor = trialLog.trialResult === 'Passed' ? 0x00ff00 : 
+                           trialLog.trialResult === 'Failed' ? 0xff0000 : 0xff6b35;
+        
+        const payload = {
+            embeds: [{
+                title: '📋 Trial Log Submitted',
+                color: resultColor,
+                fields: [
+                    { name: 'Trial Log #:', value: trialLog.trialLogNum, inline: true },
+                    { name: 'Staff Member:', value: trialLog.staffMember, inline: true },
+                    { name: 'Rank Change:', value: `${trialLog.oldRank} → ${trialLog.newRank}`, inline: true },
+                    { name: 'Trial Period:', value: `${new Date(trialLog.trialStartDate).toLocaleDateString()} - ${new Date(trialLog.trialEndDate).toLocaleDateString()}`, inline: false },
+                    { name: 'Result:', value: trialLog.trialResult, inline: true },
+                    { name: 'Signed by:', value: trialLog.signedBy, inline: true }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: 'Staff Trial System' }
+            }]
+        };
+        
+        fetch(this.TRIAL_LOG_WEBHOOK, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
