@@ -1,7 +1,7 @@
 // New Authentication System
 class NewAuthSystem {
     constructor() {
-        this.init();
+        this.init(); 
     }
     
     init() {
