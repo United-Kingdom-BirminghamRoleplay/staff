@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $type = $_GET['type'] ?? '';
 $dataDir = __DIR__ . '/../data/';
 
-// Include MySQL connection **only for users**
+
 require_once __DIR__ . '/../backend/connect.php';
 
 if ($type === 'forms') {
@@ -124,7 +124,7 @@ if ($type === 'forms') {
     echo json_encode(['error' => 'File not found']);
 
 } elseif ($type === 'users') {
-    // ------------------ MYSQL LOGIC ------------------
+    
     $users = [];
     $result = $conn->query("SELECT * FROM users");
 
