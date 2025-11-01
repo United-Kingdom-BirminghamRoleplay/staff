@@ -2,7 +2,7 @@
 class DiscordAuth {
     constructor() {
         this.CLIENT_ID = '1340376847732707380';
-        this.REDIRECT_URI = window.location.origin + '/auth-callback.html';
+        this.REDIRECT_URI = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'auth-callback.html';
         this.SCOPES = 'identify guilds.members.read';
         this.GUILD_ID = '1152677388543598749'; 
     }
@@ -16,7 +16,8 @@ class DiscordAuth {
             `client_id=${this.CLIENT_ID}&` +
             `response_type=code&` +
             `redirect_uri=${encodeURIComponent(this.REDIRECT_URI)}&` +
-            `scope=${encodeURIComponent(this.SCOPES)}`;
+            `scope=${encodeURIComponent(this.SCOPES)}&` +
+            `state=${state}`;
         
         window.location.href = authURL;
     }
