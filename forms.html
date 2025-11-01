@@ -482,7 +482,21 @@
                 evidence: evidenceLink
             };
             
-            formSystem.submitReport(reportData);
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'general_report', report: reportData })
+                });
+                
+                if ((await response.json()).success) {
+                    alert('Report submitted successfully!');
+                } else {
+                    alert('Failed to submit report');
+                }
+            } catch (error) {
+                alert('Error submitting report');
+            }
             document.querySelector('.form-modal').remove();
             alert('Report submitted successfully!');
         }

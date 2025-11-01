@@ -59,13 +59,64 @@ if ($type === 'forms') {
     $trialLog = $input['trialLog'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO trial_logs (id, username, rank, notes, createdBy) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $id, $trialLog['username'], $trialLog['rank'], $trialLog['notes'], $trialLog['createdBy']);
+    $stmt = $conn->prepare("INSERT INTO trial_logs (id, trialLogNum, staffMember, oldRank, newRank, trialStartDate, trialEndDate, trialResult, signedBy, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssssssss", $id, $trialLog['trialLogNum'], $trialLog['staffMember'], $trialLog['oldRank'], $trialLog['newRank'], $trialLog['trialStartDate'], $trialLog['trialEndDate'], $trialLog['trialResult'], $trialLog['signedBy']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
-        echo json_encode(['error' => 'Cannot save trial log']);
+        echo json_encode(['error' => 'Cannot save trial log: ' . $conn->error]);
+    }
+
+} elseif ($type === 'trainings') {
+    $training = $input['training'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO trainings (id, title, description, date, time, postedBy, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssssss", $id, $training['title'], $training['description'], $training['date'], $training['time'], $training['postedBy']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot create training: ' . $conn->error]);
+    }
+
+} elseif ($type === 'general_report') {
+    $report = $input['report'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO reports (id, robloxUsername, discordUsername, reportType, description, evidence, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssssss", $id, $report['robloxUsername'], $report['discordUsername'], $report['reportType'], $report['description'], $report['evidence']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot save report: ' . $conn->error]);
+    }
+
+} elseif ($type === 'update_trial') {
+    $logId = $input['logId'];
+    $result = $input['result'];
+    
+    $stmt = $conn->prepare("UPDATE trial_logs SET trialResult = ? WHERE id = ?");
+    $stmt->bind_param("ss", $result, $logId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot update trial']);
+    }
+
+} elseif ($type === 'delete_training') {
+    $trainingId = $input['trainingId'];
+    
+    $stmt = $conn->prepare("DELETE FROM trainings WHERE id = ?");
+    $stmt->bind_param("s", $trainingId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete training']);
     }
 
 } elseif ($type === 'approve_user') {
@@ -249,6 +300,42 @@ if ($type === 'forms') {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot delete file']);
+    }
+
+} elseif ($type === 'clear_security_logs') {
+    $stmt = $conn->prepare("DELETE FROM security_logs");
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot clear security logs']);
+    }
+
+} elseif ($type === 'touchpoint') {
+    $data = $input['data'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO touchpoint (id, senderName, subject, priority, message, created) VALUES (?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssss", $id, $data['senderName'], $data['subject'], $data['priority'], $data['message']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot save touchpoint']);
+    }
+
+} elseif ($type === 'assessment') {
+    $assessment = $input['assessment'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO assessments (id, title, description, sections, totalMarks, created) VALUES (?, ?, ?, ?, ?, NOW())");
+    $sectionsJson = json_encode($assessment['sections']);
+    $stmt->bind_param("ssssi", $id, $assessment['title'], $assessment['description'], $sectionsJson, $assessment['totalMarks']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot create assessment']);
     }
 
 } else {

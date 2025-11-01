@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TouchPoint - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">TouchPoint</h1>
+            <p class="greeting-subtitle">Contact form for Advisory Board and above</p>
+        </section>
+
+        <section class="forms-section">
+            <div class="form-card">
+                <h3><i class="fas fa-envelope"></i> Contact Advisory Board</h3>
+                <form id="touchpointForm">
+                    <div style="margin-bottom: 20px;">
+                        <label>Your Name</label>
+                        <input type="text" id="senderName" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label>Subject</label>
+                        <input type="text" id="subject" required style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label>Priority Level</label>
+                        <select id="priority" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label>Message</label>
+                        <textarea id="message" required rows="6" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-glass">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        document.getElementById('touchpointForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                senderName: document.getElementById('senderName').value,
+                subject: document.getElementById('subject').value,
+                priority: document.getElementById('priority').value,
+                message: document.getElementById('message').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'touchpoint', data })
+                });
+                
+                if ((await response.json()).success) {
+                    alert('Message sent successfully!');
+                    document.getElementById('touchpointForm').reset();
+                } else {
+                    alert('Failed to send message');
+                }
+            } catch (error) {
+                alert('Error sending message');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (!newAuthSystem.hasPermission('advisory_board')) {
+                alert('Access denied. Advisory Board+ only.');
+                window.location.href = 'index.html';
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

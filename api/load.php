@@ -49,6 +49,30 @@ if ($type === 'announcements') {
     
     echo json_encode($logs);
 
+} elseif ($type === 'trainings') {
+    $stmt = $conn->prepare("SELECT * FROM trainings ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $trainings = [];
+    while ($row = $result->fetch_assoc()) {
+        $trainings[] = $row;
+    }
+    
+    echo json_encode($trainings);
+
+} elseif ($type === 'reports') {
+    $stmt = $conn->prepare("SELECT * FROM reports ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $reports = [];
+    while ($row = $result->fetch_assoc()) {
+        $reports[] = $row;
+    }
+    
+    echo json_encode($reports);
+
 } elseif ($type === 'users') {
     $stmt = $conn->prepare("SELECT id, robloxUsername, discordUsername, requestedRank, rank, status, registeredAt, approvedAt, approvedBy, notes FROM users ORDER BY registeredAt DESC");
     $stmt->execute();
