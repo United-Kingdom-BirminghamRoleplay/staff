@@ -83,6 +83,17 @@
                     return;
                 }
 
+                // Load assessment details for each response
+                for (let resp of responses) {
+                    try {
+                        const assessmentResp = await fetch(`./api/load.php?type=assessment&id=${resp.assessmentId}`);
+                        const assessment = await assessmentResp.json();
+                        resp.assessment = assessment;
+                    } catch (e) {
+                        resp.assessment = null;
+                    }
+                }
+                
                 container.innerHTML = responses.map(resp => `
                     <div class="response-card">
                         <div class="response-header">
@@ -100,43 +111,102 @@
                             </div>
                         </div>
                         
-                        <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
-                            <h4>Answers:</h4>
-                            <pre style="white-space: pre-wrap; font-family: inherit;">${JSON.stringify(JSON.parse(resp.answers), null, 2)}</pre>
+                        <div id="answers_${resp.id}" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <!-- Answers will be loaded here -->
+                        </div>
+                        
+                        <div style="background: rgba(0,255,0,0.1); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <strong>Total Score: <span id="total_${resp.id}">0</span> / <span id="max_${resp.id}">0</span></strong>
                         </div>
                         
                         ${resp.status === 'pending' || !resp.status ? `
                             <div class="grade-actions">
-                                <input type="text" placeholder="Reason for pass/fail" class="reason-input" id="reason_${resp.id}">
-                                <button class="btn-glass" onclick="gradeResponse('${resp.id}', 'passed')" style="background: rgba(34, 197, 94, 0.3);">
-                                    <i class="fas fa-check"></i> Pass
-                                </button>
-                                <button class="btn-glass" onclick="gradeResponse('${resp.id}', 'failed')" style="background: rgba(239, 68, 68, 0.3);">
-                                    <i class="fas fa-times"></i> Fail
+                                <button class="btn-glass" onclick="saveMarks('${resp.id}')" style="background: rgba(0, 123, 255, 0.3);">
+                                    <i class="fas fa-save"></i> Save Marks
                                 </button>
                             </div>
                         ` : `
                             <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                                <strong>Reason:</strong> ${resp.reason || 'No reason provided'}
+                                <strong>Final Score:</strong> ${resp.totalScore || 0} / ${resp.maxScore || 0} - ${resp.status.toUpperCase()}
                             </div>
                         `}
                     </div>
                 `).join('');
+                
+                // Load answers for each response
+                responses.forEach(resp => {
+                    loadAnswersForResponse(resp);
+                });
                 
             } catch (error) {
                 console.error('Error loading responses:', error);
             }
         }
 
-        async function gradeResponse(responseId, status) {
-            const reasonInput = document.getElementById(`reason_${responseId}`);
-            const reason = reasonInput ? reasonInput.value.trim() : '';
+        function loadAnswersForResponse(resp) {
+            const container = document.getElementById(`answers_${resp.id}`);
+            const answers = JSON.parse(resp.answers);
+            let totalMarks = 0;
+            let maxMarks = 0;
             
-            if (!reason) {
-                alert('Please provide a reason for the grade');
+            if (!resp.assessment || !resp.assessment.sections) {
+                container.innerHTML = '<p>Assessment data not available</p>';
                 return;
             }
-
+            
+            let html = '<h4>Mark Each Question:</h4>';
+            let questionIndex = 0;
+            
+            resp.assessment.sections.forEach(section => {
+                html += `<h5>${section.title}</h5>`;
+                section.questions.forEach(question => {
+                    const answer = answers[questionIndex] || 'No answer';
+                    maxMarks += question.marks;
+                    
+                    html += `
+                        <div style="border: 1px solid rgba(255,255,255,0.1); padding: 10px; margin: 10px 0; border-radius: 6px;">
+                            <p><strong>Q:</strong> ${question.text}</p>
+                            <p><strong>A:</strong> ${answer}</p>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                                <label>Marks:</label>
+                                <input type="number" min="0" max="${question.marks}" value="0" 
+                                       id="mark_${resp.id}_${questionIndex}" 
+                                       onchange="updateTotal('${resp.id}')"
+                                       style="width: 60px; padding: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white;">
+                                <span>/ ${question.marks}</span>
+                            </div>
+                        </div>
+                    `;
+                    questionIndex++;
+                });
+            });
+            
+            container.innerHTML = html;
+            document.getElementById(`max_${resp.id}`).textContent = maxMarks;
+        }
+        
+        function updateTotal(responseId) {
+            const markInputs = document.querySelectorAll(`[id^="mark_${responseId}_"]`);
+            let total = 0;
+            markInputs.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            document.getElementById(`total_${responseId}`).textContent = total;
+        }
+        
+        async function saveMarks(responseId) {
+            const markInputs = document.querySelectorAll(`[id^="mark_${responseId}_"]`);
+            const totalScore = parseInt(document.getElementById(`total_${responseId}`).textContent);
+            const maxScore = parseInt(document.getElementById(`max_${responseId}`).textContent);
+            
+            const marks = [];
+            markInputs.forEach(input => {
+                marks.push(parseInt(input.value) || 0);
+            });
+            
+            // Determine pass/fail based on assessment pass marks
+            const status = totalScore >= (maxScore * 0.6) ? 'passed' : 'failed'; // Default 60% if no pass marks set
+            
             try {
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
@@ -145,23 +215,22 @@
                         type: 'grade_assessment',
                         responseId,
                         status,
-                        reason,
+                        totalScore,
+                        maxScore,
+                        marks: JSON.stringify(marks),
                         gradedBy: newAuthSystem.getCurrentUser().robloxUsername
                     })
                 });
 
                 const result = await response.json();
                 if (result.success) {
-                    // Send to Discord
-                    await sendResultToDiscord(result.responseData, status, reason);
-                    
-                    alert(`Assessment ${status} successfully!`);
+                    alert(`Assessment graded: ${totalScore}/${maxScore} - ${status.toUpperCase()}`);
                     loadResponses();
                 } else {
-                    alert('Failed to grade assessment');
+                    alert('Failed to save marks');
                 }
             } catch (error) {
-                alert('Error grading assessment');
+                alert('Error saving marks');
             }
         }
 

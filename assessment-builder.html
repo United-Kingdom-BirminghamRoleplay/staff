@@ -74,6 +74,11 @@
                     <h4>Total Marks: <span id="totalMarks">0</span></h4>
                 </div>
                 
+                <div style="margin-bottom: 20px;">
+                    <label>Marks Required to Pass</label>
+                    <input type="number" id="passMarks" placeholder="Enter minimum marks to pass" min="1" style="width: 200px; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
+                </div>
+                
                 <div id="sectionsContainer">
                     <!-- Sections will be added here -->
                 </div>
@@ -200,9 +205,15 @@
         async function createAssessment() {
             const title = document.getElementById('assessmentTitle').value.trim();
             const description = document.getElementById('assessmentDesc').value.trim();
+            const passMarks = parseInt(document.getElementById('passMarks').value);
             
             if (!title) {
                 alert('Please enter an assessment title');
+                return;
+            }
+            
+            if (!passMarks || passMarks <= 0) {
+                alert('Please enter valid pass marks');
                 return;
             }
 
@@ -248,7 +259,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         type: 'assessment',
-                        assessment: { title, description, sections, totalMarks: document.getElementById('totalMarks').textContent }
+                        assessment: { title, description, sections, totalMarks: document.getElementById('totalMarks').textContent, passMarks }
                     })
                 });
 

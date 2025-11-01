@@ -392,9 +392,9 @@ if ($type === 'forms') {
     $assessment = $input['assessment'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO assessments (id, title, description, sections, totalMarks, created) VALUES (?, ?, ?, ?, ?, NOW())");
+    $stmt = $conn->prepare("INSERT INTO assessments (id, title, description, sections, totalMarks, passMarks, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
     $sectionsJson = json_encode($assessment['sections']);
-    $stmt->bind_param("ssssi", $id, $assessment['title'], $assessment['description'], $sectionsJson, $assessment['totalMarks']);
+    $stmt->bind_param("sssiii", $id, $assessment['title'], $assessment['description'], $sectionsJson, $assessment['totalMarks'], $assessment['passMarks']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
@@ -439,19 +439,16 @@ if ($type === 'forms') {
 } elseif ($type === 'grade_assessment') {
     $responseId = $input['responseId'];
     $status = $input['status'];
-    $reason = $input['reason'];
+    $totalScore = $input['totalScore'] ?? 0;
+    $maxScore = $input['maxScore'] ?? 0;
+    $marks = $input['marks'] ?? '';
     $gradedBy = $input['gradedBy'];
     
-    $stmt = $conn->prepare("UPDATE assessment_responses SET status = ?, reason = ?, gradedBy = ?, gradedAt = NOW() WHERE id = ?");
-    $stmt->bind_param("ssss", $status, $reason, $gradedBy, $responseId);
+    $stmt = $conn->prepare("UPDATE assessment_responses SET status = ?, totalScore = ?, maxScore = ?, marks = ?, gradedBy = ?, gradedAt = NOW() WHERE id = ?");
+    $stmt->bind_param("siisss", $status, $totalScore, $maxScore, $marks, $gradedBy, $responseId);
     
     if ($stmt->execute()) {
-        $stmt2 = $conn->prepare("SELECT ar.*, a.title as assessmentTitle FROM assessment_responses ar LEFT JOIN assessments a ON ar.assessmentId = a.id WHERE ar.id = ?");
-        $stmt2->bind_param("s", $responseId);
-        $stmt2->execute();
-        $responseData = $stmt2->get_result()->fetch_assoc();
-        
-        echo json_encode(['success' => true, 'responseData' => $responseData]);
+        echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot grade assessment']);
     }

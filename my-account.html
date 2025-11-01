@@ -47,6 +47,13 @@
         </section>
 
         <section class="forms-section">
+            <h2><i class="fas fa-clipboard-check"></i> My Assessment Results</h2>
+            <div id="myAssessments">
+                <!-- User's assessment results will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
             <h2><i class="fas fa-history"></i> Staff Actions</h2>
             <div class="form-card">
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
@@ -296,9 +303,54 @@
             }
         }
         
+        async function loadMyAssessments() {
+            try {
+                const response = await fetch('./api/load.php?type=assessment_responses');
+                const allResponses = await response.json();
+                const myResponses = allResponses.filter(resp => resp.username === currentUser.robloxUsername);
+                
+                const container = document.getElementById('myAssessments');
+                
+                if (myResponses.length === 0) {
+                    container.innerHTML = '<div class="form-card"><p style="text-align: center; color: #999;">No assessment submissions found</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = myResponses.map(resp => `
+                    <div class="form-card" style="border-left: 4px solid ${resp.status === 'passed' ? '#22c55e' : resp.status === 'failed' ? '#ef4444' : '#fbbf24'};">
+                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
+                            <h4>${resp.assessmentTitle || 'Assessment'}</h4>
+                            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${resp.status === 'passed' ? 'rgba(34, 197, 94, 0.3)' : resp.status === 'failed' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(251, 191, 36, 0.3)'}; color: ${resp.status === 'passed' ? '#22c55e' : resp.status === 'failed' ? '#ef4444' : '#fbbf24'}">
+                                ${resp.status ? resp.status.toUpperCase() : 'PENDING'}
+                            </span>
+                        </div>
+                        
+                        <p><strong>Submitted:</strong> ${new Date(resp.created).toLocaleString()}</p>
+                        <p><strong>Time Taken:</strong> ${resp.timeTaken} minutes</p>
+                        <p><strong>Questions Answered:</strong> ${resp.answeredQuestions}/${resp.totalQuestions}</p>
+                        
+                        ${resp.totalScore !== undefined ? `
+                            <div style="background: rgba(0,255,0,0.1); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                                <strong>Score: ${resp.totalScore} / ${resp.maxScore} (${Math.round((resp.totalScore/resp.maxScore)*100)}%)</strong>
+                            </div>
+                        ` : ''}
+                        
+                        ${resp.gradedBy ? `
+                            <p><small>Graded by: ${resp.gradedBy} on ${new Date(resp.gradedAt).toLocaleString()}</small></p>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading assessments:', error);
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             loadAccountInfo();
-            setTimeout(loadMyTouchpoints, 500); // Load after user info is loaded
+            setTimeout(() => {
+                loadMyTouchpoints();
+                loadMyAssessments();
+            }, 500);
         });
     </script>
 </body>
