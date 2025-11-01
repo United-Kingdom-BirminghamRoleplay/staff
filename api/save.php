@@ -422,6 +422,33 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot delete response']);
     }
 
+} elseif ($type === 'ban_ip') {
+    $ip = $input['ip'];
+    $reason = $input['reason'];
+    $bannedBy = $input['bannedBy'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO banned_ips (id, ip, reason, bannedBy, created) VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssss", $id, $ip, $reason, $bannedBy);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot ban IP']);
+    }
+
+} elseif ($type === 'unban_ip') {
+    $ip = $input['ip'];
+    
+    $stmt = $conn->prepare("DELETE FROM banned_ips WHERE ip = ?");
+    $stmt->bind_param("s", $ip);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot unban IP']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

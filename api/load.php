@@ -196,6 +196,33 @@ if ($type === 'announcements') {
     
     echo json_encode($assessments);
 
+} elseif ($type === 'banned_ips') {
+    $stmt = $conn->prepare("SELECT * FROM banned_ips ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $bannedIps = [];
+    while ($row = $result->fetch_assoc()) {
+        $bannedIps[] = $row;
+    }
+    
+    echo json_encode($bannedIps);
+
+} elseif ($type === 'check_ip_ban') {
+    $ip = $_GET['ip'] ?? '';
+    
+    $stmt = $conn->prepare("SELECT * FROM banned_ips WHERE ip = ?");
+    $stmt->bind_param("s", $ip);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $ban = $result->fetch_assoc();
+        echo json_encode(['banned' => true, 'reason' => $ban['reason'], 'bannedBy' => $ban['bannedBy']]);
+    } else {
+        echo json_encode(['banned' => false]);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }
