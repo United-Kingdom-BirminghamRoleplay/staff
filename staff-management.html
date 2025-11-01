@@ -62,20 +62,12 @@
         
         .search-input {
             width: 100%;
-            padding: 12px 45px 12px 15px;
+            padding: 12px 15px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             color: white;
             font-size: 14px;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.5);
         }
         
         .filter-select {
@@ -352,7 +344,6 @@
         <section class="search-filter-bar">
             <div class="search-box">
                 <input type="text" class="search-input" id="userSearch" placeholder="Search by username, discord, or rank...">
-                <i class="fas fa-search search-icon"></i>
             </div>
             <select class="filter-select" id="statusFilter">
                 <option value="">All Status</option>
@@ -433,6 +424,7 @@
 
     <script src="js/components.js"></script>
     <script src="js/new-auth.js"></script>
+    <script src="js/security.js"></script>
     <script>
         let allUsers = [];
         let filteredUsers = [];
@@ -450,6 +442,10 @@
                 console.log('Raw response:', data);
                 allUsers = JSON.parse(data);
                 console.log('Loaded users:', allUsers);
+                if (allUsers.length === 0) {
+                    document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No users in database</div>';
+                    return;
+                }
                 updateStats();
                 filterUsers();
             } catch (error) {

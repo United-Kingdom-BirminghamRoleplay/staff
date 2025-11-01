@@ -73,6 +73,19 @@ if ($type === 'announcements') {
     
     echo json_encode($files);
 
+} elseif ($type === 'security_logs') {
+    $stmt = $conn->prepare("SELECT * FROM security_logs ORDER BY created DESC LIMIT 100");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $logs = [];
+    while ($row = $result->fetch_assoc()) {
+        $row['data'] = json_decode($row['data'], true);
+        $logs[] = $row;
+    }
+    
+    echo json_encode($logs);
+
 } elseif ($type === 'user_details') {
     $userId = $_GET['userId'] ?? '';
     

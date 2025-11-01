@@ -213,6 +213,20 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot delete announcement']);
     }
 
+} elseif ($type === 'security_log') {
+    $logType = $input['logType'];
+    $data = $input['data'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO security_logs (id, type, data, created) VALUES (?, ?, ?, NOW())");
+    $stmt->bind_param("sss", $id, $logType, $data);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot save security log']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

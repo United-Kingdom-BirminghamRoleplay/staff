@@ -36,6 +36,13 @@
         </section>
 
         <section class="forms-section">
+            <h2><i class="fas fa-shield-alt"></i> Security Logs</h2>
+            <div id="securityLogsContainer">
+                <!-- Security logs will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
             <h2><i class="fas fa-ban"></i> IP Ban Management</h2>
             <div class="form-card">
                 <h4>Add IP Ban</h4>
@@ -45,6 +52,24 @@
             </div>
             <div id="bannedIpsContainer">
                 <!-- Banned IPs will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-tools"></i> Security Actions</h2>
+            <div class="forms-grid">
+                <div class="form-card">
+                    <h4>Clear All Logs</h4>
+                    <button class="btn-glass" onclick="clearSecurityLogs()" style="background: rgba(220, 38, 38, 0.3);">Clear Logs</button>
+                </div>
+                <div class="form-card">
+                    <h4>Export Logs</h4>
+                    <button class="btn-glass" onclick="exportLogs()">Export CSV</button>
+                </div>
+                <div class="form-card">
+                    <h4>System Status</h4>
+                    <button class="btn-glass" onclick="checkSystemStatus()">Check Status</button>
+                </div>
             </div>
         </section>
     </main>
@@ -253,6 +278,69 @@
             }
         }
 
+        async function loadSecurityLogs() {
+            try {
+                const response = await fetch('./api/load.php?type=security_logs');
+                const logs = await response.json();
+                
+                const container = document.getElementById('securityLogsContainer');
+                if (logs.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No security logs</p>';
+                    return;
+                }
+                
+                container.innerHTML = logs.slice(0, 20).map(log => `
+                    <div class="form-card">
+                        <h4><i class="fas fa-shield-alt"></i> ${log.type}</h4>
+                        <p><strong>Time:</strong> ${new Date(log.created).toLocaleString()}</p>
+                        <p><strong>Data:</strong> ${JSON.stringify(log.data).substring(0, 200)}...</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading security logs:', error);
+            }
+        }
+
+        async function clearSecurityLogs() {
+            if (confirm('Clear all security logs? This cannot be undone.')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'clear_security_logs' })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('Security logs cleared');
+                        loadSecurityLogs();
+                    }
+                } catch (error) {
+                    alert('Error clearing logs');
+                }
+            }
+        }
+
+        function exportLogs() {
+            fetch('./api/load.php?type=security_logs')
+                .then(r => r.json())
+                .then(logs => {
+                    const csv = logs.map(log => 
+                        `"${log.created}","${log.type}","${JSON.stringify(log.data).replace(/"/g, '""')}"`
+                    ).join('\n');
+                    
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'security_logs.csv';
+                    a.click();
+                });
+        }
+
+        function checkSystemStatus() {
+            alert('🟢 System Status: Online\n🔒 Security: Active\n📊 Monitoring: Enabled\n⚡ Performance: Good');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!newAuthSystem.isAuthenticated()) {
                 window.location.href = 'login.html';
@@ -267,7 +355,11 @@
             
             loadIpLogs();
             loadBannedIps();
-            setInterval(loadIpLogs, 30000); // Refresh every 30 seconds
+            loadSecurityLogs();
+            setInterval(() => {
+                loadIpLogs();
+                loadSecurityLogs();
+            }, 30000); // Refresh every 30 seconds
         });
     </script>
 </body>

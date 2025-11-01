@@ -196,11 +196,12 @@
     <script src="js/forms.js"></script>
     <script>
         function logout() {
-            if (window.authSystem) {
-                window.authSystem.logout();
+            if (window.newAuthSystem) {
+                window.newAuthSystem.logout();
             } else {
                 localStorage.removeItem('ukbrum_auth');
-                location.reload();
+                localStorage.removeItem('staff_auth');
+                window.location.href = 'login.html';
             }
         }
         
