@@ -13,7 +13,20 @@ require_once '../backend/connect.php';
 $input = json_decode(file_get_contents('php://input'), true);
 $type = $input['type'] ?? '';
 
-if ($type === 'forms') {
+if ($type === 'announcements') {
+    $announcement = $input['announcement'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO announcements (id, title, content, icon, postedBy) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $id, $announcement['title'], $announcement['content'], $announcement['icon'], $announcement['postedBy']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot save announcement']);
+    }
+
+} elseif ($type === 'forms') {
     $form = $input['form'];
     $id = uniqid();
     $pin = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
@@ -40,19 +53,6 @@ if ($type === 'forms') {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot save response']);
-    }
-
-} elseif ($type === 'announcements') {
-    $announcement = $input['announcement'];
-    $id = uniqid();
-    
-    $stmt = $conn->prepare("INSERT INTO announcements (id, title, content, icon, postedBy) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $id, $announcement['title'], $announcement['content'], $announcement['icon'], $announcement['postedBy']);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $id]);
-    } else {
-        echo json_encode(['error' => 'Cannot save announcement']);
     }
 
 } elseif ($type === 'trial_logs') {

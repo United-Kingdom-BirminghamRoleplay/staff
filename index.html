@@ -190,7 +190,8 @@
             const container = document.getElementById('announcementsContainer');
             
             try {
-                const announcements = await formSystem.loadAnnouncements();
+                const response = await fetch('./api/load.php?type=announcements');
+                const announcements = await response.json();
                 
                 if (announcements.length === 0) {
                     container.innerHTML = `

@@ -58,7 +58,8 @@ class NewAuthSystem {
             'advisory_board': 5,
             'developer': 6,
             'assistant_founder': 7,
-            'founder': 8
+            'co_founder': 8,
+            'founder': 9
         };
         
         const userLevel = rankHierarchy[user.rank] || 0;
@@ -72,8 +73,8 @@ class NewAuthSystem {
         const restrictedPages = {
             'staff-management.html': 'human_resources',
             'file-manager.html': 'human_resources',
-            'founder-panel.html': 'founder',
-            'admin-panel.html': 'founder'
+            'founder-panel.html': 'co_founder',
+            'admin-panel.html': 'co_founder'
         };
         
         if (restrictedPages[currentPage]) {
