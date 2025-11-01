@@ -14,10 +14,9 @@ class DiscordAuth {
         
         const authURL = `https://discord.com/oauth2/authorize?` +
             `client_id=${this.CLIENT_ID}&` +
-            `redirect_uri=${encodeURIComponent(this.REDIRECT_URI)}&` +
             `response_type=code&` +
-            `scope=${encodeURIComponent(this.SCOPES)}&` +
-            `state=${state}`;
+            `redirect_uri=${encodeURIComponent(this.REDIRECT_URI)}&` +
+            `scope=${encodeURIComponent(this.SCOPES)}`;
         
         window.location.href = authURL;
     }
