@@ -5,85 +5,103 @@ class SecuritySystem {
     }
 
     init() {
-        this.logPageAccess();
         this.detectSuspiciousActivity();
         this.monitorConsoleAccess();
         this.trackUserActions();
-    }
-
-    async logPageAccess() {
-        const user = this.getCurrentUser();
-        const pageInfo = {
-            page: window.location.pathname,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            ip: await this.getClientIP(),
-            user: user ? user.robloxUsername : 'Anonymous'
-        };
-
-        this.sendSecurityLog('Page Access', pageInfo, 0x3b82f6);
-        this.saveToDatabase('page_access', pageInfo);
+        this.detectBruteForce();
+        this.monitorDevTools();
     }
 
     async detectSuspiciousActivity() {
-        // Monitor rapid page changes
-        let pageChanges = 0;
-        const originalPushState = history.pushState;
-        history.pushState = (...args) => {
-            pageChanges++;
-            if (pageChanges > 10) {
-                this.sendSecurityAlert('Rapid Navigation Detected', {
-                    changes: pageChanges,
-                    user: this.getCurrentUser()?.robloxUsername || 'Anonymous'
-                });
+        // Monitor multiple failed auth attempts
+        let failedAttempts = 0;
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await originalFetch.apply(window, args);
+            
+            if (args[0].includes('auth.php')) {
+                if (!response.ok) {
+                    failedAttempts++;
+                    if (failedAttempts >= 3) {
+                        this.sendSecurityAlert('Brute Force Attack Detected', {
+                            attempts: failedAttempts,
+                            ip: await this.getClientIP(),
+                            userAgent: navigator.userAgent
+                        });
+                    }
+                } else {
+                    failedAttempts = 0;
+                }
             }
-            return originalPushState.apply(history, args);
+            
+            return response;
         };
-
-        // Monitor failed login attempts
-        this.monitorFailedLogins();
     }
 
     monitorConsoleAccess() {
-        const originalLog = console.log;
-        console.log = (...args) => {
-            if (args.some(arg => typeof arg === 'string' && arg.includes('auth'))) {
-                this.sendSecurityAlert('Console Auth Access', {
-                    user: this.getCurrentUser()?.robloxUsername || 'Anonymous',
-                    args: args.map(a => String(a).substring(0, 100))
-                });
-            }
-            return originalLog.apply(console, args);
+        // Detect unauthorized script injection
+        const originalEval = window.eval;
+        window.eval = (...args) => {
+            this.sendSecurityAlert('Script Injection Attempt', {
+                user: this.getCurrentUser()?.robloxUsername || 'Anonymous',
+                script: String(args[0]).substring(0, 200)
+            });
+            return originalEval.apply(window, args);
         };
     }
 
     trackUserActions() {
         document.addEventListener('click', (e) => {
-            if (e.target.matches('button[onclick*="delete"], button[onclick*="ban"], button[onclick*="suspend"]')) {
-                this.sendSecurityLog('Critical Action', {
+            if (e.target.matches('button[onclick*="delete"], button[onclick*="ban"], button[onclick*="suspend"], button[onclick*="approve"]')) {
+                this.sendSecurityAlert('Critical Action Performed', {
                     action: e.target.textContent.trim(),
                     user: this.getCurrentUser()?.robloxUsername || 'Anonymous',
-                    target: e.target.onclick?.toString().substring(0, 100)
-                }, 0xff6b35);
+                    timestamp: new Date().toISOString()
+                });
             }
         });
     }
 
-    monitorFailedLogins() {
-        const originalFetch = window.fetch;
-        window.fetch = async (...args) => {
-            const response = await originalFetch.apply(window, args);
-            
-            if (args[0].includes('auth.php') && !response.ok) {
-                this.sendSecurityAlert('Failed Login Attempt', {
-                    ip: await this.getClientIP(),
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent
+    detectBruteForce() {
+        let requestCount = 0;
+        const startTime = Date.now();
+        
+        setInterval(() => {
+            if (requestCount > 50 && (Date.now() - startTime) < 60000) {
+                this.sendSecurityAlert('Potential DDoS Attack', {
+                    requests: requestCount,
+                    timeframe: '1 minute',
+                    user: this.getCurrentUser()?.robloxUsername || 'Anonymous'
                 });
             }
-            
-            return response;
+            requestCount = 0;
+        }, 60000);
+        
+        const originalFetch = window.fetch;
+        window.fetch = (...args) => {
+            requestCount++;
+            return originalFetch.apply(window, args);
         };
+    }
+    
+    monitorDevTools() {
+        let devtools = {open: false, orientation: null};
+        const threshold = 160;
+        
+        setInterval(() => {
+            if (window.outerHeight - window.innerHeight > threshold || 
+                window.outerWidth - window.innerWidth > threshold) {
+                if (!devtools.open) {
+                    devtools.open = true;
+                    this.sendSecurityAlert('Developer Tools Opened', {
+                        user: this.getCurrentUser()?.robloxUsername || 'Anonymous',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } else {
+                devtools.open = false;
+            }
+        }, 500);
     }
 
     async getClientIP() {
