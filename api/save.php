@@ -135,7 +135,8 @@ if ($type === 'forms') {
 } elseif ($type === 'reject_user') {
     $userId = $input['userId'];
     
-    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+    // Instead of deleting, mark as rejected
+    $stmt = $conn->prepare("UPDATE users SET status = 'rejected' WHERE id = ?");
     $stmt->bind_param("s", $userId);
     
     if ($stmt->execute()) {
@@ -184,16 +185,9 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'delete_user') {
-    $userId = $input['userId'];
-    
-    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-    $stmt->bind_param("s", $userId);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['error' => 'Cannot delete user']);
-    }
+    // SECURITY: Account deletion disabled
+    echo json_encode(['error' => 'Account deletion disabled for security']);
+
 
 } elseif ($type === 'save_notes') {
     $userId = $input['userId'];
