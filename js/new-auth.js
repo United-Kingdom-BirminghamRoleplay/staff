@@ -57,7 +57,7 @@ class NewAuthSystem {
             'human_resources': 3,
             'oversight_enforcement': 4,
             'advisory_board': 5,
-            'developer': 6,
+            'developer': 9,
             'assistant_founder': 7,
             'co_founder': 8,
             'founder': 9

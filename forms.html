@@ -173,6 +173,12 @@
                     <p>Manage assessments, generate links, and view responses</p>
                     <button class="btn-glass" onclick="window.location.href='assessment-manager.html'">Manage Assessments</button>
                 </div>
+                
+                <div class="form-card advisory-only" style="display: none;">
+                    <h4>Touchpoint Manager</h4>
+                    <p>View and respond to all touchpoint requests</p>
+                    <button class="btn-glass" onclick="window.location.href='touchpoint-manager.html'">Manage Touchpoints</button>
+                </div>
             </div>
         </section>
         
@@ -997,8 +1003,14 @@
             
             // Show assessment builder for Founders
             if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('founder')) {
-                const founderCard = document.querySelector('.founder-only');
-                if (founderCard) founderCard.style.display = 'block';
+                const founderCards = document.querySelectorAll('.founder-only');
+                founderCards.forEach(card => card.style.display = 'block');
+            }
+            
+            // Show touchpoint manager for Advisory Board+
+            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('advisory_board')) {
+                const advisoryCard = document.querySelector('.advisory-only');
+                if (advisoryCard) advisoryCard.style.display = 'block';
             }
             
             const searchInput = document.getElementById('siteSearch');
