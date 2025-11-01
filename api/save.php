@@ -312,16 +312,68 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'touchpoint') {
-    $data = $input['data'];
+    $touchpoint = $input['touchpoint'];
     $id = uniqid();
+    $key = 'ukbrum_secure_key_2025';
     
-    $stmt = $conn->prepare("INSERT INTO touchpoint (id, senderName, subject, priority, message, created) VALUES (?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssss", $id, $data['senderName'], $data['subject'], $data['priority'], $data['message']);
+    $target = $touchpoint['department'];
+    if ($touchpoint['department'] === 'Specific Person' && $touchpoint['specificPerson']) {
+        $target = $touchpoint['specificPerson'];
+    }
+    
+    $encryptedMessage = base64_encode(openssl_encrypt($touchpoint['message'], 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16)));
+    $encryptedContact = base64_encode(openssl_encrypt($touchpoint['contact'], 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16)));
+    
+    $stmt = $conn->prepare("INSERT INTO touchpoints (id, name, rank, department, target, priority, subject, message, contact, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')");
+    $stmt->bind_param("sssssssss", $id, $touchpoint['name'], $touchpoint['rank'], $touchpoint['department'], $target, $touchpoint['priority'], $touchpoint['subject'], $encryptedMessage, $encryptedContact);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot save touchpoint: ' . $conn->error]);
+    }
+
+} elseif ($type === 'touchpoint_reply') {
+    $touchpointId = $input['touchpointId'];
+    $reply = $input['reply'];
+    $repliedBy = $input['repliedBy'];
+    $key = 'ukbrum_secure_key_2025';
+    
+    $encryptedReply = base64_encode(openssl_encrypt($reply, 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16)));
+    
+    $stmt = $conn->prepare("SELECT replies FROM touchpoints WHERE id = ?");
+    $stmt->bind_param("s", $touchpointId);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
+    
+    $replies = $result['replies'] ? json_decode($result['replies'], true) : [];
+    $replies[] = [
+        'message' => $encryptedReply,
+        'repliedBy' => $repliedBy,
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+    
+    $stmt = $conn->prepare("UPDATE touchpoints SET replies = ?, status = 'in_progress', assigned_to = ? WHERE id = ?");
+    $repliesJson = json_encode($replies);
+    $stmt->bind_param("sss", $repliesJson, $repliedBy, $touchpointId);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['error' => 'Cannot save touchpoint']);
+        echo json_encode(['error' => 'Cannot save reply']);
+    }
+
+} elseif ($type === 'update_touchpoint_status') {
+    $touchpointId = $input['touchpointId'];
+    $status = $input['status'];
+    
+    $stmt = $conn->prepare("UPDATE touchpoints SET status = ? WHERE id = ?");
+    $stmt->bind_param("ss", $status, $touchpointId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot update status']);
     }
 
 } elseif ($type === 'assessment') {

@@ -157,12 +157,12 @@
         
         .rank-moderation { background: rgba(59, 130, 246, 0.3); }
         .rank-administration { background: rgba(16, 185, 129, 0.3); }
-        .rank-human_resources { background: rgba(245, 158, 11, 0.3); }
-        .rank-oversight_enforcement { background: rgba(139, 92, 246, 0.3); }
-        .rank-advisory_board { background: rgba(236, 72, 153, 0.3); }
+        .rank-human-resources { background: rgba(245, 158, 11, 0.3); }
+        .rank-oversight-enforcement { background: rgba(139, 92, 246, 0.3); }
+        .rank-advisory-board { background: rgba(236, 72, 153, 0.3); }
         .rank-developer { background: rgba(138, 43, 226, 0.3); }
-        .rank-assistant_founder { background: rgba(239, 68, 68, 0.3); }
-        .rank-co_founder { background: rgba(255, 107, 53, 0.3); }
+        .rank-assistant-founder { background: rgba(239, 68, 68, 0.3); }
+        .rank-co-founder { background: rgba(255, 107, 53, 0.3); }
         .rank-founder { background: rgba(220, 38, 38, 0.3); }
         
         .status-badge {
@@ -517,6 +517,9 @@
                 const requestedLevel = rankHierarchy[user.requestedRank] || 0;
                 const canApprove = currentLevel > requestedLevel;
                 
+                const actualRank = user.requestedRank || user.rank || '';
+                console.log(`User ${user.robloxUsername}: rank=${user.rank}, requestedRank=${user.requestedRank}, actualRank=${actualRank}`);
+                
                 return `
                     <div class="user-row">
                         <div>
@@ -526,7 +529,7 @@
                             </div>
                         </div>
                         <div>
-                            <span class="rank-badge rank-${(user.requestedRank || user.rank || '').replace('_', '-')}">${formatRank(user.requestedRank || user.rank)}</span>
+                            <span class="rank-badge rank-${actualRank.replace(/_/g, '-')}">${formatRank(actualRank)}</span>
                         </div>
                         <div>
                             <span class="status-badge status-${user.status}">${user.status}</span>

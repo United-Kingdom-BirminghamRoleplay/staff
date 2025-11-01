@@ -150,6 +150,12 @@
                     <button class="btn-glass" onclick="openTrialLog()">Log Trial</button>
                 </div>
                 
+                <div class="form-card">
+                    <h4>Touchpoint</h4>
+                    <p>Get in contact with other staff members or departments</p>
+                    <button class="btn-glass" onclick="openTouchpoint()">Create Touchpoint</button>
+                </div>
+                
                 <div class="form-card management-only" style="display: none;">
                     <h4>Training Management</h4>
                     <p>Create and manage training sessions</p>
@@ -885,6 +891,95 @@
                 } catch (error) {
                     alert('Error deleting training');
                 }
+            }
+        }
+        
+        function openTouchpoint() {
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3><i class="fas fa-handshake"></i> Touchpoint Request</h3>
+                    <input type="text" id="touchpointName" placeholder="Your Name" required>
+                    <input type="text" id="touchpointRank" placeholder="Your Rank" required>
+                    <select id="touchpointDepartment" required>
+                        <option value="">Select Department/Person</option>
+                        <option value="Human Resources">Human Resources</option>
+                        <option value="Administration">Administration</option>
+                        <option value="Oversight & Enforcement">Oversight & Enforcement</option>
+                        <option value="Advisory Board">Advisory Board</option>
+                        <option value="Leadership Team">Leadership Team</option>
+                        <option value="Specific Person">Specific Person</option>
+                    </select>
+                    <input type="text" id="touchpointSpecific" placeholder="Specific person (if selected above)" style="display:none;">
+                    <select id="touchpointPriority" required>
+                        <option value="">Select Priority</option>
+                        <option value="Low">Low - General inquiry</option>
+                        <option value="Medium">Medium - Important matter</option>
+                        <option value="High">High - Urgent issue</option>
+                    </select>
+                    <input type="text" id="touchpointSubject" placeholder="Subject/Topic" required>
+                    <textarea id="touchpointMessage" placeholder="Your message or request" rows="5" required></textarea>
+                    <input type="text" id="touchpointContact" placeholder="Preferred contact method (Discord, etc.)" required>
+                    <div class="form-actions">
+                        <button onclick="submitTouchpoint()" class="btn-primary">Send Touchpoint</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Show specific person field when selected
+            document.getElementById('touchpointDepartment').addEventListener('change', function() {
+                const specificField = document.getElementById('touchpointSpecific');
+                if (this.value === 'Specific Person') {
+                    specificField.style.display = 'block';
+                    specificField.required = true;
+                } else {
+                    specificField.style.display = 'none';
+                    specificField.required = false;
+                }
+            });
+        }
+        
+        async function submitTouchpoint() {
+            const data = {
+                name: document.getElementById('touchpointName').value.trim(),
+                rank: document.getElementById('touchpointRank').value.trim(),
+                department: document.getElementById('touchpointDepartment').value,
+                specificPerson: document.getElementById('touchpointSpecific').value.trim(),
+                priority: document.getElementById('touchpointPriority').value,
+                subject: document.getElementById('touchpointSubject').value.trim(),
+                message: document.getElementById('touchpointMessage').value.trim(),
+                contact: document.getElementById('touchpointContact').value.trim()
+            };
+            
+            if (!data.name || !data.rank || !data.department || !data.priority || !data.subject || !data.message || !data.contact) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (data.department === 'Specific Person' && !data.specificPerson) {
+                alert('Please specify the person you want to contact');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'touchpoint', touchpoint: data })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('.form-modal').remove();
+                    alert('Touchpoint request sent successfully! You will be contacted soon.');
+                } else {
+                    alert('Failed to send touchpoint request');
+                }
+            } catch (error) {
+                alert('Error sending touchpoint request');
             }
         }
         

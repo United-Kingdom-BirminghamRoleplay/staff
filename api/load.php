@@ -223,6 +223,31 @@ if ($type === 'announcements') {
         echo json_encode(['banned' => false]);
     }
 
+} elseif ($type === 'touchpoints') {
+    $stmt = $conn->prepare("SELECT * FROM touchpoints ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $touchpoints = [];
+    $key = 'ukbrum_secure_key_2025';
+    
+    while ($row = $result->fetch_assoc()) {
+        $row['message'] = openssl_decrypt(base64_decode($row['message']), 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16));
+        $row['contact'] = openssl_decrypt(base64_decode($row['contact']), 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16));
+        
+        if ($row['replies']) {
+            $replies = json_decode($row['replies'], true);
+            foreach ($replies as &$reply) {
+                $reply['message'] = openssl_decrypt(base64_decode($reply['message']), 'AES-256-CBC', $key, 0, substr(hash('sha256', $key), 0, 16));
+            }
+            $row['replies'] = $replies;
+        }
+        
+        $touchpoints[] = $row;
+    }
+    
+    echo json_encode($touchpoints);
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }
