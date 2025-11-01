@@ -434,15 +434,14 @@
         let currentEditUserId = null;
 
         async function loadUsers() {
+            showLoading(true);
             try {
                 const response = await fetch('./api/load.php?type=users');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
                 const data = await response.text();
-                console.log('Raw response:', data);
                 allUsers = JSON.parse(data);
-                console.log('Loaded users:', allUsers);
                 if (allUsers.length === 0) {
                     document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No users in database</div>';
                     return;
@@ -452,6 +451,8 @@
             } catch (error) {
                 console.error('Error loading users:', error);
                 document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #ff6b35;">Error loading users: ' + error.message + '</div>';
+            } finally {
+                showLoading(false);
             }
         }
 
@@ -473,13 +474,15 @@
             const rankFilter = document.getElementById('rankFilter').value;
 
             filteredUsers = allUsers.filter(user => {
+                const userRank = user.requestedRank || user.rank || '';
                 const matchesSearch = !search || 
-                    user.robloxUsername.toLowerCase().includes(search) ||
-                    user.discordUsername.toLowerCase().includes(search) ||
-                    user.rank.toLowerCase().includes(search);
+                    (user.robloxUsername && user.robloxUsername.toLowerCase().includes(search)) ||
+                    (user.discordUsername && user.discordUsername.toLowerCase().includes(search)) ||
+                    userRank.toLowerCase().includes(search) ||
+                    formatRank(userRank).toLowerCase().includes(search);
                 
                 const matchesStatus = !statusFilter || user.status === statusFilter;
-                const matchesRank = !rankFilter || user.rank === rankFilter;
+                const matchesRank = !rankFilter || userRank === rankFilter;
 
                 return matchesSearch && matchesStatus && matchesRank;
             });
@@ -523,7 +526,7 @@
                             </div>
                         </div>
                         <div>
-                            <span class="rank-badge rank-${user.requestedRank || user.rank}">${formatRank(user.requestedRank || user.rank)}</span>
+                            <span class="rank-badge rank-${(user.requestedRank || user.rank || '').replace('_', '-')}">${formatRank(user.requestedRank || user.rank)}</span>
                         </div>
                         <div>
                             <span class="status-badge status-${user.status}">${user.status}</span>
@@ -781,6 +784,17 @@
 
         function refreshData() {
             loadUsers();
+        }
+
+        function showLoading(show) {
+            const refreshBtn = document.querySelector('.btn-glass');
+            if (show) {
+                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                refreshBtn.disabled = true;
+            } else {
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                refreshBtn.disabled = false;
+            }
         }
 
         // Event listeners

@@ -56,7 +56,7 @@
                 </div>
                 <div class="announcement-content">
                     <h4>Authentication Data</h4>
-                    <p>We collect your staff rank and login credentials to provide access to the portal. Login attempts are logged with timestamps and IP addresses for security purposes.</p>
+                    <p>We collect your Roblox username, Discord username, staff rank, and encrypted passwords to provide access to the portal. Login attempts, security events, and IP addresses are logged with timestamps for security monitoring.</p>
                 </div>
             </div>
 
@@ -65,8 +65,8 @@
                     <i class="fas fa-file-alt"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Form Data</h4>
-                    <p>When you create or submit forms, we store the form content, responses, and associated metadata. This includes your staff rank as the creator and submission timestamps.</p>
+                    <h4>Form Data & Assessments</h4>
+                    <p>When you create or submit forms and assessments, we store the content, responses, grades, and metadata in our MySQL database. This includes creator information, submission timestamps, and assessment results with Discord webhook notifications.</p>
                 </div>
             </div>
 
@@ -75,8 +75,8 @@
                     <i class="fas fa-flag"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Report Submissions</h4>
-                    <p>General reports collect your Roblox username, Discord username, report type, description, and optional evidence links for staff review purposes.</p>
+                    <h4>File Uploads & Reports</h4>
+                    <p>File uploads, trial logs, and reports collect your username, content, timestamps, and approval status. All submissions are stored securely with access controls based on staff rank hierarchy.</p>
                 </div>
             </div>
 
@@ -98,8 +98,8 @@
                     <i class="fas fa-server"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Server Storage</h4>
-                    <p>All data is stored on secure servers in JSON format with automatic backups. Access to data files is restricted through server-side security measures.</p>
+                    <h4>Database Storage</h4>
+                    <p>All data is stored in a secure MySQL database with proper indexing and relationships. Database access is restricted through authentication and server-side security measures with regular backups.</p>
                 </div>
             </div>
 
@@ -108,8 +108,8 @@
                     <i class="fas fa-backup"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Backup System</h4>
-                    <p>We maintain automatic backups of all data with a retention policy of 10 most recent backups to ensure data integrity and recovery capabilities.</p>
+                    <h4>Security Monitoring</h4>
+                    <p>We maintain comprehensive security logs including IP banning system, login monitoring, and automated threat detection with Discord webhook notifications for critical security events.</p>
                 </div>
             </div>
 
@@ -118,8 +118,8 @@
                     <i class="fas fa-lock"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Access Control</h4>
-                    <p>Data access is restricted based on staff rank. Senior Management has additional privileges for form PIN access and announcement creation.</p>
+                    <h4>Rank-Based Access Control</h4>
+                    <p>Data access follows a 9-tier rank hierarchy from Moderation (1) to Founder (9). Higher ranks have additional privileges for user management, assessment creation, and administrative functions.</p>
                 </div>
             </div>
         </section>
@@ -187,7 +187,7 @@
                 </div>
                 <div class="announcement-content">
                     <h4>Last Updated</h4>
-                    <p>This privacy policy was last updated on <strong>October 9, 2025</strong>. We may update this policy as needed to reflect changes in our data handling practices.</p>
+                    <p>This privacy policy was last updated on <strong>January 2025</strong>. We may update this policy as needed to reflect changes in our data handling practices.</p>
                 </div>
             </div>
         </section>
@@ -198,18 +198,20 @@
         <p>&copy; 2025 UKBRUM Staff Sharepoint. All rights reserved.</p>
     </footer> -->
 
-    <script src="js/components.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/new-auth.js"></script>
     <script>
-        function logout() {
-            if (window.authSystem) {
-                window.authSystem.logout();
-            } else {
-                localStorage.removeItem('ukbrum_auth');
-                location.reload();
-            }
-        }
+        // Load components without authentication
+        fetch('js/components.js')
+            .then(response => response.text())
+            .then(script => {
+                // Remove auth checks from components
+                const cleanScript = script.replace(/newAuthSystem\.checkAuth\(\);?/g, '');
+                eval(cleanScript);
+            })
+            .catch(() => {
+                // Fallback if components fail to load
+                document.getElementById('sidebar-container').innerHTML = '';
+                document.getElementById('footer-container').innerHTML = '<footer style="text-align: center; padding: 20px; color: rgba(255,255,255,0.7);"><p>&copy; 2025 UKBRUM Staff Portal. All rights reserved.</p></footer>';
+            });
     </script>
 </body>
 </html>

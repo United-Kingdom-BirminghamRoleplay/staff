@@ -133,7 +133,20 @@
 
     <div id="footer-container"></div>
 
-    <script src="js/components.js"></script>
-    <script src="js/new-auth.js"></script>
+    <script>
+        // Load components without authentication
+        fetch('js/components.js')
+            .then(response => response.text())
+            .then(script => {
+                // Remove auth checks from components
+                const cleanScript = script.replace(/newAuthSystem\.checkAuth\(\);?/g, '');
+                eval(cleanScript);
+            })
+            .catch(() => {
+                // Fallback if components fail to load
+                document.getElementById('sidebar-container').innerHTML = '';
+                document.getElementById('footer-container').innerHTML = '<footer style="text-align: center; padding: 20px; color: rgba(255,255,255,0.7);"><p>&copy; 2025 UKBRUM Staff Portal. All rights reserved.</p></footer>';
+            });
+    </script>
 </body>
 </html>
