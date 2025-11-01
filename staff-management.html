@@ -434,11 +434,18 @@
         async function loadUsers() {
             try {
                 const response = await fetch('./api/load.php?type=users');
-                allUsers = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.text();
+                console.log('Raw response:', data);
+                allUsers = JSON.parse(data);
+                console.log('Loaded users:', allUsers);
                 updateStats();
                 filterUsers();
             } catch (error) {
                 console.error('Error loading users:', error);
+                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #ff6b35;">Error loading users: ' + error.message + '</div>';
             }
         }
 
@@ -487,9 +494,19 @@
                 return;
             }
 
+            const currentUser = newAuthSystem.getCurrentUser();
+            const rankHierarchy = {
+                'moderation': 1, 'administration': 2, 'human_resources': 3,
+                'oversight_enforcement': 4, 'advisory_board': 5, 'developer': 6,
+                'assistant_founder': 7, 'co_founder': 8, 'founder': 9
+            };
+            const currentLevel = rankHierarchy[currentUser.rank] || 0;
+            
             container.innerHTML = usersToShow.map(user => {
                 const initials = user.robloxUsername.substring(0, 2).toUpperCase();
                 const joinDate = new Date(user.registeredAt || user.approvedAt).toLocaleDateString();
+                const requestedLevel = rankHierarchy[user.requestedRank] || 0;
+                const canApprove = currentLevel > requestedLevel;
                 
                 return `
                     <div class="user-row">
@@ -501,7 +518,7 @@
                             </div>
                         </div>
                         <div>
-                            <span class="rank-badge rank-${user.rank}">${formatRank(user.rank)}</span>
+                            <span class="rank-badge rank-${user.requestedRank || user.rank}">${formatRank(user.requestedRank || user.rank)}</span>
                         </div>
                         <div>
                             <span class="status-badge status-${user.status}">${user.status}</span>
@@ -509,7 +526,7 @@
                         <div>${joinDate}</div>
                         <div class="action-buttons">
                             ${user.status === 'pending' ? `
-                                <button class="btn-sm btn-approve" onclick="approveUser('${user.id}', '${user.requestedRank || 'moderation'}')">
+                                <button class="btn-sm btn-approve" onclick="approveUser('${user.id}', '${user.requestedRank || 'moderation'}')" ${!canApprove ? 'disabled style="opacity: 0.5;"' : ''}>
                                     <i class="fas fa-check"></i>
                                 </button>
                                 <button class="btn-sm btn-reject" onclick="rejectUser('${user.id}')">
@@ -571,6 +588,26 @@
         }
 
         async function approveUser(userId, rank) {
+            const currentUser = newAuthSystem.getCurrentUser();
+            const rankHierarchy = {
+                'moderation': 1, 'administration': 2, 'human_resources': 3,
+                'oversight_enforcement': 4, 'advisory_board': 5, 'developer': 6,
+                'assistant_founder': 7, 'co_founder': 8, 'founder': 9
+            };
+            
+            if (!newAuthSystem.hasPermission('human_resources')) {
+                alert('Access denied. Human Resources+ only.');
+                return;
+            }
+            
+            const currentLevel = rankHierarchy[currentUser.rank] || 0;
+            const targetLevel = rankHierarchy[rank] || 0;
+            
+            if (targetLevel >= currentLevel) {
+                alert('You cannot approve users to a rank equal or higher than yours.');
+                return;
+            }
+            
             if (confirm(`Approve user with rank: ${formatRank(rank)}?`)) {
                 try {
                     const response = await fetch('./api/save.php', {
@@ -629,6 +666,21 @@
         async function saveUserChanges() {
             const newRank = document.getElementById('editRank').value;
             const newPassword = document.getElementById('editPassword').value;
+            
+            const currentUser = newAuthSystem.getCurrentUser();
+            const rankHierarchy = {
+                'moderation': 1, 'administration': 2, 'human_resources': 3,
+                'oversight_enforcement': 4, 'advisory_board': 5, 'developer': 6,
+                'assistant_founder': 7, 'co_founder': 8, 'founder': 9
+            };
+            
+            const currentLevel = rankHierarchy[currentUser.rank] || 0;
+            const targetLevel = rankHierarchy[newRank] || 0;
+            
+            if (targetLevel >= currentLevel) {
+                alert('You cannot set a rank equal or higher than yours.');
+                return;
+            }
 
             try {
                 // Update rank

@@ -188,6 +188,18 @@ if ($type === 'forms') {
         echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
     }
 
+} elseif ($type === 'delete_announcement') {
+    $announcementId = $input['announcementId'];
+    
+    $stmt = $conn->prepare("DELETE FROM announcements WHERE id = ?");
+    $stmt->bind_param("s", $announcementId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete announcement']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

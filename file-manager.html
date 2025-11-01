@@ -128,8 +128,7 @@
                 return;
             }
             
-            const authData = localStorage.getItem('ukbrum_auth');
-            const user = JSON.parse(authData);
+            const user = newAuthSystem.getCurrentUser();
             
             const fileData = {
                 id: Date.now().toString(),
@@ -178,9 +177,8 @@
                 const response = await fetch('./api/load.php?type=files');
                 const files = await response.json();
                 
-                const authData = localStorage.getItem('ukbrum_auth');
-                const user = JSON.parse(authData);
-                const isFounder = user.rank === 'founder';
+                const user = newAuthSystem.getCurrentUser();
+                const isFounder = newAuthSystem.hasPermission('founder');
                 
                 const approved = files.filter(f => f.status === 'approved');
                 const pending = files.filter(f => f.status === 'pending');
@@ -206,9 +204,8 @@
                 return;
             }
             
-            const authData = localStorage.getItem('ukbrum_auth');
-            const user = JSON.parse(authData);
-            const isFounder = user.rank === 'founder';
+            const user = newAuthSystem.getCurrentUser();
+            const isFounder = newAuthSystem.hasPermission('founder');
             
             container.innerHTML = files.map(file => `
                 <div class="form-card">
@@ -302,15 +299,13 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            const auth = localStorage.getItem('ukbrum_auth');
-            if (!auth) {
-                window.location.href = 'index.html';
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
                 return;
             }
             
-            const user = JSON.parse(auth);
-            if (user.rank !== 'senior_management' && user.rank !== 'founder') {
-                alert('Access denied. Senior Management+ only.');
+            if (!newAuthSystem.hasPermission('human_resources')) {
+                alert('Access denied. Human Resources+ only.');
                 window.location.href = 'index.html';
                 return;
             }
