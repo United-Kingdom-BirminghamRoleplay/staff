@@ -79,7 +79,9 @@ class NewAuthSystem {
     }
     
     logout() {
-        window.discordAuth.logout();
+        if (window.discordAuth) {
+            window.discordAuth.logout();
+        }
     }
     
     updateUserInfo(newInfo) {

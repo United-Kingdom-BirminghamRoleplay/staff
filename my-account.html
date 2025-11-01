@@ -65,11 +65,13 @@
         </section>
 
         <section class="forms-section">
-            <h2><i class="fas fa-key"></i> Security</h2>
+            <h2><i class="fas fa-shield-alt"></i> Security</h2>
             <div class="form-card">
-                <button class="btn-glass" onclick="changePassword()">
-                    <i class="fas fa-lock"></i> Change Password
-                </button>
+                <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.7);">
+                    <i class="fab fa-discord" style="font-size: 2rem; margin-bottom: 10px; color: #5865F2;"></i>
+                    <h4>Discord Authentication</h4>
+                    <p>Your account is secured through Discord OAuth. No password management needed!</p>
+                </div>
             </div>
         </section>
     </main>
@@ -82,11 +84,25 @@
     <script>
         let currentUser = null;
         
+        function getRankName(rank) {
+            const rankNames = {
+                1: 'Moderation',
+                2: 'Administration', 
+                3: 'Human Resources',
+                4: 'Oversight & Enforcement',
+                5: 'Advisory Board',
+                6: 'Assistant Founder',
+                7: 'Co-Founder',
+                8: 'Founder',
+                9: 'Developer'
+            };
+            return rankNames[rank] || 'Staff';
+        }
+        
         async function loadAccountInfo() {
-            const auth = localStorage.getItem('staff_auth');
-            if (!auth) return;
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) return;
             
-            currentUser = JSON.parse(auth);
+            currentUser = window.discordAuth.getCurrentUser();
             
             try {
                 const response = await fetch(`./api/load.php?type=user_details&userId=${currentUser.userId}`);
@@ -97,21 +113,25 @@
                     document.getElementById('accountInfo').innerHTML = `
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div>
-                                <h4><i class="fas fa-gamepad"></i> Roblox Username</h4>
-                                <p style="color: var(--orange-accent); font-size: 1.1em;">${user.robloxUsername}</p>
+                                <h4><i class="fab fa-discord"></i> Discord Username</h4>
+                                <p style="color: var(--orange-accent); font-size: 1.1em;">${currentUser.username}#${currentUser.discriminator}</p>
                             </div>
                             <div>
-                                <h4><i class="fab fa-discord"></i> Discord Username</h4>
-                                <p style="color: var(--orange-accent); font-size: 1.1em;">${user.discordUsername}</p>
+                                <h4><i class="fas fa-id-badge"></i> Discord ID</h4>
+                                <p style="color: var(--orange-accent); font-size: 1.1em;">${currentUser.userId}</p>
                             </div>
                             <div>
                                 <h4><i class="fas fa-star"></i> Current Rank</h4>
-                                <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${user.rank.replace('_', ' ').toUpperCase()}</p>
+                                <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${getRankName(currentUser.rank)}</p>
                             </div>
                             <div>
                                 <h4><i class="fas fa-calendar"></i> Member Since</h4>
-                                <p>${new Date(user.approvedAt || user.registeredAt).toLocaleDateString()}</p>
+                                <p>${new Date().toLocaleDateString()}</p>
                             </div>
+                        </div>
+                        <div style="margin-top: 20px; padding: 15px; background: rgba(88, 101, 242, 0.1); border-radius: 8px; border: 1px solid rgba(88, 101, 242, 0.3);">
+                            <h4><i class="fas fa-image"></i> Discord Avatar</h4>
+                            <img src="${currentUser.avatar}" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--orange-accent);">
                         </div>
                         <div style="margin-top: 20px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px; border: 1px solid rgba(0,255,0,0.3);">
                             <h4><i class="fas fa-id-card"></i> User ID</h4>
@@ -119,8 +139,8 @@
                         </div>
                     `;
                     
-                    // Load notes
-                    document.getElementById('userNotes').value = user.notes || '';
+                    // Load notes (placeholder for now)
+                    document.getElementById('userNotes').value = '';
                 }
             } catch (error) {
                 console.error('Error loading account info:', error);
@@ -151,50 +171,13 @@
             }
         }
         
-        async function changePassword() {
-            const currentPassword = prompt('Enter your current password:');
-            if (!currentPassword) return;
-            
-            const newPassword = prompt('Enter your new password (minimum 6 characters):');
-            if (!newPassword || newPassword.length < 6) {
-                alert('New password must be at least 6 characters');
-                return;
-            }
-            
-            const confirmPassword = prompt('Confirm your new password:');
-            if (newPassword !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            try {
-                const response = await fetch('./api/save.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'change_password',
-                        userId: currentUser.userId,
-                        currentPassword,
-                        newPassword
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    alert('Password changed successfully!');
-                } else {
-                    alert(result.message || 'Failed to change password');
-                }
-            } catch (error) {
-                alert('Error changing password');
-            }
-        }
+
         
         async function loadMyTouchpoints() {
             try {
                 const response = await fetch('./api/load.php?type=touchpoints');
                 const allTouchpoints = await response.json();
-                const myTouchpoints = allTouchpoints.filter(tp => tp.name === currentUser.robloxUsername);
+                const myTouchpoints = allTouchpoints.filter(tp => tp.name === currentUser.username);
                 
                 const container = document.getElementById('myTouchpoints');
                 
@@ -264,7 +247,7 @@
                         type: 'touchpoint_reply',
                         touchpointId,
                         reply,
-                        repliedBy: currentUser.robloxUsername
+                        repliedBy: currentUser.username
                     })
                 });
                 
@@ -308,7 +291,7 @@
             try {
                 const response = await fetch('./api/load.php?type=assessment_responses');
                 const allResponses = await response.json();
-                const myResponses = allResponses.filter(resp => resp.username === currentUser.robloxUsername);
+                const myResponses = allResponses.filter(resp => resp.username === currentUser.username);
                 
                 const container = document.getElementById('myAssessments');
                 

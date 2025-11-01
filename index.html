@@ -183,6 +183,7 @@
     <script src="js/security.js"></script>
     <script src="js/forms.js"></script>
     <script src="js/roblox-search.js"></script>
+    <script src="js/migration-notification.js"></script>
     <script>
         async function loadAnnouncements() {
             const container = document.getElementById('announcementsContainer');
@@ -235,8 +236,8 @@
             else greeting = 'Good Evening';
             
             const greetingEl = document.getElementById('dynamicGreeting');
-            const user = newAuthSystem.getCurrentUser();
-            const userName = user ? user.robloxUsername : 'Staff Member';
+            const user = window.discordAuth && window.discordAuth.isAuthenticated() ? window.discordAuth.getCurrentUser() : null;
+            const userName = user ? user.username : 'Staff Member';
             
             greetingEl.innerHTML = `<span style="font-size: 1.2em; font-weight: 800;">${greeting}, ${userName}</span><br><span style="font-size: 0.6em; opacity: 0.7; margin-top: 10px; display: block;">Welcome back to the Sharepoint!</span>`;
         }
@@ -480,7 +481,9 @@
         }
         
         function logout() {
-            newAuthSystem.logout();
+            if (window.discordAuth) {
+                window.discordAuth.logout();
+            }
         }
         
         // Mobile menu functionality

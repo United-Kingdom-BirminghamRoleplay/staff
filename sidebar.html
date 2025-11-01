@@ -1,4 +1,13 @@
 <nav class="sidebar" id="sidebar">
+    <div class="sidebar-user" id="sidebarUser" style="display: none;">
+        <div class="user-avatar">
+            <img id="userAvatar" src="" alt="User Avatar">
+        </div>
+        <div class="user-info">
+            <div class="user-name" id="userName"></div>
+            <div class="user-rank" id="userRank"></div>
+        </div>
+    </div>
     <ul class="sidebar-nav">
         <li><a href="index.html" class="nav-link">
             <i class="fas fa-home"></i>
@@ -39,7 +48,7 @@
         </a></li>
     </ul>
     <div class="sidebar-logout">
-        <button class="logout-btn" onclick="logout()">
+        <button class="logout-btn" onclick="discordAuth.logout()">
             <i class="fas fa-sign-out-alt"></i>
             <span class="logout-text">Logout</span>
         </button>

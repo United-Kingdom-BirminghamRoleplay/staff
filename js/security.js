@@ -276,14 +276,13 @@ class SecuritySystem {
 
     getCurrentUser() {
         try {
-            const discordAuth = localStorage.getItem('discord_auth');
-            if (discordAuth) {
-                const auth = JSON.parse(discordAuth);
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
                 return {
-                    userId: auth.userId,
-                    robloxUsername: auth.username,
-                    discordUsername: auth.username + '#' + auth.discriminator,
-                    rank: auth.rank
+                    userId: user.userId,
+                    robloxUsername: user.username,
+                    discordUsername: user.username + '#' + user.discriminator,
+                    rank: user.rank
                 };
             }
             return null;

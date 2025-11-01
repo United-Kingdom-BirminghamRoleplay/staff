@@ -14,6 +14,9 @@ async function loadComponent(elementId, componentPath) {
                 if (window.newAuthSystem && newAuthSystem.isAuthenticated()) {
                     const user = newAuthSystem.getCurrentUser();
                     
+                    // Populate user profile section
+                    populateUserProfile();
+                    
                     // Show founder-only links
                     if (newAuthSystem.hasPermission('founder')) {
                         const founderLinks = document.querySelectorAll('.founder-only');
@@ -43,6 +46,46 @@ function setActiveNavLink() {
             link.classList.add('active');
         }
     });
+}
+
+function populateUserProfile() {
+    if (!window.discordAuth || !window.discordAuth.isAuthenticated()) return;
+    
+    const discordUser = window.discordAuth.getCurrentUser();
+    const sidebarUser = document.getElementById('sidebarUser');
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userRank = document.getElementById('userRank');
+    
+    if (sidebarUser && discordUser) {
+        sidebarUser.style.display = 'block';
+        
+        if (userAvatar) {
+            userAvatar.src = discordUser.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            userAvatar.onerror = () => {
+                userAvatar.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+            };
+        }
+        
+        if (userName) {
+            userName.textContent = discordUser.username;
+        }
+        
+        if (userRank) {
+            const rankNames = {
+                1: 'Moderation',
+                2: 'Administration', 
+                3: 'Human Resources',
+                4: 'Oversight & Enforcement',
+                5: 'Advisory Board',
+                6: 'Assistant Founder',
+                7: 'Co-Founder',
+                8: 'Founder',
+                9: 'Developer'
+            };
+            userRank.textContent = rankNames[discordUser.rank] || 'Staff';
+        }
+    }
 }
 
 // Load components on page load
@@ -75,15 +118,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Show navigation based on user permissions
     setTimeout(() => {
-        if (window.newAuthSystem && newAuthSystem.isAuthenticated()) {
+        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+            populateUserProfile();
+            
             // Show founder-only links
-            if (newAuthSystem.hasPermission('founder')) {
+            if (window.discordAuth.hasPermission('founder')) {
                 const founderLinks = document.querySelectorAll('.founder-only');
                 founderLinks.forEach(link => link.style.display = 'block');
             }
             
             // Show HR+ links
-            if (newAuthSystem.hasPermission('human_resources')) {
+            if (window.discordAuth.hasPermission('human_resources')) {
                 const hrLinks = document.querySelectorAll('.hr-only');
                 hrLinks.forEach(link => link.style.display = 'block');
             }

@@ -80,6 +80,54 @@ body::before {
 
 
 
+.sidebar-user {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+    margin-bottom: 1rem;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+.sidebar:hover .sidebar-user {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    border: 2px solid var(--orange-accent);
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    color: var(--text-primary);
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.user-rank {
+    font-size: 0.75rem;
+    color: var(--orange-accent);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .sidebar-nav {
     padding: 1rem 0;
     list-style: none;
