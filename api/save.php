@@ -161,13 +161,13 @@ if ($type === 'forms') {
     $file = $input['file'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
     $stmt->bind_param("ssisssss", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['fileData']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
-        echo json_encode(['error' => 'Cannot save file']);
+        echo json_encode(['error' => 'Database error: ' . $conn->error]);
     }
 
 } elseif ($type === 'change_password') {
