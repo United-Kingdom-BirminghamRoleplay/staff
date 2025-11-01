@@ -40,6 +40,13 @@
         </section>
 
         <section class="forms-section">
+            <h2><i class="fas fa-handshake"></i> My Touchpoints</h2>
+            <div id="myTouchpoints">
+                <!-- User's touchpoints will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
             <h2><i class="fas fa-history"></i> Staff Actions</h2>
             <div class="form-card">
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
@@ -175,8 +182,93 @@
             }
         }
         
+        async function loadMyTouchpoints() {
+            try {
+                const response = await fetch('./api/load.php?type=touchpoints');
+                const allTouchpoints = await response.json();
+                const myTouchpoints = allTouchpoints.filter(tp => tp.name === currentUser.robloxUsername);
+                
+                const container = document.getElementById('myTouchpoints');
+                
+                if (myTouchpoints.length === 0) {
+                    container.innerHTML = '<div class="form-card"><p style="text-align: center; color: #999;">No touchpoints found</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = myTouchpoints.map(tp => `
+                    <div class="form-card" style="border-left: 4px solid ${tp.priority === 'High' ? '#ef4444' : tp.priority === 'Medium' ? '#f59e0b' : '#22c55e'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4>${tp.subject}</h4>
+                            <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: ${tp.status === 'open' ? 'rgba(239, 68, 68, 0.3)' : tp.status === 'in_progress' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(34, 197, 94, 0.3)'}; color: ${tp.status === 'open' ? '#ef4444' : tp.status === 'in_progress' ? '#f59e0b' : '#22c55e'}">
+                                ${tp.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                        <p><strong>To:</strong> ${tp.target || tp.department}</p>
+                        <p><strong>Priority:</strong> ${tp.priority}</p>
+                        <p><strong>Message:</strong> ${tp.message}</p>
+                        <p><small>Created: ${new Date(tp.created).toLocaleString()}</small></p>
+                        
+                        ${tp.replies && tp.replies.length > 0 ? `
+                            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                                <h5>Conversation:</h5>
+                                ${tp.replies.map(reply => `
+                                    <div style="background: rgba(255, 255, 255, 0.03); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                        <p>${reply.message}</p>
+                                        <small>By ${reply.repliedBy} on ${new Date(reply.timestamp).toLocaleString()}</small>
+                                    </div>
+                                `).join('')}
+                                
+                                ${tp.status !== 'resolved' ? `
+                                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                        <input type="text" placeholder="Type your reply..." id="reply-${tp.id}" style="flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white;">
+                                        <button class="btn-glass" onclick="replyToTouchpoint('${tp.id}')">Reply</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading touchpoints:', error);
+            }
+        }
+        
+        async function replyToTouchpoint(touchpointId) {
+            const replyInput = document.getElementById(`reply-${touchpointId}`);
+            const reply = replyInput.value.trim();
+            
+            if (!reply) {
+                alert('Please enter a reply');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'touchpoint_reply',
+                        touchpointId,
+                        reply,
+                        repliedBy: currentUser.robloxUsername
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    replyInput.value = '';
+                    loadMyTouchpoints();
+                } else {
+                    alert('Failed to send reply');
+                }
+            } catch (error) {
+                alert('Error sending reply');
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             loadAccountInfo();
+            setTimeout(loadMyTouchpoints, 500); // Load after user info is loaded
         });
     </script>
 </body>
