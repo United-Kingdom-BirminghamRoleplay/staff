@@ -1,7 +1,7 @@
 // Discord OAuth Authentication System
 class DiscordAuth {
     constructor() {
-        this.CLIENT_ID = '1152677388543598752';
+        this.CLIENT_ID = '1340376847732707380';
         this.REDIRECT_URI = window.location.origin + '/auth-callback.html';
         this.SCOPES = 'identify guilds.members.read';
         this.GUILD_ID = '1152677388543598749'; // Your Discord server ID
