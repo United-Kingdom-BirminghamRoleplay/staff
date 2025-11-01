@@ -4,7 +4,7 @@ class DiscordAuth {
         this.CLIENT_ID = '1340376847732707380';
         this.REDIRECT_URI = window.location.origin + '/auth-callback.html';
         this.SCOPES = 'identify guilds.members.read';
-        this.GUILD_ID = '1152677388543598749'; // Your Discord server ID
+        this.GUILD_ID = '1152677388543598749'; 
     }
 
     // Initiate Discord OAuth flow
@@ -12,7 +12,7 @@ class DiscordAuth {
         const state = this.generateState();
         localStorage.setItem('discord_oauth_state', state);
         
-        const authURL = `https://discord.com/api/oauth2/authorize?` +
+        const authURL = `https://discord.com/oauth2/authorize?` +
             `client_id=${this.CLIENT_ID}&` +
             `redirect_uri=${encodeURIComponent(this.REDIRECT_URI)}&` +
             `response_type=code&` +

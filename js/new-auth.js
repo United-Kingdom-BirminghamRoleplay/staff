@@ -18,23 +18,8 @@ class NewAuthSystem {
     }
     
     isAuthenticated() {
-        // Check Discord auth first
-        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-            return true;
-        }
-        
-        // Fallback to legacy auth
-        const auth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
-        if (!auth) return false;
-        
-        try {
-            const user = JSON.parse(auth);
-            return user.userId && user.robloxUsername && user.rank;
-        } catch (e) {
-            localStorage.removeItem('staff_auth');
-            localStorage.removeItem('ukbrum_auth');
-            return false;
-        }
+        // Discord auth only
+        return window.discordAuth && window.discordAuth.isAuthenticated();
     }
     
     isPublicPage() {
@@ -46,51 +31,17 @@ class NewAuthSystem {
     getCurrentUser() {
         if (!this.isAuthenticated()) return null;
         
-        // Check Discord auth first
-        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-            const discordUser = window.discordAuth.getCurrentUser();
-            return {
-                userId: discordUser.userId,
-                robloxUsername: discordUser.username,
-                discordUsername: discordUser.username + '#' + discordUser.discriminator,
-                rank: discordUser.rank
-            };
-        }
-        
-        // Fallback to legacy auth
-        try {
-            return JSON.parse(localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth'));
-        } catch (e) {
-            return null;
-        }
+        const discordUser = window.discordAuth.getCurrentUser();
+        return {
+            userId: discordUser.userId,
+            robloxUsername: discordUser.username,
+            discordUsername: discordUser.username + '#' + discordUser.discriminator,
+            rank: discordUser.rank
+        };
     }
     
     hasPermission(requiredRank) {
-        // Check Discord auth first
-        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-            return window.discordAuth.hasPermission(requiredRank);
-        }
-        
-        // Fallback to legacy auth
-        const user = this.getCurrentUser();
-        if (!user) return false;
-        
-        const rankHierarchy = {
-            'moderation': 1,
-            'administration': 2,
-            'human_resources': 3,
-            'oversight_enforcement': 4,
-            'advisory_board': 5,
-            'developer': 9,
-            'assistant_founder': 7,
-            'co_founder': 8,
-            'founder': 9
-        };
-        
-        const userLevel = rankHierarchy[user.rank] || 0;
-        const requiredLevel = rankHierarchy[requiredRank] || 0;
-        
-        return userLevel >= requiredLevel;
+        return window.discordAuth && window.discordAuth.hasPermission(requiredRank);
     }
     
     checkPagePermissions() {
@@ -118,16 +69,7 @@ class NewAuthSystem {
     }
     
     logout() {
-        // Logout from Discord auth if active
-        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-            window.discordAuth.logout();
-            return;
-        }
-        
-        // Legacy logout
-        localStorage.removeItem('staff_auth');
-        localStorage.removeItem('ukbrum_auth');
-        window.location.href = 'login.html';
+        window.discordAuth.logout();
     }
     
     updateUserInfo(newInfo) {
