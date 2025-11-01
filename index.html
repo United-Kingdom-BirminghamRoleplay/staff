@@ -247,7 +247,24 @@
             sidebar.classList.toggle('expanded');
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Handle Discord OAuth callback
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            
+            if (code && state) {
+                try {
+                    await window.discordAuth.handleCallback(code, state);
+                    // Remove OAuth params from URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (error) {
+                    console.error('OAuth callback error:', error);
+                    window.location.href = 'login.html';
+                    return;
+                }
+            }
+            
             loadAnnouncements();
             updateGreeting();
             setInterval(updateGreeting, 60000);
