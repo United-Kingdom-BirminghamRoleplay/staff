@@ -515,11 +515,13 @@
                 
                 return `
                     <div class="user-row">
-                        <div class="user-info">
-                            <div class="user-avatar">${initials}</div>
-                            <div class="user-details">
-                                <h4>${user.robloxUsername}</h4>
-                                <p>${user.discordUsername}</p>
+                        <div>
+                            <div class="user-info">
+                                <div class="user-avatar">${initials}</div>
+                                <div class="user-details">
+                                    <h4>${user.robloxUsername}</h4>
+                                    <p>${user.discordUsername}</p>
+                                </div>
                             </div>
                         </div>
                         <div>
@@ -529,27 +531,29 @@
                             <span class="status-badge status-${user.status}">${user.status}</span>
                         </div>
                         <div>${joinDate}</div>
-                        <div class="action-buttons">
-                            ${user.status === 'pending' ? `
-                                <button class="btn-sm btn-approve" onclick="approveUser('${user.id}', '${user.requestedRank || 'moderation'}')" ${!canApprove ? 'disabled style="opacity: 0.5;"' : ''}>
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn-sm btn-reject" onclick="rejectUser('${user.id}')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : `
-                                <button class="btn-sm btn-edit" onclick="editUser('${user.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                ${user.status === 'approved' ? `
-                                    <button class="btn-sm btn-suspend" onclick="suspendUser('${user.id}')">
-                                        <i class="fas fa-pause"></i>
+                        <div>
+                            <div class="action-buttons">
+                                ${user.status === 'pending' ? `
+                                    <button class="btn-sm btn-approve" onclick="approveUser('${user.id}', '${user.requestedRank || 'moderation'}')" ${!canApprove ? 'disabled style="opacity: 0.5;"' : ''}>
+                                        <i class="fas fa-check"></i>
                                     </button>
-                                ` : ''}
-                                <button class="btn-sm btn-delete" onclick="deleteUser('${user.id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            `}
+                                    <button class="btn-sm btn-reject" onclick="rejectUser('${user.id}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : `
+                                    <button class="btn-sm btn-edit" onclick="editUser('${user.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    ${user.status === 'approved' ? `
+                                        <button class="btn-sm btn-suspend" onclick="suspendUser('${user.id}')">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn-sm btn-delete" onclick="deleteUser('${user.id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                `}
+                            </div>
                         </div>
                     </div>
                 `;
