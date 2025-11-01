@@ -61,34 +61,30 @@
 
             if (error) {
                 showError(`Authentication failed: ${error}`);
+                setTimeout(() => window.location.href = 'login.html', 2000);
                 return;
             }
 
-            if (!code || !state) {
-                showError('Missing authentication parameters');
+            if (!code) {
+                showError('Missing authorization code');
+                setTimeout(() => window.location.href = 'login.html', 2000);
                 return;
             }
 
             try {
-                document.getElementById('status').textContent = 'Exchanging authorization code...';
+                document.getElementById('status').textContent = 'Processing authentication...';
                 
-                const authData = await discordAuth.handleCallback(code, state);
+                await window.discordAuth.handleCallback(code, state);
                 
-                document.getElementById('status').textContent = 'Authentication successful! Redirecting...';
+                document.getElementById('status').textContent = 'Success! Redirecting...';
                 
-                // Redirect to main page after successful auth
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
+                // Immediate redirect
+                window.location.href = 'index.html';
                 
             } catch (error) {
-                console.error('Auth callback error:', error);
-                showError(`Authentication failed: ${error.message}`);
-                
-                // Redirect to login page after error
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 3000);
+                console.error('Auth error:', error);
+                showError(`Failed: ${error.message}`);
+                setTimeout(() => window.location.href = 'login.html', 2000);
             }
         }
 

@@ -7,24 +7,23 @@ class NewAuthSystem {
     init() {
         // Wait for Discord auth to load before checking authentication
         if (window.discordAuth) {
-            // Add small delay to ensure Discord auth is fully initialized
-            setTimeout(() => this.performAuthCheck(), 100);
+            this.performAuthCheck();
         } else {
             // Wait for Discord auth to initialize
-            setTimeout(() => this.init(), 100);
+            setTimeout(() => this.init(), 50);
         }
     }
     
     performAuthCheck() {
-        // Check authentication on page load
-        if (!this.isAuthenticated() && !this.isPublicPage()) {
-            this.redirectToLogin();
+        // Skip auth check if we're already authenticated
+        if (this.isAuthenticated()) {
+            this.checkPagePermissions();
             return;
         }
         
-        // Check permissions for restricted pages
-        if (this.isAuthenticated()) {
-            this.checkPagePermissions();
+        // Only redirect to login if not authenticated and not on public page
+        if (!this.isPublicPage()) {
+            this.redirectToLogin();
         }
     }
     
