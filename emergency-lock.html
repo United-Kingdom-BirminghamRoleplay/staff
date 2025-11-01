@@ -39,7 +39,16 @@
     </style>
 </head>
 <body>
-    <div class="control-panel">
+    <div class="control-panel" id="loginPanel">
+        <h1>🚨 EMERGENCY ACCESS 🚨</h1>
+        <input type="password" id="passcode" placeholder="Enter emergency passcode" style="padding: 10px; font-size: 16px; margin: 20px 0; width: 200px; background: rgba(0,0,0,0.5); color: white; border: 1px solid #ff0000; border-radius: 5px;">
+        <br>
+        <button class="emergency-btn" onclick="authenticate()">
+            🔑 ACCESS CONTROLS
+        </button>
+    </div>
+    
+    <div class="control-panel" id="controlPanel" style="display: none;">
         <h1>🚨 EMERGENCY SITE CONTROL 🚨</h1>
         <p>Current Status: <span id="status">Checking...</span></p>
         
@@ -51,7 +60,7 @@
             🔓 UNLOCK SITE
         </button>
         
-        <p><small>Emergency access only - Founder level required</small></p>
+        <p><small>Emergency access authenticated</small></p>
     </div>
 
     <script>
@@ -113,8 +122,39 @@
             }
         }
         
-        checkStatus();
-        setInterval(checkStatus, 5000);
+        async function authenticate() {
+            const passcode = document.getElementById('passcode').value;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'verify_emergency_code',
+                        passcode: passcode
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('loginPanel').style.display = 'none';
+                    document.getElementById('controlPanel').style.display = 'block';
+                    checkStatus();
+                    setInterval(checkStatus, 5000);
+                } else {
+                    alert('Invalid passcode');
+                    document.getElementById('passcode').value = '';
+                }
+            } catch (error) {
+                alert('Authentication error');
+            }
+        }
+        
+        document.getElementById('passcode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
     </script>
 </body>
 </html>

@@ -402,6 +402,43 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot create assessment: ' . $conn->error]);
     }
 
+} elseif ($type === 'verify_emergency_code') {
+    $passcode = $input['passcode'] ?? '';
+    
+    // Create emergency codes table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS emergency_codes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        code_hash VARCHAR(255),
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    // Check if any codes exist, if not create default
+    $checkStmt = $conn->prepare("SELECT COUNT(*) as count FROM emergency_codes");
+    $checkStmt->execute();
+    $count = $checkStmt->get_result()->fetch_assoc()['count'];
+    
+    if ($count == 0) {
+        $defaultHash = password_hash('EMERGENCY_' . date('Ymd'), PASSWORD_DEFAULT);
+        $insertStmt = $conn->prepare("INSERT INTO emergency_codes (code_hash) VALUES (?)");
+        $insertStmt->bind_param("s", $defaultHash);
+        $insertStmt->execute();
+    }
+    
+    // Verify passcode
+    $stmt = $conn->prepare("SELECT code_hash FROM emergency_codes");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $valid = false;
+    while ($row = $result->fetch_assoc()) {
+        if (password_verify($passcode, $row['code_hash'])) {
+            $valid = true;
+            break;
+        }
+    }
+    
+    echo json_encode(['success' => $valid]);
+
 } elseif ($type === 'emergency_lock') {
     $locked = $input['locked'] ? '1' : '0';
     
