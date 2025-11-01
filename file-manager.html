@@ -149,17 +149,25 @@
                     body: JSON.stringify({ type: 'files', file: fileData })
                 });
                 
-                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const text = await response.text();
+                console.log('Upload response:', text);
+                
+                const result = JSON.parse(text);
                 if (result.success) {
                     alert('File uploaded successfully! Awaiting founder approval.');
                     fileInput.value = '';
                     document.getElementById('fileDescription').value = '';
                     loadFiles();
                 } else {
-                    alert('Failed to upload file');
+                    alert('Failed to upload file: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Error uploading file');
+                console.error('Upload error:', error);
+                alert('Error uploading file: ' + error.message);
             }
         }
         
