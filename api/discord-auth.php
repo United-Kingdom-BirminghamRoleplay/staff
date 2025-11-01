@@ -8,10 +8,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-$CLIENT_ID = '1340376847732707380';
-$CLIENT_SECRET = 'tG1VDexmSuYXPWC3KMndNgvvRuB8YmWA'; // Replace with actual secret
+// --- SECURE CONFIGURATION ---
+// IMPORTANT: These should be set as environment variables on your server.
+// The getenv() function retrieves the variable set on your server (e.g., via Apache, Nginx, or a .env loader).
+$CLIENT_ID = getenv('DISCORD_CLIENT_ID') ?: '1340376847732707380';
+$CLIENT_SECRET = getenv('DISCORD_CLIENT_SECRET') ?: 'tG1VDexmSuYXPWC3KMndNgvvRuB8YmWA'; // SECURED via Environment Variable
+$GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '906647296370958408';
+
+// Set the correct Redirect URI based on the server's context
 $REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/auth-callback.html';
-$GUILD_ID = '906647296370958408'; // Your Discord server ID
+
+// Critical Check: Ensure the secret is loaded
+if (empty($CLIENT_SECRET)) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Server Configuration Error: Discord Client Secret Missing']);
+    exit;
+}
+
+// Map Discord roles to staff ranks and define processing order (highest to lowest)
+// The role IDs are the keys, and the custom rank names are the values.
+$ROLE_HIERARCHY = [
+    '1345504810077524028' => 'founder',
+    '1345541100059885698' => 'co_founder',
+    '1345446581239021618' => 'assistant_founder',
+    '1422299020122128464' => 'developer',
+    '1377005605016834252' => 'advisory_board',
+    '1360335196171403304' => 'oversight_enforcement',
+    '1345453439156621353' => 'human_resources',
+    '1345472285053812788' => 'administration',
+    '1345470593537147056' => 'moderation'
+];
+
 
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
@@ -79,8 +106,8 @@ if ($action === 'exchange_code') {
     
     $user = json_decode($userResponse, true);
     
-    // Get guild member information
-    $ch = curl_init("https://discord.com/api/guilds/$GUILD_ID/members/{$user['id']}");
+    // Get guild member information (Requires 'guilds.members.read' scope)
+    $ch = curl_init("https://discord.com/api/users/@me/guilds/$GUILD_ID/member"); // Using the /users/@me endpoint
     curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $accessToken"]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
@@ -92,24 +119,15 @@ if ($action === 'exchange_code') {
     if ($memberHttpCode === 200) {
         $memberData = json_decode($memberResponse, true);
         
-        // Map Discord roles to staff ranks
-        $roleMapping = [
-            '1345504810077524028' => 'founder',
-            '1345541100059885698' => 'co_founder',
-            '1345446581239021618' => 'assistant_founder',
-            '1422299020122128464' => 'developer',
-            '1377005605016834252' => 'advisory_board',
-            '1360335196171403304' => 'oversight_enforcement',
-            '1345453439156621353' => 'human_resources',
-            '1345472285053812788' => 'administration',
-            '1345470593537147056' => 'moderation'
-        ];
-        
         $userRank = 'pending';
-        foreach ($memberData['roles'] as $roleId) {
-            if (isset($roleMapping[$roleId])) {
-                $userRank = $roleMapping[$roleId];
-                break; // Take the highest rank found
+        
+        // Find the highest rank based on the defined hierarchy order
+        foreach ($ROLE_HIERARCHY as $roleId => $rankName) {
+            if (in_array($roleId, $memberData['roles'])) {
+                // Since $ROLE_HIERARCHY is ordered highest-to-lowest, 
+                // the first match found is the highest rank.
+                $userRank = $rankName;
+                break; 
             }
         }
         
