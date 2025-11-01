@@ -516,12 +516,9 @@
                 return `
                     <div class="user-row">
                         <div>
-                            <div class="user-info">
-                                <div class="user-avatar">${initials}</div>
-                                <div class="user-details">
-                                    <h4>${user.robloxUsername}</h4>
-                                    <p>${user.discordUsername}</p>
-                                </div>
+                            <div>
+                                <h4>${user.robloxUsername}</h4>
+                                <p>${user.discordUsername}</p>
                             </div>
                         </div>
                         <div>
@@ -593,6 +590,7 @@
         }
 
         function formatRank(rank) {
+            if (!rank) return 'Unknown';
             return rank.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
 
