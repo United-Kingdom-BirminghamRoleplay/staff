@@ -1,0 +1,67 @@
+{
+  "founders": [
+    {
+      "id": "land",
+      "name": "Land",
+      "description": "Rain Hashbrowns",
+      "buttonText": "🍟 Hashbrown Storm",
+      "action": "rainHashbrowns"
+    },
+    {
+      "id": "max",
+      "name": "Max", 
+      "description": "Rain Lobsters",
+      "buttonText": "🦞 Lobster Rain",
+      "action": "rainLobsters"
+    },
+    {
+      "id": "callumn",
+      "name": "Callumn",
+      "description": "Rain Dr Pepper Bottles", 
+      "buttonText": "🥤 Dr Pepper Storm",
+      "action": "rainDrPepper"
+    },
+    {
+      "id": "founder4",
+      "name": "Founder 4",
+      "description": "Custom Action 4",
+      "buttonText": "⭐ Special Action",
+      "action": "customAction4"
+    },
+    {
+      "id": "founder5", 
+      "name": "Founder 5",
+      "description": "Custom Action 5",
+      "buttonText": "🎯 Special Action",
+      "action": "customAction5"
+    },
+    {
+      "id": "founder6",
+      "name": "Founder 6", 
+      "description": "Custom Action 6",
+      "buttonText": "🚀 Special Action",
+      "action": "customAction6"
+    },
+    {
+      "id": "founder7",
+      "name": "Founder 7",
+      "description": "Custom Action 7", 
+      "buttonText": "💎 Special Action",
+      "action": "customAction7"
+    },
+    {
+      "id": "founder8",
+      "name": "Founder 8",
+      "description": "Custom Action 8",
+      "buttonText": "🔥 Special Action", 
+      "action": "customAction8"
+    },
+    {
+      "id": "founder9",
+      "name": "Founder 9",
+      "description": "Custom Action 9",
+      "buttonText": "⚡ Special Action",
+      "action": "customAction9"
+    }
+  ]
+}

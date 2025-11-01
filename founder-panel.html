@@ -67,6 +67,20 @@
         </section>
         
         <section class="forms-section">
+            <h2><i class="fas fa-crown"></i> Founder Special Actions</h2>
+            <div class="forms-grid" id="founderButtons">
+                <!-- Founder buttons will be loaded here -->
+            </div>
+        </section>
+        
+        <section class="forms-section">
+            <h2><i class="fas fa-tachometer-alt"></i> System Dashboard</h2>
+            <div id="systemStatus" class="forms-grid">
+                <!-- System status cards will be loaded here -->
+            </div>
+        </section>
+        
+        <section class="forms-section">
             <h2><i class="fas fa-tachometer-alt"></i> System Dashboard</h2>
             <div id="systemStatus" class="forms-grid">
                 <!-- System status cards will be loaded here -->
@@ -366,6 +380,122 @@
             }
         }
 
+        async function loadFounderButtons() {
+            try {
+                const response = await fetch('./founder-buttons.json');
+                const data = await response.json();
+                const currentUser = newAuthSystem.getCurrentUser();
+                
+                const container = document.getElementById('founderButtons');
+                
+                // Show all buttons but highlight current user's button
+                container.innerHTML = data.founders.map(founder => `
+                    <div class="form-card" ${founder.name.toLowerCase() === currentUser.robloxUsername.toLowerCase() ? 'style="border: 2px solid var(--orange-accent);"' : ''}>
+                        <h4><i class="fas fa-user-crown"></i> ${founder.name}'s Button</h4>
+                        <p>${founder.description}</p>
+                        <button class="btn-glass" onclick="executeFounderAction('${founder.action}', '${founder.name}')">
+                            ${founder.buttonText}
+                        </button>
+                        ${founder.name.toLowerCase() === currentUser.robloxUsername.toLowerCase() ? '<small style="color: var(--orange-accent);">Your Button</small>' : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading founder buttons:', error);
+            }
+        }
+        
+        function executeFounderAction(action, founderName) {
+            switch(action) {
+                case 'rainHashbrowns':
+                    rainHashbrowns(founderName);
+                    break;
+                case 'rainLobsters':
+                    rainLobsters(founderName);
+                    break;
+                case 'rainDrPepper':
+                    rainDrPepper(founderName);
+                    break;
+                default:
+                    alert(`${founderName}'s special action is not yet implemented!`);
+            }
+        }
+        
+        function rainHashbrowns(founder) {
+            alert(`🎉 ${founder} activated Hashbrown Storm! 🍟`);
+            createImageRain('./images/hashbrown.png', 100);
+        }
+        
+        function rainLobsters(founder) {
+            alert(`🎉 ${founder} activated Lobster Rain! 🦞`);
+            createRain('🦞', 80, '#FF6B35');
+        }
+        
+        function rainDrPepper(founder) {
+            alert(`🎉 ${founder} activated Dr Pepper Storm! 🥤`);
+            createRain('🥤', 90, '#8B0000');
+        }
+        
+        function createRain(emoji, count, color) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const item = document.createElement('div');
+                    item.textContent = emoji;
+                    item.style.cssText = `
+                        position: fixed;
+                        left: ${Math.random() * 100}vw;
+                        top: -50px;
+                        font-size: ${Math.random() * 20 + 20}px;
+                        z-index: 10000;
+                        pointer-events: none;
+                        animation: rainFall 3s linear forwards;
+                    `;
+                    document.body.appendChild(item);
+                    
+                    setTimeout(() => item.remove(), 3000);
+                }, i * 50);
+            }
+            
+            addRainCSS();
+        }
+        
+        function createImageRain(imageSrc, count) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const item = document.createElement('img');
+                    item.src = imageSrc;
+                    item.style.cssText = `
+                        position: fixed;
+                        left: ${Math.random() * 100}vw;
+                        top: -50px;
+                        width: ${Math.random() * 30 + 30}px;
+                        height: auto;
+                        z-index: 10000;
+                        pointer-events: none;
+                        animation: rainFall 3s linear forwards;
+                    `;
+                    document.body.appendChild(item);
+                    
+                    setTimeout(() => item.remove(), 3000);
+                }, i * 50);
+            }
+            
+            addRainCSS();
+        }
+        
+        function addRainCSS() {
+            if (!document.getElementById('rainCSS')) {
+                const style = document.createElement('style');
+                style.id = 'rainCSS';
+                style.textContent = `
+                    @keyframes rainFall {
+                        0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+                        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!newAuthSystem.isAuthenticated()) {
                 window.location.href = 'login.html';
@@ -379,6 +509,7 @@
             }
             
             loadWebsiteStatus();
+            loadFounderButtons();
             setInterval(loadSystemStatus, 30000); // Update every 30 seconds
         });
     </script>
