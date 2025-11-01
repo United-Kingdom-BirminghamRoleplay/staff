@@ -20,20 +20,30 @@ class IPBanChecker {
             return;
         }
 
+        // Hide page content while checking
+        document.body.style.visibility = 'hidden';
+
         const ip = await this.getUserIP();
-        if (!ip) return;
+        if (!ip) {
+            document.body.style.visibility = 'visible';
+            return;
+        }
 
         try {
             const response = await fetch(`./api/load.php?type=check_ip_ban&ip=${ip}`);
             const banInfo = await response.json();
 
             if (banInfo.banned) {
-                // Redirect to banned page
-                window.location.href = 'banned.html';
+                // Redirect to banned page immediately
+                window.location.replace('banned.html');
+                return;
             }
         } catch (error) {
             console.error('IP check failed:', error);
         }
+        
+        // Show page content if not banned
+        document.body.style.visibility = 'visible';
     }
 }
 
