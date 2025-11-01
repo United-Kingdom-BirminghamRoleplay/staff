@@ -122,12 +122,30 @@
             document.getElementById('assessmentTitle').textContent = assessment.title;
             document.getElementById('assessmentDesc').textContent = assessment.description || 'Complete all sections below';
             
+            console.log('Assessment data:', assessment);
+            console.log('Sections:', assessment.sections);
+            
             const container = document.getElementById('assessmentContent');
             let html = `<div style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px;">
                 <h3>Total Marks: ${assessment.totalMarks}</h3>
             </div>`;
 
-            const sections = Array.isArray(assessment.sections) ? assessment.sections : [];
+            let sections = assessment.sections;
+            if (typeof sections === 'string') {
+                try {
+                    sections = JSON.parse(sections);
+                } catch (e) {
+                    sections = [];
+                }
+            }
+            if (!Array.isArray(sections)) sections = [];
+            
+            console.log('Processed sections:', sections);
+            
+            if (sections.length === 0) {
+                html += '<p style="text-align: center; color: #ff6b35;">No questions available in this assessment.</p>';
+            }
+            
             sections.forEach((section, sectionIndex) => {
                 html += `<div class="section-header">
                     <h3>${section.title}</h3>
@@ -175,7 +193,16 @@
             let totalQuestions = 0;
             let answeredQuestions = 0;
 
-            const sections = Array.isArray(currentAssessment.sections) ? currentAssessment.sections : [];
+            let sections = currentAssessment.sections;
+            if (typeof sections === 'string') {
+                try {
+                    sections = JSON.parse(sections);
+                } catch (e) {
+                    sections = [];
+                }
+            }
+            if (!Array.isArray(sections)) sections = [];
+            
             sections.forEach((section, sectionIndex) => {
                 section.questions.forEach((question, questionIndex) => {
                     const questionId = `q_${sectionIndex}_${questionIndex}`;

@@ -394,12 +394,12 @@ if ($type === 'forms') {
     
     $stmt = $conn->prepare("INSERT INTO assessments (id, title, description, sections, totalMarks, passMarks, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
     $sectionsJson = json_encode($assessment['sections']);
-    $stmt->bind_param("sssiii", $id, $assessment['title'], $assessment['description'], $sectionsJson, $assessment['totalMarks'], $assessment['passMarks']);
+    $stmt->bind_param("ssssii", $id, $assessment['title'], $assessment['description'], $sectionsJson, $assessment['totalMarks'], $assessment['passMarks']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
-        echo json_encode(['error' => 'Cannot create assessment']);
+        echo json_encode(['error' => 'Cannot create assessment: ' . $conn->error]);
     }
 
 } elseif ($type === 'website_control') {
