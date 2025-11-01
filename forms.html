@@ -126,34 +126,40 @@
         <section class="forms-section">
             <h2><i class="fas fa-file-alt"></i> Available Forms</h2>
             <div class="forms-grid" id="formsGrid">
-                <div class="form-card" onclick="openFormBuilder()">
+                <div class="form-card">
                     <h4>Form Builder</h4>
-                    <p>Create custom forms for staff use (Senior Management only)</p>
-                    <button class="btn-glass">Build Form</button>
+                    <p>Create custom forms for staff use (Human Resources+ only)</p>
+                    <button class="btn-glass" onclick="openFormBuilder()">Build Form</button>
                 </div>
                 
-                <div class="form-card" onclick="openAnnouncementForm()">
+                <div class="form-card">
                     <h4>Announcements</h4>
-                    <p>Create staff announcements (Senior Management+ only)</p>
-                    <button class="btn-glass">Create Announcement</button>
+                    <p>Create staff announcements (Human Resources+ only)</p>
+                    <button class="btn-glass" onclick="openAnnouncementForm()">Create Announcement</button>
                 </div>
                 
-                <div class="form-card" onclick="openGeneralReport()">
+                <div class="form-card">
                     <h4>General Report</h4>
                     <p>Submit reports for staff review</p>
-                    <button class="btn-glass">Submit Report</button>
+                    <button class="btn-glass" onclick="openGeneralReport()">Submit Report</button>
                 </div>
                 
-                <div class="form-card" onclick="openTrialLog()">
+                <div class="form-card">
                     <h4>Trial Logs</h4>
                     <p>Log staff member trials and results</p>
-                    <button class="btn-glass">Log Trial</button>
+                    <button class="btn-glass" onclick="openTrialLog()">Log Trial</button>
                 </div>
                 
-                <div class="form-card management-only" onclick="openTrainingForm()" style="display: none;">
+                <div class="form-card management-only" style="display: none;">
                     <h4>Training Management</h4>
                     <p>Create and manage training sessions</p>
-                    <button class="btn-glass">Create Training</button>
+                    <button class="btn-glass" onclick="openTrainingForm()">Create Training</button>
+                </div>
+                
+                <div class="form-card founder-only" style="display: none;">
+                    <h4>Assessment Builder</h4>
+                    <p>Create comprehensive assessments with marking schemes</p>
+                    <button class="btn-glass" onclick="window.location.href='assessment-builder.html'">Build Assessment</button>
                 </div>
             </div>
         </section>
@@ -461,7 +467,7 @@
             document.body.appendChild(modal);
         }
         
-        function submitGeneralReport() {
+        async function submitGeneralReport() {
             const robloxUsername = document.getElementById('robloxUsername').value.trim();
             const discordUsername = document.getElementById('discordUsername').value.trim();
             const reportType = document.getElementById('reportType').value;
@@ -498,7 +504,6 @@
                 alert('Error submitting report');
             }
             document.querySelector('.form-modal').remove();
-            alert('Report submitted successfully!');
         }
         
         async function loadForms() {
@@ -870,6 +875,12 @@
             if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('human_resources')) {
                 const managementCard = document.querySelector('.management-only');
                 if (managementCard) managementCard.style.display = 'block';
+            }
+            
+            // Show assessment builder for Founders
+            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('founder')) {
+                const founderCard = document.querySelector('.founder-only');
+                if (founderCard) founderCard.style.display = 'block';
             }
             
             const searchInput = document.getElementById('siteSearch');
