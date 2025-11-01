@@ -61,6 +61,18 @@ if ($type === 'announcements') {
     
     echo json_encode($users);
 
+} elseif ($type === 'files') {
+    $stmt = $conn->prepare("SELECT * FROM files ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $files = [];
+    while ($row = $result->fetch_assoc()) {
+        $files[] = $row;
+    }
+    
+    echo json_encode($files);
+
 } elseif ($type === 'user_details') {
     $userId = $_GET['userId'] ?? '';
     

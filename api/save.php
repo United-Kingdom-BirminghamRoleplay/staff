@@ -157,6 +157,19 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot save notes']);
     }
 
+} elseif ($type === 'files') {
+    $file = $input['file'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssisssss", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['fileData']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot save file']);
+    }
+
 } elseif ($type === 'change_password') {
     $userId = $input['userId'];
     $currentPassword = $input['currentPassword'];

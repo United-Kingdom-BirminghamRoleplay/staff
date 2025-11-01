@@ -99,17 +99,18 @@
             background: rgba(255, 107, 53, 0.2);
             padding: 15px 20px;
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr 2fr;
-            gap: 15px;
+            grid-template-columns: 3fr 2fr 1.5fr 1.5fr 2fr;
+            gap: 20px;
             font-weight: 600;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            align-items: center;
         }
         
         .user-row {
             padding: 15px 20px;
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1fr 1fr 2fr;
-            gap: 15px;
+            grid-template-columns: 3fr 2fr 1.5fr 1.5fr 2fr;
+            gap: 20px;
             align-items: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: background 0.3s ease;
@@ -123,6 +124,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            min-width: 0;
         }
         
         .user-avatar {
@@ -137,15 +139,26 @@
             font-size: 16px;
         }
         
+        .user-details {
+            min-width: 0;
+            overflow: hidden;
+        }
+        
         .user-details h4 {
             margin: 0 0 4px 0;
             font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .user-details p {
             margin: 0;
             font-size: 12px;
             color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .rank-badge {
