@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-$CLIENT_ID = '1152677388543598752';
+$CLIENT_ID = '1340376847732707380';
 $CLIENT_SECRET = 'tG1VDexmSuYXPWC3KMndNgvvRuB8YmWA'; // Replace with actual secret
 $REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/auth-callback.html';
 $GUILD_ID = '906647296370958408'; // Your Discord server ID
