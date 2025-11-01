@@ -402,24 +402,25 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot create assessment: ' . $conn->error]);
     }
 
-} elseif ($type === 'website_control') {
-    $action = $input['action'];
-    $data = $input['data'];
+} elseif ($type === 'emergency_lock') {
+    $locked = $input['locked'] ? '1' : '0';
     
-    if ($action === 'lock') {
-        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('locked', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $locked = $data['locked'] ? '1' : '0';
-        $stmt->bind_param("ss", $locked, $locked);
-    } elseif ($action === 'emergency') {
-        $message = $data['message'] ?? null;
-        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('emergency_message', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmt->bind_param("ss", $message, $message);
-    }
+    // Create table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS website_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        setting_key VARCHAR(100) UNIQUE,
+        setting_value TEXT,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+    $stmt->bind_param("ss", $locked, $locked);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
-        echo json_encode(['error' => 'Cannot update website settings']);
+        echo json_encode(['error' => 'Cannot update site lock: ' . $conn->error]);
     }
 
 } elseif ($type === 'assessment_response') {

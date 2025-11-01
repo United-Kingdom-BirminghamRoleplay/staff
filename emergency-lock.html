@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Site Control</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .control-panel {
+            background: rgba(255,0,0,0.1);
+            border: 2px solid #ff0000;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .emergency-btn {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .unlock-btn {
+            background: #00ff00;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h1>🚨 EMERGENCY SITE CONTROL 🚨</h1>
+        <p>Current Status: <span id="status">Checking...</span></p>
+        
+        <button class="emergency-btn" onclick="lockSite()">
+            🔒 EMERGENCY LOCK SITE
+        </button>
+        
+        <button class="emergency-btn unlock-btn" onclick="unlockSite()">
+            🔓 UNLOCK SITE
+        </button>
+        
+        <p><small>Emergency access only - Founder level required</small></p>
+    </div>
+
+    <script>
+        async function lockSite() {
+            if (confirm('EMERGENCY LOCK THE ENTIRE SITE? This will prevent ALL logins.')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'emergency_lock',
+                            locked: true
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('SITE LOCKED - No one can log in');
+                        checkStatus();
+                    }
+                } catch (error) {
+                    alert('Error locking site');
+                }
+            }
+        }
+        
+        async function unlockSite() {
+            if (confirm('Unlock the site and allow normal logins?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'emergency_lock',
+                            locked: false
+                        })
+                    });
+                    
+                    if ((await response.json()).success) {
+                        alert('Site unlocked - Normal access restored');
+                        checkStatus();
+                    }
+                } catch (error) {
+                    alert('Error unlocking site');
+                }
+            }
+        }
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('./api/load.php?type=website_control');
+                const data = await response.json();
+                console.log('Status data:', data);
+                const isLocked = data.site_locked || false;
+                document.getElementById('status').textContent = isLocked ? 'LOCKED 🔒' : 'UNLOCKED 🔓';
+                document.getElementById('status').style.color = isLocked ? '#ff0000' : '#00ff00';
+            } catch (error) {
+                console.error('Status error:', error);
+                document.getElementById('status').textContent = 'ERROR';
+            }
+        }
+        
+        checkStatus();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+</html>
