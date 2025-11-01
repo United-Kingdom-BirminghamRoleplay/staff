@@ -256,8 +256,9 @@
             if (code && state) {
                 try {
                     await window.discordAuth.handleCallback(code, state);
-                    // Remove OAuth params from URL
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    // Redirect to clean index.html
+                    window.location.href = 'index.html';
+                    return;
                 } catch (error) {
                     console.error('OAuth callback error:', error);
                     window.location.href = 'login.html';
