@@ -35,12 +35,6 @@
                 </div>
                 
                 <div class="form-card">
-                    <h4><i class="fas fa-chart-line"></i> Live Analytics</h4>
-                    <p>Real-time system statistics</p>
-                    <button class="btn-glass" onclick="showAnalytics()">View Analytics</button>
-                </div>
-                
-                <div class="form-card">
                     <h4><i class="fas fa-file-check"></i> File Approvals</h4>
                     <p>Review pending file uploads</p>
                     <button class="btn-glass" onclick="window.location.href='file-manager.html'">Manage Files</button>
@@ -502,8 +496,8 @@
                 return;
             }
             
-            if (!newAuthSystem.hasPermission('co_founder')) {
-                alert('Access denied. Co-Founder+ only.');
+            if (!newAuthSystem.hasPermission('assistant_founder')) {
+                alert('Access denied. Assistant Founder+ only.');
                 window.location.href = 'index.html';
                 return;
             }

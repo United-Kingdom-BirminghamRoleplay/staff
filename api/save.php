@@ -338,6 +338,26 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot create assessment']);
     }
 
+} elseif ($type === 'website_control') {
+    $action = $input['action'];
+    $data = $input['data'];
+    
+    if ($action === 'lock') {
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('locked', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $locked = $data['locked'] ? '1' : '0';
+        $stmt->bind_param("ss", $locked, $locked);
+    } elseif ($action === 'emergency') {
+        $message = $data['message'] ?? null;
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('emergency_message', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->bind_param("ss", $message, $message);
+    }
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot update website settings']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

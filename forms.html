@@ -360,12 +360,28 @@
                 return;
             }
             
-            const result = await formSystem.createForm(title, description, questions);
-            
-            document.querySelector('.form-modal').remove();
-            loadForms();
-            
-            alert(`Form created! ID: ${result.id}, PIN: ${result.pin}`);
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'forms', 
+                        form: { title, description, fields: questions }
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('.form-modal').remove();
+                    loadForms();
+                    alert(`Form created! ID: ${result.id}, PIN: ${result.pin}`);
+                } else {
+                    alert('Failed to create form: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Form creation error:', error);
+                alert('Error creating form: ' + error.message);
+            }
         }
         
         function openForm(id) {

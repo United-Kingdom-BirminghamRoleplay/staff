@@ -73,6 +73,22 @@ if ($type === 'announcements') {
     
     echo json_encode($reports);
 
+} elseif ($type === 'website_control') {
+    $stmt = $conn->prepare("SELECT * FROM website_settings");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $settings = ['locked' => false, 'emergency_popup' => null];
+    while ($row = $result->fetch_assoc()) {
+        if ($row['setting_key'] === 'locked') {
+            $settings['locked'] = $row['setting_value'] === '1';
+        } elseif ($row['setting_key'] === 'emergency_message') {
+            $settings['emergency_popup'] = $row['setting_value'];
+        }
+    }
+    
+    echo json_encode($settings);
+
 } elseif ($type === 'users') {
     $stmt = $conn->prepare("SELECT id, robloxUsername, discordUsername, requestedRank, rank, status, registeredAt, approvedAt, approvedBy, notes FROM users ORDER BY registeredAt DESC");
     $stmt->execute();
