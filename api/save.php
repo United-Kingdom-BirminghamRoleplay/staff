@@ -376,6 +376,18 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot update status']);
     }
 
+} elseif ($type === 'delete_touchpoint') {
+    $touchpointId = $input['touchpointId'];
+    
+    $stmt = $conn->prepare("DELETE FROM touchpoints WHERE id = ?");
+    $stmt->bind_param("s", $touchpointId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete touchpoint']);
+    }
+
 } elseif ($type === 'assessment') {
     $assessment = $input['assessment'];
     $id = uniqid();

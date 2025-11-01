@@ -226,6 +226,12 @@
                                 ` : ''}
                             </div>
                         ` : ''}
+                        
+                        <div style="margin-top: 15px; text-align: right;">
+                            <button class="btn-glass" onclick="deleteTouchpoint('${tp.id}')" style="background: rgba(239, 68, 68, 0.3); color: #ef4444;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
                     </div>
                 `).join('');
             } catch (error) {
@@ -263,6 +269,30 @@
                 }
             } catch (error) {
                 alert('Error sending reply');
+            }
+        }
+        
+        async function deleteTouchpoint(touchpointId) {
+            if (confirm('Are you sure you want to delete this touchpoint? This cannot be undone.')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'delete_touchpoint',
+                            touchpointId
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        loadMyTouchpoints();
+                    } else {
+                        alert('Failed to delete touchpoint');
+                    }
+                } catch (error) {
+                    alert('Error deleting touchpoint');
+                }
             }
         }
         
