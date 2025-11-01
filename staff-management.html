@@ -592,6 +592,7 @@
 
         function formatRank(rank) {
             if (!rank) return 'Unknown';
+            if (rank === 'developer') return 'Developer';
             return rank.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
 
@@ -715,9 +716,16 @@
                     });
                 }
 
-                if ((await rankResponse.json()).success) {
+                const rankResult = await rankResponse.json();
+                if (rankResult.success) {
+                    // Update the user's rank in the local array immediately
+                    const userIndex = allUsers.findIndex(u => u.id === currentEditUserId);
+                    if (userIndex !== -1) {
+                        allUsers[userIndex].rank = newRank;
+                    }
                     closeModal();
-                    await loadUsers();
+                    // Refresh the display to show updated rank
+                    filterUsers();
                 }
             } catch (error) {
                 alert('Error updating user');
