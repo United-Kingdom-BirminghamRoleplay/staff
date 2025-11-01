@@ -392,6 +392,36 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot grade assessment']);
     }
 
+} elseif ($type === 'delete_assessment') {
+    $assessmentId = $input['assessmentId'];
+    
+    // Delete assessment responses first
+    $stmt = $conn->prepare("DELETE FROM assessment_responses WHERE assessmentId = ?");
+    $stmt->bind_param("s", $assessmentId);
+    $stmt->execute();
+    
+    // Delete assessment
+    $stmt = $conn->prepare("DELETE FROM assessments WHERE id = ?");
+    $stmt->bind_param("s", $assessmentId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete assessment']);
+    }
+
+} elseif ($type === 'delete_assessment_response') {
+    $responseId = $input['responseId'];
+    
+    $stmt = $conn->prepare("DELETE FROM assessment_responses WHERE id = ?");
+    $stmt->bind_param("s", $responseId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete response']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

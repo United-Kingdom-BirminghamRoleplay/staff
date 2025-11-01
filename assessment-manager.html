@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Manager - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Assessment Manager</h1>
+            <p class="greeting-subtitle">Manage assessments and view responses (Founder+ only)</p>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-clipboard-list"></i> Created Assessments</h2>
+            <div id="assessmentsContainer">
+                <!-- Assessments will be loaded here -->
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-users"></i> Assessment Responses</h2>
+            <div id="responsesContainer">
+                <!-- Responses will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        async function loadAssessments() {
+            try {
+                const response = await fetch('./api/load.php?type=assessments');
+                const assessments = await response.json();
+                
+                const container = document.getElementById('assessmentsContainer');
+                
+                if (assessments.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No assessments created yet</p>';
+                    return;
+                }
+
+                container.innerHTML = assessments.map(assessment => `
+                    <div class="form-card">
+                        <h4>${assessment.title}</h4>
+                        <p>${assessment.description || 'No description'}</p>
+                        <p><strong>Total Marks:</strong> ${assessment.totalMarks}</p>
+                        <p><strong>Sections:</strong> ${JSON.parse(assessment.sections).length}</p>
+                        <p><strong>Created:</strong> ${new Date(assessment.created).toLocaleDateString()}</p>
+                        
+                        <div style="margin-top: 15px;">
+                            <button class="btn-glass" onclick="generateLink('${assessment.id}')">
+                                <i class="fas fa-link"></i> Generate Link
+                            </button>
+                            <button class="btn-glass" onclick="viewAssessment('${assessment.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn-glass" onclick="editAssessment('${assessment.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-glass" onclick="deleteAssessment('${assessment.id}')" style="background: rgba(220, 38, 38, 0.3);">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading assessments:', error);
+            }
+        }
+
+        async function loadResponses() {
+            try {
+                const response = await fetch('./api/load.php?type=assessment_responses');
+                const responses = await response.json();
+                
+                const container = document.getElementById('responsesContainer');
+                
+                if (responses.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No responses yet</p>';
+                    return;
+                }
+
+                container.innerHTML = responses.map(resp => `
+                    <div class="form-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4>${resp.username}</h4>
+                                <p><strong>Assessment:</strong> ${resp.assessmentTitle || 'Unknown'}</p>
+                                <p><strong>Status:</strong> <span style="color: ${resp.status === 'passed' ? '#22c55e' : resp.status === 'failed' ? '#ef4444' : '#fbbf24'}">${resp.status || 'Pending'}</span></p>
+                                <p><strong>Submitted:</strong> ${new Date(resp.created).toLocaleDateString()}</p>
+                            </div>
+                            <div>
+                                <button class="btn-glass" onclick="viewResponse('${resp.id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn-glass" onclick="deleteResponse('${resp.id}')" style="background: rgba(220, 38, 38, 0.3);">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading responses:', error);
+            }
+        }
+
+        function generateLink(assessmentId) {
+            const link = `${window.location.origin}/assessment.html?id=${assessmentId}`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert(`Assessment link copied to clipboard!\n\n${link}`);
+            }).catch(() => {
+                prompt('Copy this assessment link:', link);
+            });
+        }
+
+        function viewAssessment(assessmentId) {
+            window.open(`assessment.html?id=${assessmentId}`, '_blank');
+        }
+
+        function editAssessment(assessmentId) {
+            alert('Edit functionality coming soon!');
+        }
+
+        async function deleteAssessment(assessmentId) {
+            if (confirm('Delete this assessment? This will also delete all responses.')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'delete_assessment',
+                            assessmentId
+                        })
+                    });
+
+                    if ((await response.json()).success) {
+                        alert('Assessment deleted successfully!');
+                        loadAssessments();
+                        loadResponses();
+                    } else {
+                        alert('Failed to delete assessment');
+                    }
+                } catch (error) {
+                    alert('Error deleting assessment');
+                }
+            }
+        }
+
+        function viewResponse(responseId) {
+            window.open(`assessment-results.html#${responseId}`, '_blank');
+        }
+
+        async function deleteResponse(responseId) {
+            if (confirm('Delete this response?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'delete_assessment_response',
+                            responseId
+                        })
+                    });
+
+                    if ((await response.json()).success) {
+                        alert('Response deleted successfully!');
+                        loadResponses();
+                    } else {
+                        alert('Failed to delete response');
+                    }
+                } catch (error) {
+                    alert('Error deleting response');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (!newAuthSystem.hasPermission('founder')) {
+                alert('Access denied. Founder only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadAssessments();
+            loadResponses();
+        });
+    </script>
+</body>
+</html>

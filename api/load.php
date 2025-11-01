@@ -184,6 +184,18 @@ if ($type === 'announcements') {
     
     echo json_encode($responses);
 
+} elseif ($type === 'assessments') {
+    $stmt = $conn->prepare("SELECT * FROM assessments ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $assessments = [];
+    while ($row = $result->fetch_assoc()) {
+        $assessments[] = $row;
+    }
+    
+    echo json_encode($assessments);
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }
