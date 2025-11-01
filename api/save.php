@@ -358,6 +358,40 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot update website settings']);
     }
 
+} elseif ($type === 'assessment_response') {
+    $response = $input['response'];
+    $id = uniqid();
+    
+    $stmt = $conn->prepare("INSERT INTO assessment_responses (id, assessmentId, userId, username, answers, timeTaken, totalQuestions, answeredQuestions, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    $answersJson = json_encode($response['answers']);
+    $stmt->bind_param("sssssiis", $id, $response['assessmentId'], $response['userId'], $response['username'], $answersJson, $response['timeTaken'], $response['totalQuestions'], $response['answeredQuestions']);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'id' => $id]);
+    } else {
+        echo json_encode(['error' => 'Cannot save assessment response']);
+    }
+
+} elseif ($type === 'grade_assessment') {
+    $responseId = $input['responseId'];
+    $status = $input['status'];
+    $reason = $input['reason'];
+    $gradedBy = $input['gradedBy'];
+    
+    $stmt = $conn->prepare("UPDATE assessment_responses SET status = ?, reason = ?, gradedBy = ?, gradedAt = NOW() WHERE id = ?");
+    $stmt->bind_param("ssss", $status, $reason, $gradedBy, $responseId);
+    
+    if ($stmt->execute()) {
+        $stmt2 = $conn->prepare("SELECT ar.*, a.title as assessmentTitle FROM assessment_responses ar LEFT JOIN assessments a ON ar.assessmentId = a.id WHERE ar.id = ?");
+        $stmt2->bind_param("s", $responseId);
+        $stmt2->execute();
+        $responseData = $stmt2->get_result()->fetch_assoc();
+        
+        echo json_encode(['success' => true, 'responseData' => $responseData]);
+    } else {
+        echo json_encode(['error' => 'Cannot grade assessment']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

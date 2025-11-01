@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .section-header {
+            background: rgba(255, 107, 53, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0 15px 0;
+            border-left: 4px solid var(--orange-accent);
+        }
+        
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .question-marks {
+            float: right;
+            background: rgba(0, 255, 0, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .option-label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .option-label:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text" id="assessmentTitle">Loading Assessment...</h1>
+            <p class="greeting-subtitle" id="assessmentDesc">Please wait while we load the assessment</p>
+        </section>
+
+        <div id="assessmentContent">
+            <!-- Assessment content will be loaded here -->
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn-glass" onclick="submitAssessment()" style="background: rgba(0, 255, 0, 0.3); font-size: 18px; padding: 15px 30px;">
+                Submit Assessment
+            </button>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        let currentAssessment = null;
+        let startTime = Date.now();
+
+        async function loadAssessment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const assessmentId = urlParams.get('id');
+            
+            if (!assessmentId) {
+                alert('No assessment ID provided');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`./api/load.php?type=assessment&id=${assessmentId}`);
+                const assessment = await response.json();
+                
+                if (!assessment || assessment.error) {
+                    alert('Assessment not found');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                currentAssessment = assessment;
+                displayAssessment(assessment);
+            } catch (error) {
+                alert('Error loading assessment');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function displayAssessment(assessment) {
+            document.getElementById('assessmentTitle').textContent = assessment.title;
+            document.getElementById('assessmentDesc').textContent = assessment.description || 'Complete all sections below';
+            
+            const container = document.getElementById('assessmentContent');
+            let html = `<div style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px;">
+                <h3>Total Marks: ${assessment.totalMarks}</h3>
+            </div>`;
+
+            assessment.sections.forEach((section, sectionIndex) => {
+                html += `<div class="section-header">
+                    <h3>${section.title}</h3>
+                </div>`;
+
+                section.questions.forEach((question, questionIndex) => {
+                    const questionId = `q_${sectionIndex}_${questionIndex}`;
+                    
+                    html += `<div class="question-card">
+                        <div class="question-marks">${question.marks} marks</div>
+                        <h4>${question.text}</h4>`;
+
+                    if (question.type === 'text') {
+                        html += `<input type="text" class="answer-input" id="${questionId}" placeholder="Enter your answer">`;
+                    } else if (question.type === 'textarea') {
+                        html += `<textarea class="answer-input" id="${questionId}" rows="4" placeholder="Enter your detailed answer"></textarea>`;
+                    } else if (question.type === 'radio') {
+                        question.options.forEach((option, optionIndex) => {
+                            html += `<label class="option-label">
+                                <input type="radio" name="${questionId}" value="${option}" style="margin-right: 8px;">
+                                ${option}
+                            </label>`;
+                        });
+                    } else if (question.type === 'checkbox') {
+                        question.options.forEach((option, optionIndex) => {
+                            html += `<label class="option-label">
+                                <input type="checkbox" name="${questionId}" value="${option}" style="margin-right: 8px;">
+                                ${option}
+                            </label>`;
+                        });
+                    }
+
+                    html += `</div>`;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        async function submitAssessment() {
+            if (!currentAssessment) return;
+
+            const user = newAuthSystem.getCurrentUser();
+            const answers = {};
+            let totalQuestions = 0;
+            let answeredQuestions = 0;
+
+            currentAssessment.sections.forEach((section, sectionIndex) => {
+                section.questions.forEach((question, questionIndex) => {
+                    const questionId = `q_${sectionIndex}_${questionIndex}`;
+                    totalQuestions++;
+                    
+                    let answer = null;
+                    
+                    if (question.type === 'text' || question.type === 'textarea') {
+                        const input = document.getElementById(questionId);
+                        answer = input ? input.value.trim() : '';
+                    } else if (question.type === 'radio') {
+                        const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+                        answer = selected ? selected.value : '';
+                    } else if (question.type === 'checkbox') {
+                        const selected = document.querySelectorAll(`input[name="${questionId}"]:checked`);
+                        answer = Array.from(selected).map(cb => cb.value);
+                    }
+                    
+                    if (answer && (Array.isArray(answer) ? answer.length > 0 : answer !== '')) {
+                        answeredQuestions++;
+                    }
+                    
+                    answers[questionId] = answer;
+                });
+            });
+
+            if (answeredQuestions < totalQuestions * 0.8) {
+                if (!confirm(`You have only answered ${answeredQuestions} out of ${totalQuestions} questions. Submit anyway?`)) {
+                    return;
+                }
+            }
+
+            const timeTaken = Math.round((Date.now() - startTime) / 1000 / 60); // minutes
+
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'assessment_response',
+                        response: {
+                            assessmentId: currentAssessment.id,
+                            userId: user.userId,
+                            username: user.robloxUsername,
+                            answers: answers,
+                            timeTaken: timeTaken,
+                            totalQuestions: totalQuestions,
+                            answeredQuestions: answeredQuestions
+                        }
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Assessment submitted successfully! Your responses are being reviewed.');
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Failed to submit assessment');
+                }
+            } catch (error) {
+                alert('Error submitting assessment');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            loadAssessment();
+        });
+    </script>
+</body>
+</html>

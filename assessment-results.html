@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .response-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-pending { color: #fbbf24; }
+        .status-passed { color: #22c55e; }
+        .status-failed { color: #ef4444; }
+        
+        .grade-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .reason-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="greeting-section">
+            <h1 class="greeting-text">Assessment Results</h1>
+            <p class="greeting-subtitle">Review and grade assessment responses (Founder+ only)</p>
+        </section>
+
+        <section class="forms-section">
+            <div id="responsesContainer">
+                <!-- Assessment responses will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
+    <script>
+        const RESULTS_WEBHOOK = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
+
+        async function loadResponses() {
+            try {
+                const response = await fetch('./api/load.php?type=assessment_responses');
+                const responses = await response.json();
+                
+                const container = document.getElementById('responsesContainer');
+                
+                if (responses.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No assessment responses yet</p>';
+                    return;
+                }
+
+                container.innerHTML = responses.map(resp => `
+                    <div class="response-card">
+                        <div class="response-header">
+                            <div>
+                                <h3>${resp.username}</h3>
+                                <p>Assessment: ${resp.assessmentTitle || 'Unknown'}</p>
+                                <p>Submitted: ${new Date(resp.created).toLocaleString()}</p>
+                                <p>Time Taken: ${resp.timeTaken} minutes</p>
+                                <p>Questions Answered: ${resp.answeredQuestions}/${resp.totalQuestions}</p>
+                            </div>
+                            <div>
+                                <span class="status-${resp.status || 'pending'}" style="font-weight: 600; text-transform: uppercase;">
+                                    ${resp.status || 'Pending'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <h4>Answers:</h4>
+                            <pre style="white-space: pre-wrap; font-family: inherit;">${JSON.stringify(JSON.parse(resp.answers), null, 2)}</pre>
+                        </div>
+                        
+                        ${resp.status === 'pending' || !resp.status ? `
+                            <div class="grade-actions">
+                                <input type="text" placeholder="Reason for pass/fail" class="reason-input" id="reason_${resp.id}">
+                                <button class="btn-glass" onclick="gradeResponse('${resp.id}', 'passed')" style="background: rgba(34, 197, 94, 0.3);">
+                                    <i class="fas fa-check"></i> Pass
+                                </button>
+                                <button class="btn-glass" onclick="gradeResponse('${resp.id}', 'failed')" style="background: rgba(239, 68, 68, 0.3);">
+                                    <i class="fas fa-times"></i> Fail
+                                </button>
+                            </div>
+                        ` : `
+                            <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+                                <strong>Reason:</strong> ${resp.reason || 'No reason provided'}
+                            </div>
+                        `}
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading responses:', error);
+            }
+        }
+
+        async function gradeResponse(responseId, status) {
+            const reasonInput = document.getElementById(`reason_${responseId}`);
+            const reason = reasonInput ? reasonInput.value.trim() : '';
+            
+            if (!reason) {
+                alert('Please provide a reason for the grade');
+                return;
+            }
+
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'grade_assessment',
+                        responseId,
+                        status,
+                        reason,
+                        gradedBy: newAuthSystem.getCurrentUser().robloxUsername
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    // Send to Discord
+                    await sendResultToDiscord(result.responseData, status, reason);
+                    
+                    alert(`Assessment ${status} successfully!`);
+                    loadResponses();
+                } else {
+                    alert('Failed to grade assessment');
+                }
+            } catch (error) {
+                alert('Error grading assessment');
+            }
+        }
+
+        async function sendResultToDiscord(responseData, status, reason) {
+            const color = status === 'passed' ? 0x22c55e : 0xef4444;
+            const emoji = status === 'passed' ? '✅' : '❌';
+            
+            const embed = {
+                title: `${emoji} Assessment Result: ${status.toUpperCase()}`,
+                color: color,
+                fields: [
+                    { name: 'Student', value: responseData.username, inline: true },
+                    { name: 'Assessment', value: responseData.assessmentTitle || 'Unknown', inline: true },
+                    { name: 'Status', value: status.toUpperCase(), inline: true },
+                    { name: 'Time Taken', value: `${responseData.timeTaken} minutes`, inline: true },
+                    { name: 'Questions Answered', value: `${responseData.answeredQuestions}/${responseData.totalQuestions}`, inline: true },
+                    { name: 'Graded By', value: newAuthSystem.getCurrentUser().robloxUsername, inline: true },
+                    { name: 'Reason', value: reason, inline: false }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: 'Assessment Grading System' }
+            };
+
+            try {
+                await fetch(RESULTS_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+            } catch (error) {
+                console.error('Failed to send Discord notification:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (!newAuthSystem.hasPermission('founder')) {
+                alert('Access denied. Founder only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadResponses();
+        });
+    </script>
+</body>
+</html>

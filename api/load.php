@@ -156,6 +156,34 @@ if ($type === 'announcements') {
         echo json_encode(['success' => false, 'message' => 'User not found']);
     }
 
+} elseif ($type === 'assessment' && isset($_GET['id'])) {
+    $assessmentId = $_GET['id'];
+    
+    $stmt = $conn->prepare("SELECT * FROM assessments WHERE id = ?");
+    $stmt->bind_param("s", $assessmentId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $assessment = $result->fetch_assoc();
+        $assessment['sections'] = json_decode($assessment['sections'], true);
+        echo json_encode($assessment);
+    } else {
+        echo json_encode(['error' => 'Assessment not found']);
+    }
+
+} elseif ($type === 'assessment_responses') {
+    $stmt = $conn->prepare("SELECT ar.*, a.title as assessmentTitle FROM assessment_responses ar LEFT JOIN assessments a ON ar.assessmentId = a.id ORDER BY ar.created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $responses = [];
+    while ($row = $result->fetch_assoc()) {
+        $responses[] = $row;
+    }
+    
+    echo json_encode($responses);
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }
