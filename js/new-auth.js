@@ -18,7 +18,7 @@ class NewAuthSystem {
     }
     
     isAuthenticated() {
-        const auth = localStorage.getItem('staff_auth');
+        const auth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
         if (!auth) return false;
         
         try {
@@ -26,6 +26,7 @@ class NewAuthSystem {
             return user.userId && user.robloxUsername && user.rank;
         } catch (e) {
             localStorage.removeItem('staff_auth');
+            localStorage.removeItem('ukbrum_auth');
             return false;
         }
     }
@@ -40,7 +41,7 @@ class NewAuthSystem {
         if (!this.isAuthenticated()) return null;
         
         try {
-            return JSON.parse(localStorage.getItem('staff_auth'));
+            return JSON.parse(localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth'));
         } catch (e) {
             return null;
         }
@@ -94,6 +95,7 @@ class NewAuthSystem {
     
     logout() {
         localStorage.removeItem('staff_auth');
+        localStorage.removeItem('ukbrum_auth');
         window.location.href = 'login.html';
     }
     
@@ -102,6 +104,7 @@ class NewAuthSystem {
         if (current) {
             const updated = { ...current, ...newInfo };
             localStorage.setItem('staff_auth', JSON.stringify(updated));
+            localStorage.setItem('ukbrum_auth', JSON.stringify(updated));
         }
     }
 }

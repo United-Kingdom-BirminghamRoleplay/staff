@@ -77,6 +77,7 @@
     <div id="footer-container"></div>
 
     <script src="js/components.js"></script>
+    <script src="js/new-auth.js"></script>
     <script src="js/forms.js"></script>
     <script>
         let websiteStatus = { locked: false, emergency_popup: null };
@@ -366,15 +367,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const auth = localStorage.getItem('ukbrum_auth');
-            if (!auth) {
-                window.location.href = 'index.html';
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
                 return;
             }
             
-            const user = JSON.parse(auth);
-            if (user.rank !== 'founder') {
-                alert('Access denied. Founder only.');
+            if (!newAuthSystem.hasPermission('co_founder')) {
+                alert('Access denied. Co-Founder+ only.');
                 window.location.href = 'index.html';
                 return;
             }

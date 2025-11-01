@@ -192,10 +192,25 @@ class FormSystem {
     }
 
     canViewPin() {
-        const auth = localStorage.getItem('ukbrum_auth');
+        const auth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
         if (!auth) return false;
-        const user = JSON.parse(auth);
-        return user.rank === 'senior_management' || user.rank === 'founder';
+        try {
+            const user = JSON.parse(auth);
+            const rankHierarchy = {
+                'moderation': 1,
+                'administration': 2,
+                'human_resources': 3,
+                'oversight_enforcement': 4,
+                'advisory_board': 5,
+                'developer': 6,
+                'assistant_founder': 7,
+                'co_founder': 8,
+                'founder': 9
+            };
+            return (rankHierarchy[user.rank] || 0) >= 3;
+        } catch (e) {
+            return false;
+        }
     }
 
     submitReport(data) {

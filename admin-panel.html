@@ -203,8 +203,7 @@
 
         async function banIp(ip, reason) {
             try {
-                const authData = localStorage.getItem('ukbrum_auth');
-                const user = JSON.parse(authData);
+                const user = newAuthSystem.getCurrentUser();
                 
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
@@ -255,15 +254,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const auth = localStorage.getItem('ukbrum_auth');
-            if (!auth) {
-                window.location.href = 'index.html';
+            if (!newAuthSystem.isAuthenticated()) {
+                window.location.href = 'login.html';
                 return;
             }
             
-            const user = JSON.parse(auth);
-            if (user.rank !== 'founder') {
-                alert('Access denied. Founder only.');
+            if (!newAuthSystem.hasPermission('co_founder')) {
+                alert('Access denied. Co-Founder+ only.');
                 window.location.href = 'index.html';
                 return;
             }

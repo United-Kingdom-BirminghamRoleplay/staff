@@ -239,20 +239,13 @@
 
         
         function openFormBuilder() {
-            const authData = localStorage.getItem('ukbrum_auth');
-            if (!authData) {
+            if (!newAuthSystem.isAuthenticated()) {
                 alert('Please log in first.');
                 return;
             }
             
-            try {
-                const user = JSON.parse(authData);
-                if (user.rank !== 'senior_management' && user.rank !== 'founder') {
-                    alert('Access denied. Only Senior Management can create forms.');
-                    return;
-                }
-            } catch (e) {
-                alert('Authentication error. Please log in again.');
+            if (!newAuthSystem.hasPermission('human_resources')) {
+                alert('Access denied. Human Resources+ only.');
                 return;
             }
             
@@ -392,15 +385,13 @@
         }
         
         function openAnnouncementForm() {
-            const authData = localStorage.getItem('ukbrum_auth');
-            if (!authData) {
+            if (!newAuthSystem.isAuthenticated()) {
                 alert('Please log in first.');
                 return;
             }
             
-            const user = JSON.parse(authData);
-            if (user.rank !== 'senior_management' && user.rank !== 'founder') {
-                alert('Access denied. Senior Management+ only.');
+            if (!newAuthSystem.hasPermission('human_resources')) {
+                alert('Access denied. Human Resources+ only.');
                 return;
             }
             
@@ -860,14 +851,10 @@
             await loadTrialLogs();
             await loadTrainings();
             
-            // Show training management for Management+
-            const auth = localStorage.getItem('ukbrum_auth');
-            if (auth) {
-                const user = JSON.parse(auth);
-                if (user.rank === 'management' || user.rank === 'senior_management' || user.rank === 'founder') {
-                    const managementCard = document.querySelector('.management-only');
-                    if (managementCard) managementCard.style.display = 'block';
-                }
+            // Show training management for Human Resources+
+            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('human_resources')) {
+                const managementCard = document.querySelector('.management-only');
+                if (managementCard) managementCard.style.display = 'block';
             }
             
             const searchInput = document.getElementById('siteSearch');
