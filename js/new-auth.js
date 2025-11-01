@@ -7,7 +7,8 @@ class NewAuthSystem {
     init() {
         // Wait for Discord auth to load before checking authentication
         if (window.discordAuth) {
-            this.performAuthCheck();
+            // Add small delay to ensure Discord auth is fully initialized
+            setTimeout(() => this.performAuthCheck(), 100);
         } else {
             // Wait for Discord auth to initialize
             setTimeout(() => this.init(), 100);
@@ -33,8 +34,8 @@ class NewAuthSystem {
     }
     
     isPublicPage() {
-        const publicPages = ['login.html', 'register.html', 'auth-callback.html', 'terms-of-service.html', 'privacy-policy.html'];
-        const currentPage = window.location.pathname.split('/').pop();
+        const publicPages = ['login.html', 'auth-callback.html', 'terms-of-service.html', 'privacy-policy.html'];
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
         return publicPages.includes(currentPage) || currentPage.startsWith('trainees/');
     }
     

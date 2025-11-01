@@ -2,7 +2,7 @@
 class DiscordAuth {
     constructor() {
         this.CLIENT_ID = '1340376847732707380';
-        this.REDIRECT_URI = window.location.origin + '/index.html';
+        this.REDIRECT_URI = window.location.origin + '/auth-callback.html';
         this.SCOPES = 'identify guilds.members.read';
         this.GUILD_ID = '1152677388543598749'; 
     }
@@ -219,8 +219,3 @@ class DiscordAuth {
 
 // Initialize Discord auth
 window.discordAuth = new DiscordAuth();
-
-// Initialize auth system after Discord auth is ready
-if (window.newAuthSystem) {
-    window.newAuthSystem.performAuthCheck();
-}
