@@ -101,8 +101,10 @@
                 const response = await fetch(`./api/load.php?type=assessment&id=${assessmentId}`);
                 const assessment = await response.json();
                 
+                console.log('Assessment response:', assessment);
+                
                 if (!assessment || assessment.error) {
-                    alert('Assessment not found');
+                    alert('Assessment not found: ' + (assessment.error || 'Unknown error'));
                     window.location.href = 'index.html';
                     return;
                 }
@@ -110,7 +112,8 @@
                 currentAssessment = assessment;
                 displayAssessment(assessment);
             } catch (error) {
-                alert('Error loading assessment');
+                console.error('Assessment loading error:', error);
+                alert('Error loading assessment: ' + error.message);
                 window.location.href = 'index.html';
             }
         }

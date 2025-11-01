@@ -172,6 +172,10 @@ if ($type === 'announcements') {
         echo json_encode(['error' => 'Assessment not found']);
     }
 
+} elseif ($type === 'assessment' && !isset($_GET['id'])) {
+    echo json_encode(['error' => 'Assessment ID required']);
+
+
 } elseif ($type === 'assessment_responses') {
     $stmt = $conn->prepare("SELECT ar.*, a.title as assessmentTitle FROM assessment_responses ar LEFT JOIN assessments a ON ar.assessmentId = a.id ORDER BY ar.created DESC");
     $stmt->execute();

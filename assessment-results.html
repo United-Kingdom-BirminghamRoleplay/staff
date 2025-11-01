@@ -85,13 +85,7 @@
 
                 // Load assessment details for each response
                 for (let resp of responses) {
-                    try {
-                        const assessmentResp = await fetch(`./api/load.php?type=assessment&id=${resp.assessmentId}`);
-                        const assessment = await assessmentResp.json();
-                        resp.assessment = assessment;
-                    } catch (e) {
-                        resp.assessment = null;
-                    }
+                    resp.assessment = null; // Skip assessment loading for now
                 }
                 
                 container.innerHTML = responses.map(resp => `
@@ -146,43 +140,26 @@
         function loadAnswersForResponse(resp) {
             const container = document.getElementById(`answers_${resp.id}`);
             const answers = JSON.parse(resp.answers);
-            let totalMarks = 0;
-            let maxMarks = 0;
             
-            if (!resp.assessment || !resp.assessment.sections) {
-                container.innerHTML = '<p>Assessment data not available</p>';
-                return;
-            }
-            
-            let html = '<h4>Mark Each Question:</h4>';
-            let questionIndex = 0;
-            
-            resp.assessment.sections.forEach(section => {
-                html += `<h5>${section.title}</h5>`;
-                section.questions.forEach(question => {
-                    const answer = answers[questionIndex] || 'No answer';
-                    maxMarks += question.marks;
-                    
-                    html += `
-                        <div style="border: 1px solid rgba(255,255,255,0.1); padding: 10px; margin: 10px 0; border-radius: 6px;">
-                            <p><strong>Q:</strong> ${question.text}</p>
-                            <p><strong>A:</strong> ${answer}</p>
-                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
-                                <label>Marks:</label>
-                                <input type="number" min="0" max="${question.marks}" value="0" 
-                                       id="mark_${resp.id}_${questionIndex}" 
-                                       onchange="updateTotal('${resp.id}')"
-                                       style="width: 60px; padding: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white;">
-                                <span>/ ${question.marks}</span>
-                            </div>
+            let html = '<h4>Answers:</h4>';
+            answers.forEach((answer, index) => {
+                html += `
+                    <div style="border: 1px solid rgba(255,255,255,0.1); padding: 10px; margin: 10px 0; border-radius: 6px;">
+                        <p><strong>Question ${index + 1}:</strong> ${answer}</p>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                            <label>Marks:</label>
+                            <input type="number" min="0" max="10" value="0" 
+                                   id="mark_${resp.id}_${index}" 
+                                   onchange="updateTotal('${resp.id}')"
+                                   style="width: 60px; padding: 5px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: white;">
+                            <span>/ 10</span>
                         </div>
-                    `;
-                    questionIndex++;
-                });
+                    </div>
+                `;
             });
             
             container.innerHTML = html;
-            document.getElementById(`max_${resp.id}`).textContent = maxMarks;
+            document.getElementById(`max_${resp.id}`).textContent = answers.length * 10;
         }
         
         function updateTotal(responseId) {
