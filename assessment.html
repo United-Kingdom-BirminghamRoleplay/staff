@@ -127,7 +127,8 @@
                 <h3>Total Marks: ${assessment.totalMarks}</h3>
             </div>`;
 
-            assessment.sections.forEach((section, sectionIndex) => {
+            const sections = Array.isArray(assessment.sections) ? assessment.sections : [];
+            sections.forEach((section, sectionIndex) => {
                 html += `<div class="section-header">
                     <h3>${section.title}</h3>
                 </div>`;
@@ -174,7 +175,8 @@
             let totalQuestions = 0;
             let answeredQuestions = 0;
 
-            currentAssessment.sections.forEach((section, sectionIndex) => {
+            const sections = Array.isArray(currentAssessment.sections) ? currentAssessment.sections : [];
+            sections.forEach((section, sectionIndex) => {
                 section.questions.forEach((question, questionIndex) => {
                     const questionId = `q_${sectionIndex}_${questionIndex}`;
                     totalQuestions++;
