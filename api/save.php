@@ -227,6 +227,30 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot save security log']);
     }
 
+} elseif ($type === 'approve_file') {
+    $fileId = $input['fileId'];
+    
+    $stmt = $conn->prepare("UPDATE files SET status = 'approved' WHERE id = ?");
+    $stmt->bind_param("s", $fileId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot approve file']);
+    }
+
+} elseif ($type === 'delete_file') {
+    $fileId = $input['fileId'];
+    
+    $stmt = $conn->prepare("DELETE FROM files WHERE id = ?");
+    $stmt->bind_param("s", $fileId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete file']);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }

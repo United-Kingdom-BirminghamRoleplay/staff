@@ -73,6 +73,21 @@ if ($type === 'announcements') {
     
     echo json_encode($files);
 
+} elseif ($type === 'file_download') {
+    $fileId = $_GET['id'] ?? '';
+    
+    $stmt = $conn->prepare("SELECT * FROM files WHERE id = ?");
+    $stmt->bind_param("s", $fileId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $file = $result->fetch_assoc();
+        echo json_encode($file);
+    } else {
+        echo json_encode(['error' => 'File not found']);
+    }
+
 } elseif ($type === 'security_logs') {
     $stmt = $conn->prepare("SELECT * FROM security_logs ORDER BY created DESC LIMIT 100");
     $stmt->execute();

@@ -215,27 +215,44 @@
             const user = newAuthSystem.getCurrentUser();
             const isFounder = newAuthSystem.hasPermission('founder');
             
-            container.innerHTML = files.map(file => `
-                <div class="form-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h4><i class="fas fa-file"></i> ${file.name}</h4>
-                            <p><strong>Size:</strong> ${formatFileSize(file.size)}</p>
-                            <p><strong>Uploaded by:</strong> ${file.uploadedBy}</p>
-                            <p><strong>Date:</strong> ${new Date(file.uploadDate).toLocaleDateString()}</p>
-                            ${file.description ? `<p><strong>Description:</strong> ${file.description}</p>` : ''}
-                        </div>
-                        <div style="text-align: right;">
-                            ${showDownload ? `<button class="btn-glass" onclick="downloadFile('${file.id}')">Download</button>` : ''}
-                            ${!showDownload && isFounder ? `
-                                <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(0, 255, 0, 0.3);">Approve</button>
-                                <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Reject</button>
+            container.innerHTML = files.map(file => {
+                const isImage = file.type && file.type.startsWith('image/');
+                const isDoc = file.type && (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'));
+                
+                return `
+                    <div class="form-card">
+                        <div style="display: flex; gap: 20px;">
+                            <div style="flex: 1;">
+                                <h4><i class="fas fa-file"></i> ${file.name}</h4>
+                                <p><strong>Size:</strong> ${formatFileSize(file.size)}</p>
+                                <p><strong>Uploaded by:</strong> ${file.uploadedBy}</p>
+                                <p><strong>Date:</strong> ${new Date(file.uploadDate || file.created).toLocaleDateString()}</p>
+                                ${file.description ? `<p><strong>Description:</strong> ${file.description}</p>` : ''}
+                                
+                                <div style="margin-top: 15px;">
+                                    ${showDownload ? `<button class="btn-glass" onclick="downloadFile('${file.id}')">Download</button>` : ''}
+                                    ${!showDownload && isFounder ? `
+                                        <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(0, 255, 0, 0.3);">Approve</button>
+                                        <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Reject</button>
+                                    ` : ''}
+                                    ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Delete</button>` : ''}
+                                    ${isImage || isDoc ? `<button class="btn-glass" onclick="previewFile('${file.id}', '${file.type}')">Preview</button>` : ''}
+                                </div>
+                            </div>
+                            
+                            ${isImage ? `
+                                <div style="width: 150px; height: 100px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.1);">
+                                    <img src="${file.fileData}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+                                </div>
+                            ` : isDoc ? `
+                                <div style="width: 150px; height: 100px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-file-alt" style="font-size: 2rem; color: var(--orange-accent);"></i>
+                                </div>
                             ` : ''}
-                            ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Delete</button>` : ''}
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
         function formatFileSize(bytes) {
@@ -303,6 +320,57 @@
                 } catch (error) {
                     alert('Error deleting file');
                 }
+            }
+        }
+        
+        async function previewFile(fileId, fileType) {
+            try {
+                const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+                const file = await response.json();
+                
+                const modal = document.createElement('div');
+                modal.className = 'form-modal';
+                modal.style.zIndex = '10000';
+                
+                if (fileType.startsWith('image/')) {
+                    modal.innerHTML = `
+                        <div class="form-modal-content" style="max-width: 80vw; max-height: 80vh;">
+                            <h3>${file.name}</h3>
+                            <img src="${file.fileData}" style="max-width: 100%; max-height: 60vh; object-fit: contain;">
+                            <div class="form-actions">
+                                <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Close</button>
+                            </div>
+                        </div>
+                    `;
+                } else if (fileType.includes('text') || fileType.includes('json')) {
+                    // For text files, decode base64 and show content
+                    const content = atob(file.fileData.split(',')[1]);
+                    modal.innerHTML = `
+                        <div class="form-modal-content" style="max-width: 80vw;">
+                            <h3>${file.name}</h3>
+                            <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; max-height: 400px; overflow-y: auto; white-space: pre-wrap;">${content.substring(0, 2000)}${content.length > 2000 ? '...' : ''}</pre>
+                            <div class="form-actions">
+                                <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Close</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    modal.innerHTML = `
+                        <div class="form-modal-content">
+                            <h3>${file.name}</h3>
+                            <p>Preview not available for this file type.</p>
+                            <p>File type: ${fileType}</p>
+                            <div class="form-actions">
+                                <button onclick="downloadFile('${fileId}')" class="btn-primary">Download</button>
+                                <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Close</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.body.appendChild(modal);
+            } catch (error) {
+                alert('Error loading file preview');
             }
         }
         
