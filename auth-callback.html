@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Authentication - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+        .auth-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>🔐 Authenticating with Discord</h2>
+        <div class="spinner"></div>
+        <p id="status">Processing authentication...</p>
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script src="js/discord-auth.js"></script>
+    <script>
+        async function handleAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showError(`Authentication failed: ${error}`);
+                return;
+            }
+
+            if (!code || !state) {
+                showError('Missing authentication parameters');
+                return;
+            }
+
+            try {
+                document.getElementById('status').textContent = 'Exchanging authorization code...';
+                
+                const authData = await discordAuth.handleCallback(code, state);
+                
+                document.getElementById('status').textContent = 'Authentication successful! Redirecting...';
+                
+                // Redirect to main page after successful auth
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Auth callback error:', error);
+                showError(`Authentication failed: ${error.message}`);
+                
+                // Redirect to login page after error
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+            }
+        }
+
+        function showError(message) {
+            document.querySelector('.spinner').style.display = 'none';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = message;
+        }
+
+        // Start authentication process
+        handleAuthCallback();
+    </script>
+</body>
+</html>

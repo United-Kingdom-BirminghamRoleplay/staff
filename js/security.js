@@ -276,8 +276,20 @@ class SecuritySystem {
 
     getCurrentUser() {
         try {
-            const auth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
-            return auth ? JSON.parse(auth) : null;
+            // Check Discord auth first, then fallback to legacy auth
+            const discordAuth = localStorage.getItem('discord_auth');
+            if (discordAuth) {
+                const auth = JSON.parse(discordAuth);
+                return {
+                    userId: auth.userId,
+                    robloxUsername: auth.username, // Use Discord username as fallback
+                    discordUsername: auth.username + '#' + auth.discriminator,
+                    rank: auth.rank
+                };
+            }
+            
+            const legacyAuth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
+            return legacyAuth ? JSON.parse(legacyAuth) : null;
         } catch {
             return null;
         }

@@ -424,6 +424,7 @@
 
     <script src="js/ip-check.js"></script>
     <script src="js/components.js"></script>
+    <script src="js/discord-auth.js"></script>
     <script src="js/new-auth.js"></script>
     <script src="js/security.js"></script>
     <script>
@@ -811,6 +812,10 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Start Discord token refresh if authenticated
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                window.discordAuth.startTokenRefresh();
+            }
             loadUsers();
         });
     </script>

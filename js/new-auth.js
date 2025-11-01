@@ -18,6 +18,12 @@ class NewAuthSystem {
     }
     
     isAuthenticated() {
+        // Check Discord auth first
+        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+            return true;
+        }
+        
+        // Fallback to legacy auth
         const auth = localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth');
         if (!auth) return false;
         
@@ -40,6 +46,18 @@ class NewAuthSystem {
     getCurrentUser() {
         if (!this.isAuthenticated()) return null;
         
+        // Check Discord auth first
+        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+            const discordUser = window.discordAuth.getCurrentUser();
+            return {
+                userId: discordUser.userId,
+                robloxUsername: discordUser.username,
+                discordUsername: discordUser.username + '#' + discordUser.discriminator,
+                rank: discordUser.rank
+            };
+        }
+        
+        // Fallback to legacy auth
         try {
             return JSON.parse(localStorage.getItem('staff_auth') || localStorage.getItem('ukbrum_auth'));
         } catch (e) {
@@ -48,6 +66,12 @@ class NewAuthSystem {
     }
     
     hasPermission(requiredRank) {
+        // Check Discord auth first
+        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+            return window.discordAuth.hasPermission(requiredRank);
+        }
+        
+        // Fallback to legacy auth
         const user = this.getCurrentUser();
         if (!user) return false;
         
@@ -94,6 +118,13 @@ class NewAuthSystem {
     }
     
     logout() {
+        // Logout from Discord auth if active
+        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+            window.discordAuth.logout();
+            return;
+        }
+        
+        // Legacy logout
         localStorage.removeItem('staff_auth');
         localStorage.removeItem('ukbrum_auth');
         window.location.href = 'login.html';
