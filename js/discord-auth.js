@@ -219,3 +219,8 @@ class DiscordAuth {
 
 // Initialize Discord auth
 window.discordAuth = new DiscordAuth();
+
+// Initialize auth system after Discord auth is ready
+if (window.newAuthSystem) {
+    window.newAuthSystem.performAuthCheck();
+}

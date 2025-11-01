@@ -5,6 +5,16 @@ class NewAuthSystem {
     }
     
     init() {
+        // Wait for Discord auth to load before checking authentication
+        if (window.discordAuth) {
+            this.performAuthCheck();
+        } else {
+            // Wait for Discord auth to initialize
+            setTimeout(() => this.init(), 100);
+        }
+    }
+    
+    performAuthCheck() {
         // Check authentication on page load
         if (!this.isAuthenticated() && !this.isPublicPage()) {
             this.redirectToLogin();
@@ -23,7 +33,7 @@ class NewAuthSystem {
     }
     
     isPublicPage() {
-        const publicPages = ['login.html', 'register.html'];
+        const publicPages = ['login.html', 'register.html', 'auth-callback.html', 'terms-of-service.html', 'privacy-policy.html'];
         const currentPage = window.location.pathname.split('/').pop();
         return publicPages.includes(currentPage) || currentPage.startsWith('trainees/');
     }
