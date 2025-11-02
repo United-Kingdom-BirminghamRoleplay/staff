@@ -5,13 +5,12 @@ class NewAuthSystem {
     }
     
     init() {
-        // Wait for Discord auth to load before checking authentication
-        if (window.discordAuth) {
-            this.performAuthCheck();
-        } else {
-            // Wait for Discord auth to initialize
-            setTimeout(() => this.init(), 50);
-        }
+        // Simple auth check without blocking
+        setTimeout(() => {
+            if (window.discordAuth && !this.isAuthenticated() && !this.isPublicPage()) {
+                window.location.href = 'login.html';
+            }
+        }, 1000);
     }
     
     performAuthCheck() {

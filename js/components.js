@@ -146,18 +146,11 @@ const Security = {
     },
     
     preventRightClick() {
-        document.addEventListener('contextmenu', e => e.preventDefault());
+        // Disabled for better user experience
     },
     
     preventDevTools() {
-        document.addEventListener('keydown', e => {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
-                (e.ctrlKey && e.key === 'U')) {
-                e.preventDefault();
-            }
-        });
+        // Disabled for better user experience
     },
     
     addCSP() {
