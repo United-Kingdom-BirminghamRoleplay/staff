@@ -63,10 +63,7 @@
                     <input type="text" id="siteSearch" placeholder="Search Sharepoint Content..." class="search-input" autocomplete="off">
                     <button class="filter-btn"><i class="fas fa-filter"></i></button>
                 </div>
-                <div id="topUserProfile" style="display: none; position: absolute; top: 10px; right: 20px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 20px;">
-                    <img id="topUserAvatar" src="" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--orange-accent);">
-                    <span id="topUserName" style="color: white; font-size: 14px; font-weight: 500;"></span>
-                </div>
+
             </div>
             <div id="searchResults" class="search-results"></div>
         </section>
@@ -243,22 +240,6 @@
             const userName = user ? user.username : 'Staff Member';
             
             greetingEl.innerHTML = `<span style="font-size: 1.2em; font-weight: 800;">${greeting}, ${userName}</span><br><span style="font-size: 0.6em; opacity: 0.7; margin-top: 10px; display: block;">Welcome back to the Sharepoint!</span>`;
-            
-            // Update top profile indicator
-            updateTopProfile();
-        }
-        
-        function updateTopProfile() {
-            const user = window.discordAuth && window.discordAuth.isAuthenticated() ? window.discordAuth.getCurrentUser() : null;
-            const profileEl = document.getElementById('topUserProfile');
-            const avatarEl = document.getElementById('topUserAvatar');
-            const nameEl = document.getElementById('topUserName');
-            
-            if (user && profileEl && avatarEl && nameEl) {
-                profileEl.style.display = 'flex';
-                avatarEl.src = user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
-                nameEl.textContent = user.username;
-            }
         }
         
         function toggleSidebar() {
