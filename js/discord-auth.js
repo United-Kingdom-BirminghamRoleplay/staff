@@ -72,7 +72,7 @@ class DiscordAuth {
                 userId: userData.user.id,
                 username: userData.user.username,
                 discriminator: userData.user.discriminator,
-                avatar: userData.user.avatar,
+                avatar: userData.user.avatar ? `https://cdn.discordapp.com/avatars/${userData.user.id}/${userData.user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${userData.user.discriminator % 5}.png`,
                 guildMember: userData.guildMember,
                 rank: userData.guildMember?.rank || 'pending',
                 accessToken: tokenData.access_token,
