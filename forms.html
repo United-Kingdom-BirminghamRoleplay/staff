@@ -222,6 +222,7 @@
     <script src="js/ip-check.js"></script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/discord-auth.js"></script>
     <script src="js/new-auth.js"></script>
     <script src="js/security.js"></script>
     <script src="js/forms.js"></script>
@@ -271,12 +272,12 @@
 
         
         function openFormBuilder() {
-            if (!newAuthSystem.isAuthenticated()) {
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
                 alert('Please log in first.');
                 return;
             }
             
-            if (!newAuthSystem.hasPermission('human_resources')) {
+            if (!window.discordAuth.hasPermission('human_resources')) {
                 alert('Access denied. Human Resources+ only.');
                 return;
             }
@@ -433,12 +434,12 @@
         }
         
         function openAnnouncementForm() {
-            if (!newAuthSystem.isAuthenticated()) {
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
                 alert('Please log in first.');
                 return;
             }
             
-            if (!newAuthSystem.hasPermission('human_resources')) {
+            if (!window.discordAuth.hasPermission('human_resources')) {
                 alert('Access denied. Human Resources+ only.');
                 return;
             }
@@ -942,10 +943,10 @@
             document.body.appendChild(modal);
             
             // Auto-fill user info
-            const currentUser = newAuthSystem.getCurrentUser();
-            if (currentUser) {
-                document.getElementById('touchpointName').value = currentUser.robloxUsername;
-                document.getElementById('touchpointRank').value = currentUser.rank.replace('_', ' ');
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const currentUser = window.discordAuth.getCurrentUser();
+                document.getElementById('touchpointName').value = currentUser.username;
+                document.getElementById('touchpointRank').value = currentUser.rank;
             }
             
             // Show specific person field when selected
@@ -1002,39 +1003,28 @@
             }
         }
         
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadForms();
-            await loadAnnouncements();
-            await loadTrialLogs();
-            await loadTrainings();
-            
-            // Show training management for Human Resources+
-            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('human_resources')) {
-                const managementCard = document.querySelector('.management-only');
-                if (managementCard) managementCard.style.display = 'block';
-            }
-            
-            // Show assessment builder for Founders
-            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('founder')) {
-                const founderCards = document.querySelectorAll('.founder-only');
-                founderCards.forEach(card => card.style.display = 'block');
-            }
-            
-            // Show touchpoint manager for Advisory Board+
-            if (newAuthSystem.isAuthenticated() && newAuthSystem.hasPermission('advisory_board')) {
-                const advisoryCard = document.querySelector('.advisory-only');
-                if (advisoryCard) advisoryCard.style.display = 'block';
-            }
-            
-            const searchInput = document.getElementById('siteSearch');
-            if (searchInput) {
-                searchInput.addEventListener('input', siteSearch);
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        siteSearch();
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show cards based on permissions
+            setTimeout(() => {
+                if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                    const user = window.discordAuth.getCurrentUser();
+                    
+                    if (window.discordAuth.hasPermission('human_resources')) {
+                        const managementCard = document.querySelector('.management-only');
+                        if (managementCard) managementCard.style.display = 'block';
                     }
-                });
-            }
+                    
+                    if (window.discordAuth.hasPermission('founder')) {
+                        const founderCards = document.querySelectorAll('.founder-only');
+                        founderCards.forEach(card => card.style.display = 'block');
+                    }
+                    
+                    if (window.discordAuth.hasPermission('advisory_board')) {
+                        const advisoryCard = document.querySelector('.advisory-only');
+                        if (advisoryCard) advisoryCard.style.display = 'block';
+                    }
+                }
+            }, 500);
         });
     </script>
 </body>
