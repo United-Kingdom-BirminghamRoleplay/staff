@@ -107,12 +107,14 @@ class NewAuthSystem {
             'staff-management.html': 'human_resources',
             'file-manager.html': 'human_resources',
             'founder-panel.html': 'founder',
-            'admin-panel.html': 'co_founder',
+            'admin-panel.html': 'admin',
             'security-dashboard.html': 'founder'
         };
         
         if (restrictedPages[currentPage]) {
-            if (!window.discordAuth || !window.discordAuth.hasPermission(restrictedPages[currentPage])) {
+            const hasAccess = window.discordAuth && window.discordAuth.hasPermission(restrictedPages[currentPage]);
+            console.log('Page access check:', currentPage, 'Required:', restrictedPages[currentPage], 'Has access:', hasAccess);
+            if (!hasAccess) {
                 alert('Access denied. Insufficient permissions.');
                 window.location.href = 'index.html';
             }

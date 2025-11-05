@@ -98,8 +98,8 @@ body::before {
 }
 
 .user-avatar {
-    width: 45px;
-    height: 45px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     margin-bottom: 0.5rem;
     border: 2px solid var(--orange-accent);
@@ -2457,6 +2457,18 @@ html {
     .log-item {
         padding: 1rem;
     }
+    
+    .forms-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .form-card {
+        width: 100%;
+        height: 250px;
+        max-width: 300px;
+        margin: 0 auto;
+    }
 }
 
 /* Forms Section */
@@ -2482,8 +2494,9 @@ html {
 
 .forms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    justify-items: center;
 }
 
 .form-card {
@@ -2494,12 +2507,17 @@ html {
     border: 2px solid rgba(255, 107, 53, 0.15);
     border-radius: 20px;
     padding: 30px;
-    margin: 12px;
+    width: 280px;
+    height: 280px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
 }
 
 .form-card::before {
@@ -2527,38 +2545,50 @@ html {
     border-color: rgba(255, 107, 53, 0.4);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25),
                 0 0 30px rgba(255, 107, 53, 0.2);
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px) scale(1.03);
 }
 
 .form-card h4 {
     color: var(--text-primary);
-    margin-bottom: 10px;
-    font-size: 1.1rem;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.3;
 }
 
 .form-card p {
     color: var(--text-muted);
     font-size: 0.9rem;
-    margin-bottom: 15px;
+    margin-bottom: 0;
+    line-height: 1.4;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
 }
 
-.btn-glass {
+.form-card .btn-glass {
     background: rgba(220, 38, 38, 0.2);
     border: 1px solid rgba(220, 38, 38, 0.3);
     color: var(--primary-color);
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 12px 24px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
+    font-weight: 600;
     text-decoration: none;
     display: inline-block;
+    width: 100%;
+    text-align: center;
+    margin-top: auto;
 }
 
-.btn-glass:hover {
-    background: rgba(220, 38, 38, 0.3);
-    box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
-    transform: translateY(-2px);
+.form-card .btn-glass:hover {
+    background: rgba(220, 38, 38, 0.35);
+    border-color: rgba(220, 38, 38, 0.5);
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    color: var(--orange-glow);
 }
 
 /* Enhanced Form Modal */
