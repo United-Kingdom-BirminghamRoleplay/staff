@@ -40,17 +40,20 @@ function handleComponentLoaded(componentPath) {
         
         // Show navigation based on user permissions
         setTimeout(() => {
-            if (window.newAuthSystem && newAuthSystem.isAuthenticated()) {
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 populateUserProfile();
                 
-                // Show founder-only links
-                if (newAuthSystem.hasPermission('founder')) {
+                const user = window.discordAuth.getCurrentUser();
+                const userRank = user.rank;
+                
+                // Show founder-only links (rank 8 and 9 only)
+                if (userRank === 8 || userRank === 9) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => link.style.display = 'block');
                 }
                 
-                // Show HR+ links
-                if (newAuthSystem.hasPermission('human_resources')) {
+                // Show HR+ links (rank 3+)
+                if (userRank >= 3) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => link.style.display = 'block');
                 }
@@ -177,12 +180,17 @@ async function initializePage() {
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 populateUserProfile();
                 
-                if (window.discordAuth.hasPermission('founder')) {
+                const user = window.discordAuth.getCurrentUser();
+                const userRank = user.rank;
+                
+                // Show founder-only links (rank 8 and 9 only)
+                if (userRank === 8 || userRank === 9) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => link.style.display = 'block');
                 }
                 
-                if (window.discordAuth.hasPermission('human_resources')) {
+                // Show HR+ links (rank 3+)
+                if (userRank >= 3) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => link.style.display = 'block');
                 }

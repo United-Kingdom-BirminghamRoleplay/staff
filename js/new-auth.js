@@ -50,7 +50,49 @@ class NewAuthSystem {
     }
     
     hasPermission(requiredRank) {
-        return window.discordAuth && window.discordAuth.hasPermission(requiredRank);
+        if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+            return false;
+        }
+        
+        const user = window.discordAuth.getCurrentUser();
+        const userRank = user.rank;
+        
+        const rankLevels = {
+            'moderation': 1,
+            'administration': 2, 
+            'human_resources': 3,
+            'oversight': 4,
+            'advisory': 5,
+            'assistant_founder': 6,
+            'co_founder': 7,
+            'founder': 8,
+            'developer': 9
+        };
+        
+        const requiredLevel = rankLevels[requiredRank] || 0;
+        const userLevel = rankLevels[this.getRankKey(userRank)] || 0;
+        
+        // Special case: founder content only for founders and developers
+        if (requiredRank === 'founder') {
+            return userRank === 8 || userRank === 9;
+        }
+        
+        return userLevel >= requiredLevel;
+    }
+    
+    getRankKey(rankNumber) {
+        const ranks = {
+            1: 'moderation',
+            2: 'administration',
+            3: 'human_resources', 
+            4: 'oversight',
+            5: 'advisory',
+            6: 'assistant_founder',
+            7: 'co_founder',
+            8: 'founder',
+            9: 'developer'
+        };
+        return ranks[rankNumber] || 'moderation';
     }
     
     checkPagePermissions() {
@@ -58,8 +100,9 @@ class NewAuthSystem {
         const restrictedPages = {
             'staff-management.html': 'human_resources',
             'file-manager.html': 'human_resources',
-            'founder-panel.html': 'co_founder',
-            'admin-panel.html': 'co_founder'
+            'founder-panel.html': 'founder',
+            'admin-panel.html': 'co_founder',
+            'security-dashboard.html': 'founder'
         };
         
         if (restrictedPages[currentPage]) {
