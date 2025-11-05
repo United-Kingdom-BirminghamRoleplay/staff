@@ -124,9 +124,23 @@ function getUserIP() {
 
 function isIPTemporarilyBlocked($ip, $conn) {
     try {
+        if (!$conn || $conn->connect_error) {
+            return false;
+        }
+        
+        // Check if table exists first
+        $tableCheck = $conn->query("SHOW TABLES LIKE 'temporary_blocks'");
+        if ($tableCheck->num_rows == 0) {
+            return false;
+        }
+        
         $conn->query("DELETE FROM temporary_blocks WHERE expires < NOW()");
         
         $stmt = $conn->prepare("SELECT expires FROM temporary_blocks WHERE ip = ? AND expires > NOW()");
+        if (!$stmt) {
+            return false;
+        }
+        
         $stmt->bind_param("s", $ip);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -149,10 +163,12 @@ if ($rateLimiter->isIPBanned($clientIP)) {
 
 // Check temporary blocks
 try {
-    require_once '../backend/connect.php';
-    if (isIPTemporarilyBlocked($clientIP, $conn)) {
-        header('Location: ../banned.html');
-        exit;
+    if (file_exists('../backend/connect.php')) {
+        require_once '../backend/connect.php';
+        if (isset($conn) && isIPTemporarilyBlocked($clientIP, $conn)) {
+            header('Location: ../banned.html');
+            exit;
+        }
     }
 } catch (Exception $e) {
     // Continue if database check fails

@@ -522,23 +522,18 @@ class SecuritySystem {
     async temporaryBlock(ip, reason) {
         this.blockedIPs.add(ip);
         
-        // Save temporary block to server
-        try {
-            await fetch('./api/save.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'temporary_block',
-                    ip: ip,
-                    reason: reason,
-                    duration: 1800 // 30 minutes
-                })
-            });
-        } catch (e) {
-            console.error('Failed to save temporary block:', e);
-        }
+        // Save temporary block to server (non-blocking)
+        fetch('./api/save.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'temporary_block',
+                ip: ip,
+                reason: reason,
+                duration: 1800
+            })
+        }).catch(() => {});
         
-        // Show block message
         this.showBlockMessage(reason);
     }
     
@@ -655,22 +650,17 @@ class SecuritySystem {
             this.batchTimer = null;
         }
         
-        try {
-            await fetch('./api/save.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    type: 'security_event_batch',
-                    events: batch,
-                    ip: await this.getClientIP(),
-                    userAgent: navigator.userAgent
-                })
-            });
-        } catch (error) {
-            console.error('Failed to save security event batch:', error);
-            // Re-add events to batch for retry
-            this.eventBatch = [...batch, ...this.eventBatch];
-        }
+        // Non-blocking send
+        fetch('./api/save.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'security_event_batch',
+                events: batch,
+                ip: await this.getClientIP(),
+                userAgent: navigator.userAgent
+            })
+        }).catch(() => {});
     }
 }
 
