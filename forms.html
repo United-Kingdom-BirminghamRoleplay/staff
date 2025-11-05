@@ -1014,12 +1014,12 @@
                         if (managementCard) managementCard.style.display = 'block';
                     }
                     
-                    if (window.discordAuth.hasPermission('founder')) {
+                    if (window.discordAuth.hasPermission('founder') || user.rank === 'developer') {
                         const founderCards = document.querySelectorAll('.founder-only');
                         founderCards.forEach(card => card.style.display = 'block');
                     }
                     
-                    if (window.discordAuth.hasPermission('advisory_board')) {
+                    if (window.discordAuth.hasPermission('advisory') || user.rank === 'developer') {
                         const advisoryCard = document.querySelector('.advisory-only');
                         if (advisoryCard) advisoryCard.style.display = 'block';
                     }

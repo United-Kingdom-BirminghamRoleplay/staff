@@ -16,7 +16,6 @@ class SecuritySystem {
         this.detectSuspiciousActivity();
         this.monitorConsoleAccess();
         this.trackUserActions();
-        this.detectBruteForce();
         this.monitorDevTools();
         this.implementCSP();
         this.detectXSS();

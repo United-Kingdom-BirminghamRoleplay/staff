@@ -159,9 +159,9 @@ class DiscordAuth {
         
         console.log('Permission check:', user.rank, 'vs', requiredRank, userLevel, '>=', requiredLevel);
 
-        // Special case: founder content for assistant_founder and above
+        // Special case: founder content for assistant_founder and above, developers get all access
         if (requiredRank === 'founder') {
-            const hasAccess = userLevel >= 6; // assistant_founder and above
+            const hasAccess = user.rank === 'developer' || userLevel >= 6; // developer or assistant_founder and above
             console.log('Founder access:', hasAccess);
             return hasAccess;
         }

@@ -106,10 +106,15 @@ class NewAuthSystem {
         const restrictedPages = {
             'staff-management.html': 'human_resources',
             'file-manager.html': 'human_resources',
-            'founder-panel.html': 'founder',
+            'founder-panel.html': 'assistant_founder',
             'admin-panel.html': 'assistant_founder',
-            'security-dashboard.html': 'founder'
+            'security-dashboard.html': 'assistant_founder'
         };
+        
+        // Developers get access to everything
+        if (window.discordAuth && window.discordAuth.getCurrentUser()?.rank === 'developer') {
+            return;
+        }
         
         if (restrictedPages[currentPage]) {
             const hasAccess = window.discordAuth && window.discordAuth.hasPermission(restrictedPages[currentPage]);
