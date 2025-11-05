@@ -44,18 +44,26 @@ function handleComponentLoaded(componentPath) {
                 populateUserProfile();
                 
                 const user = window.discordAuth.getCurrentUser();
-                console.log('Current user:', user); // Debug log
+                console.log('Current user:', user);
                 
                 // Show founder-only links
                 if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
-                    founderLinks.forEach(link => link.style.display = 'block');
+                    founderLinks.forEach(link => {
+                        link.style.display = 'block';
+                        link.parentElement.style.display = 'block';
+                    });
+                    console.log('Founder permissions granted');
                 }
                 
                 // Show HR+ links
                 if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
-                    hrLinks.forEach(link => link.style.display = 'block');
+                    hrLinks.forEach(link => {
+                        link.style.display = 'block';
+                        link.parentElement.style.display = 'block';
+                    });
+                    console.log('HR permissions granted');
                 }
             }
         }, 100);
@@ -87,15 +95,24 @@ function populateUserProfile() {
         sidebarUser.style.display = 'block';
         
         if (userAvatar) {
-            const avatarUrl = discordUser.avatar || `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
+            let avatarUrl;
+            if (discordUser.avatar && discordUser.avatar.startsWith('http')) {
+                avatarUrl = discordUser.avatar;
+            } else if (discordUser.avatar) {
+                avatarUrl = `https://cdn.discordapp.com/avatars/${discordUser.userId}/${discordUser.avatar}.png?size=128`;
+            } else {
+                avatarUrl = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
+            }
+            
             userAvatar.src = avatarUrl;
+            userAvatar.style.display = 'block';
             userAvatar.onerror = () => {
-                userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
+                userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
             };
         }
         
         if (userName) {
-            userName.textContent = discordUser.username;
+            userName.textContent = discordUser.username || 'User';
         }
         
         if (userRank) {
@@ -184,13 +201,19 @@ async function initializePage() {
                 // Show founder-only links
                 if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
-                    founderLinks.forEach(link => link.style.display = 'block');
+                    founderLinks.forEach(link => {
+                        link.style.display = 'block';
+                        link.parentElement.style.display = 'block';
+                    });
                 }
                 
                 // Show HR+ links
                 if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
-                    hrLinks.forEach(link => link.style.display = 'block');
+                    hrLinks.forEach(link => {
+                        link.style.display = 'block';
+                        link.parentElement.style.display = 'block';
+                    });
                 }
             }
         }, 200);

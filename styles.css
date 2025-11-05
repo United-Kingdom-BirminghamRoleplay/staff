@@ -68,8 +68,11 @@ body::before {
     border-right: 1px solid rgba(255, 107, 53, 0.2);
     transition: all 0.3s ease;
     z-index: 1000;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar:hover {
@@ -95,12 +98,17 @@ body::before {
 }
 
 .user-avatar {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     margin-bottom: 0.5rem;
     border: 2px solid var(--orange-accent);
     box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
 }
 
 .user-avatar img {
@@ -129,10 +137,11 @@ body::before {
 }
 
 .sidebar-nav {
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     list-style: none;
     position: relative;
     z-index: 2;
+    flex: 1;
 }
 
 .sidebar-nav li {
@@ -187,10 +196,8 @@ body::before {
 }
 
 .sidebar-logout {
-    position: absolute;
-    bottom: 2rem;
-    left: 1rem;
-    right: 1rem;
+    margin-top: auto;
+    padding: 1rem;
     z-index: 3;
 }
 
@@ -697,8 +704,8 @@ body::before {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    width: 180px;
-    height: 140px;
+    width: 220px;
+    height: 120px;
     display: flex;
     align-items: center;
     gap: 15px;
