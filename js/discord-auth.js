@@ -110,9 +110,8 @@ class DiscordAuth {
         const auth = this.getAuthData();
         if (!auth) return false;
         
-        // Check if token is expired
+        // Check if token is expired (but don't auto-logout)
         if (Date.now() >= auth.expiresAt) {
-            this.logout();
             return false;
         }
         

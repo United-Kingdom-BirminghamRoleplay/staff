@@ -6,13 +6,8 @@ class NewAuthSystem {
     
     init() {
         // Simple auth check without blocking
-        setTimeout(() => {
-            if (!this.isAuthenticated() && !this.isPublicPage()) {
-                window.location.href = 'login.html';
-            } else if (this.isAuthenticated()) {
-                this.checkPagePermissions();
-            }
-        }, 1000);
+        // Disabled automatic redirects to prevent page clearing
+        return;
     }
     
     performAuthCheck() {
