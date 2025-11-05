@@ -137,7 +137,10 @@ class DiscordAuth {
     // Check permissions based on Discord roles
     hasPermission(requiredRank) {
         const user = this.getCurrentUser();
-        if (!user || !user.guildMember) return false;
+        if (!user || !user.guildMember) {
+            console.log('Permission denied: No user or guild member');
+            return false;
+        }
 
         const rankHierarchy = {
             'moderation': 1,
@@ -153,13 +156,19 @@ class DiscordAuth {
 
         const userLevel = rankHierarchy[user.rank] || 0;
         const requiredLevel = rankHierarchy[requiredRank] || 0;
+        
+        console.log('Permission check:', user.rank, 'vs', requiredRank, userLevel, '>=', requiredLevel);
 
-        // Special case: founder content only for founders and developers
+        // Special case: founder content for assistant_founder and above
         if (requiredRank === 'founder') {
-            return user.rank === 'founder' || user.rank === 'developer';
+            const hasAccess = userLevel >= 6; // assistant_founder and above
+            console.log('Founder access:', hasAccess);
+            return hasAccess;
         }
 
-        return userLevel >= requiredLevel;
+        const hasAccess = userLevel >= requiredLevel;
+        console.log('Access granted:', hasAccess);
+        return hasAccess;
     }
 
     // Refresh access token

@@ -107,7 +107,7 @@ class NewAuthSystem {
             'staff-management.html': 'human_resources',
             'file-manager.html': 'human_resources',
             'founder-panel.html': 'founder',
-            'admin-panel.html': 'admin',
+            'admin-panel.html': 'assistant_founder',
             'security-dashboard.html': 'founder'
         };
         

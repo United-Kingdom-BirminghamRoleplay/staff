@@ -2494,12 +2494,12 @@ html {
 
 .forms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
     justify-items: center;
 }
 
-.form-card {
+.forms-grid .form-card {
     background: linear-gradient(135deg, 
         rgba(220, 38, 38, 0.04) 0%, 
         rgba(255, 107, 53, 0.06) 100%);
@@ -2518,6 +2518,20 @@ html {
     flex-direction: column;
     justify-content: space-between;
     text-align: center;
+}
+
+.form-card {
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.04) 0%, 
+        rgba(255, 107, 53, 0.06) 100%);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 107, 53, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .form-card::before {

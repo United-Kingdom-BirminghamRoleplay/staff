@@ -313,11 +313,11 @@
         <section class="greeting-section">
             <div class="management-header">
                 <div>
-                    <h1 class="greeting-text">Staff Management</h1>
-                    <p class="greeting-subtitle">Manage staff accounts and permissions (Human Resources+ only)</p>
+                    <h1 class="greeting-text">Discord Staff Management</h1>
+                    <p class="greeting-subtitle">View Discord server members and their roles (Human Resources+ only)</p>
                 </div>
                 <button class="btn-glass" onclick="refreshData()">
-                    <i class="fas fa-sync-alt"></i> Refresh
+                    <i class="fas fa-sync-alt"></i> Refresh Discord Data
                 </button>
             </div>
         </section>
@@ -437,21 +437,32 @@
         async function loadUsers() {
             showLoading(true);
             try {
-                const response = await fetch('./api/load.php?type=users');
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                const response = await fetch('./api/discord-auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'get_guild_members' })
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load Discord members');
                 }
-                const data = await response.text();
-                allUsers = JSON.parse(data);
+                allUsers = data.members.map(member => ({
+                    id: member.user.id,
+                    robloxUsername: member.user.username,
+                    discordUsername: `${member.user.username}#${member.user.discriminator}`,
+                    rank: member.rank || 'pending',
+                    status: 'approved',
+                    registeredAt: member.joined_at
+                }));
                 if (allUsers.length === 0) {
-                    document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No users in database</div>';
+                    document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No Discord members found</div>';
                     return;
                 }
                 updateStats();
                 filterUsers();
             } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #ff6b35;">Error loading users: ' + error.message + '</div>';
+                console.error('Error loading Discord members:', error);
+                document.getElementById('userList').innerHTML = '<div style="text-align: center; padding: 40px; color: #ff6b35;">Error loading Discord members: ' + error.message + '</div>';
             } finally {
                 showLoading(false);
             }
