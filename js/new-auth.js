@@ -144,8 +144,14 @@ class NewAuthSystem {
     }
 }
 
-// Initialize authentication system
-const newAuthSystem = new NewAuthSystem();
+// Initialize authentication system with error handling
+let newAuthSystem;
+try {
+    newAuthSystem = new NewAuthSystem();
+} catch (error) {
+    console.error('Auth system failed to initialize:', error);
+    newAuthSystem = { isAuthenticated: () => false, isPublicPage: () => true };
+}
 
 // Global logout function
 function logout() {
