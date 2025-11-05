@@ -1,4 +1,7 @@
 <?php
+// Include rate limiter for DDoS protection
+require_once 'rate-limiter.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -9,6 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../backend/connect.php';
+
+// Request validation
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
 
 $input = json_decode(file_get_contents('php://input'), true);
 $type = $input['type'] ?? '';
@@ -258,8 +268,10 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot delete announcement']);
     }
 
-} elseif ($type === 'security_event') {
-    $event = $input['event'];
+} elseif ($type === 'security_event_batch') {
+    $events = $input['events'];
+    $ip = $input['ip'];
+    $userAgent = $input['userAgent'];
     
     // Create security_events table if it doesn't exist
     $conn->query("CREATE TABLE IF NOT EXISTS security_events (
@@ -276,8 +288,83 @@ if ($type === 'forms') {
     )");
     
     $stmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    
+    $criticalEvents = [];
+    $successCount = 0;
+    
+    foreach ($events as $event) {
+        $dataJson = json_encode($event['data']);
+        $userId = null;
+        
+        $stmt->bind_param("ssssssss", 
+            $event['type'], 
+            $dataJson, 
+            $event['sessionId'], 
+            $event['fingerprint'], 
+            $ip, 
+            $userAgent, 
+            $event['url'], 
+            $userId
+        );
+        
+        if ($stmt->execute()) {
+            $successCount++;
+            
+            // Collect critical events for batch alerting
+            $criticalEventTypes = ['FORCED_LOGOUT', 'DEVICE_CHANGE', 'RATE_LIMIT_EXCEEDED', 'BRUTE_FORCE_DETECTED'];
+            if (in_array($event['type'], $criticalEventTypes)) {
+                $criticalEvents[] = $event;
+            }
+        }
+    }
+    
+    // Send batch alert for critical events
+    if (!empty($criticalEvents)) {
+        $webhookData = [
+            'embeds' => [[
+                'title' => '🚨 Critical Security Events Batch',
+                'color' => 0xff0000,
+                'fields' => [
+                    ['name' => 'Events Count', 'value' => count($criticalEvents), 'inline' => true],
+                    ['name' => 'IP Address', 'value' => $ip, 'inline' => true],
+                    ['name' => 'Event Types', 'value' => implode(', ', array_unique(array_column($criticalEvents, 'type'))), 'inline' => false]
+                ],
+                'timestamp' => date('c')
+            ]]
+        ];
+        
+        $ch = curl_init('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+        curl_close($ch);
+    }
+    
+    echo json_encode(['success' => true, 'processed' => $successCount]);
+
+} elseif ($type === 'security_event') {
+    // Legacy single event support
+    $event = $input['event'];
+    
+    $conn->query("CREATE TABLE IF NOT EXISTS security_events (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        type VARCHAR(100),
+        data JSON,
+        session_id VARCHAR(100),
+        fingerprint TEXT,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        url TEXT,
+        user_id VARCHAR(100),
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $dataJson = json_encode($event['data']);
-    $userId = null; // Get from session if available
+    $userId = null;
     
     $stmt->bind_param("ssssssss", 
         $event['type'], 
@@ -291,32 +378,6 @@ if ($type === 'forms') {
     );
     
     if ($stmt->execute()) {
-        // Check for critical events and send alerts
-        $criticalEvents = ['FORCED_LOGOUT', 'DEVICE_CHANGE', 'RATE_LIMIT_EXCEEDED', 'DEVTOOLS_OPENED'];
-        if (in_array($event['type'], $criticalEvents)) {
-            $webhookData = [
-                'embeds' => [[
-                    'title' => '🚨 Critical Security Event',
-                    'color' => 0xff0000,
-                    'fields' => [
-                        ['name' => 'Event Type', 'value' => $event['type'], 'inline' => true],
-                        ['name' => 'IP Address', 'value' => $event['ip'], 'inline' => true],
-                        ['name' => 'Session ID', 'value' => substr($event['sessionId'], 0, 16) . '...', 'inline' => true],
-                        ['name' => 'Data', 'value' => json_encode($event['data']), 'inline' => false]
-                    ],
-                    'timestamp' => date('c')
-                ]]
-            ];
-            
-            $ch = curl_init('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T');
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_exec($ch);
-            curl_close($ch);
-        }
-        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot save security event']);
@@ -565,6 +626,31 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot delete response']);
     }
 
+} elseif ($type === 'temporary_block') {
+    $ip = $input['ip'];
+    $reason = $input['reason'];
+    $duration = $input['duration'] ?? 1800; // 30 minutes default
+    
+    // Create temporary blocks table
+    $conn->query("CREATE TABLE IF NOT EXISTS temporary_blocks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ip VARCHAR(45),
+        reason TEXT,
+        expires TIMESTAMP,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $expiresAt = date('Y-m-d H:i:s', time() + $duration);
+    
+    $stmt = $conn->prepare("INSERT INTO temporary_blocks (ip, reason, expires) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $ip, $reason, $expiresAt);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'expires' => $expiresAt]);
+    } else {
+        echo json_encode(['error' => 'Cannot create temporary block']);
+    }
+
 } elseif ($type === 'ban_ip') {
     $ip = $input['ip'];
     $reason = $input['reason'];
@@ -591,6 +677,10 @@ if ($type === 'forms') {
     } else {
         echo json_encode(['error' => 'Cannot unban IP']);
     }
+
+} elseif ($type === 'check_health') {
+    // Simple health check endpoint
+    echo json_encode(['status' => 'healthy', 'timestamp' => time()]);
 
 } else {
     echo json_encode(['error' => 'Invalid type']);

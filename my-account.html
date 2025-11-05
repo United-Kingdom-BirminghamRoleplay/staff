@@ -99,52 +99,27 @@
             return rankNames[rank] || 'Staff';
         }
         
-        async function loadAccountInfo() {
+        function loadAccountInfo() {
             if (!window.discordAuth || !window.discordAuth.isAuthenticated()) return;
             
             currentUser = window.discordAuth.getCurrentUser();
             
-            try {
-                const response = await fetch(`./api/load.php?type=user_details&userId=${currentUser.userId}`);
-                const userDetails = await response.json();
-                
-                if (userDetails.success) {
-                    const user = userDetails.user;
-                    document.getElementById('accountInfo').innerHTML = `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div>
-                                <h4><i class="fab fa-discord"></i> Discord Username</h4>
-                                <p style="color: var(--orange-accent); font-size: 1.1em;">${currentUser.username}#${currentUser.discriminator}</p>
-                            </div>
-                            <div>
-                                <h4><i class="fas fa-id-badge"></i> Discord ID</h4>
-                                <p style="color: var(--orange-accent); font-size: 1.1em;">${currentUser.userId}</p>
-                            </div>
-                            <div>
-                                <h4><i class="fas fa-star"></i> Current Rank</h4>
-                                <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${getRankName(currentUser.rank)}</p>
-                            </div>
-                            <div>
-                                <h4><i class="fas fa-calendar"></i> Member Since</h4>
-                                <p>${new Date().toLocaleDateString()}</p>
-                            </div>
-                        </div>
-                        <div style="margin-top: 20px; padding: 15px; background: rgba(88, 101, 242, 0.1); border-radius: 8px; border: 1px solid rgba(88, 101, 242, 0.3);">
-                            <h4><i class="fas fa-image"></i> Discord Avatar</h4>
-                            <img src="${currentUser.avatar}" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--orange-accent);">
-                        </div>
-                        <div style="margin-top: 20px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px; border: 1px solid rgba(0,255,0,0.3);">
-                            <h4><i class="fas fa-id-card"></i> User ID</h4>
-                            <p style="font-family: monospace; color: rgba(255,255,255,0.8);">${user.id}</p>
-                        </div>
-                    `;
-                    
-                    // Load notes (placeholder for now)
-                    document.getElementById('userNotes').value = '';
-                }
-            } catch (error) {
-                console.error('Error loading account info:', error);
-            }
+            document.getElementById('accountInfo').innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4><i class="fab fa-discord"></i> Discord Username</h4>
+                        <p style="color: var(--orange-accent); font-size: 1.1em;">${currentUser.username}#${currentUser.discriminator}</p>
+                    </div>
+                    <div>
+                        <h4><i class="fas fa-star"></i> Current Rank</h4>
+                        <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${getRankName(currentUser.rank)}</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(88, 101, 242, 0.1); border-radius: 8px; border: 1px solid rgba(88, 101, 242, 0.3);">
+                    <h4><i class="fas fa-image"></i> Discord Avatar</h4>
+                    <img src="${currentUser.avatar}" alt="Avatar" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--orange-accent);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                </div>
+            `;
         }
         
         async function saveNotes() {

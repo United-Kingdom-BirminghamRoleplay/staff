@@ -3,158 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Denied - Staff Sharepoint</title>
-    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Access Blocked - UKBRUM Staff Portal</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b69 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
         }
-
-        .banned-container {
+        
+        .container {
             text-align: center;
-            max-width: 600px;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(220, 38, 38, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            backdrop-filter: blur(20px);
-            animation: pulse 2s infinite;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-
-        @keyframes pulse {
-            0%, 100% { border-color: rgba(220, 38, 38, 0.5); }
-            50% { border-color: rgba(220, 38, 38, 0.8); }
-        }
-
-        .banned-icon {
-            font-size: 5rem;
-            color: #dc2626;
+        
+        .icon {
+            font-size: 4em;
             margin-bottom: 20px;
+            color: #ff4444;
         }
-
-        .banned-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #dc2626;
+        
+        h1 {
+            color: #ff4444;
             margin-bottom: 20px;
+            font-size: 2em;
         }
-
-        .banned-message {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
+        
+        p {
+            margin-bottom: 20px;
             line-height: 1.6;
+            color: #ccc;
         }
-
-        .ban-details {
-            background: rgba(220, 38, 38, 0.1);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .ban-details h3 {
-            color: #dc2626;
-            margin-bottom: 15px;
-        }
-
-        .ban-details p {
-            margin: 8px 0;
-        }
-
-        .contact-info {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-        }
-
-        .ip-display {
-            font-family: 'Courier New', monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 6px;
+        
+        .ticket-btn {
+            background: #5865F2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
             display: inline-block;
-            margin: 10px 0;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .ticket-btn:hover {
+            background: #4752C4;
+        }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #888;
         }
     </style>
 </head>
-
 <body>
-    <div class="banned-container">
-        <div class="banned-icon">
-            <i class="fas fa-ban"></i>
-        </div>
+    <div class="container">
+        <div class="icon">🚫</div>
+        <h1>Access Temporarily Blocked</h1>
+        <p>Your IP address has been temporarily blocked due to suspicious activity or security violations.</p>
+        <p>If you believe this is an error, please open a foundership ticket for review.</p>
         
-        <h1 class="banned-title">ACCESS DENIED</h1>
+        <a href="https://discord.gg/ukbrum" class="ticket-btn">
+            Open Foundership Ticket
+        </a>
         
-        <p class="banned-message">
-            Your IP address has been banned from accessing this website.
-        </p>
-
-        <div class="ban-details">
-            <h3><i class="fas fa-info-circle"></i> Ban Information</h3>
-            <p><strong>Your IP:</strong> <span class="ip-display" id="userIP">Loading...</span></p>
-            <p><strong>Reason:</strong> <span id="banReason">Loading...</span></p>
-            <p><strong>Banned By:</strong> <span id="bannedBy">Loading...</span></p>
-            <p><strong>Status:</strong> <span style="color: #dc2626;">PERMANENTLY BANNED</span></p>
-        </div>
-
-        <div class="contact-info">
-            <h3><i class="fas fa-envelope"></i> Appeal Process</h3>
-            <p>If you believe this ban was issued in error, please contact the website administrators through official channels.</p>
-            <p><strong>Note:</strong> Attempting to bypass this ban may result in additional restrictions.</p>
+        <div class="info">
+            <strong>Block Duration:</strong> 30 minutes<br>
+            <strong>Appeal Process:</strong> Contact foundership team via Discord
         </div>
     </div>
-
-    <script>
-        async function getUserIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                return 'Unknown';
-            }
-        }
-
-        async function loadBanInfo() {
-            const ip = await getUserIP();
-            document.getElementById('userIP').textContent = ip;
-
-            try {
-                const response = await fetch(`./api/load.php?type=check_ip_ban&ip=${ip}`);
-                const banInfo = await response.json();
-
-                if (banInfo.banned) {
-                    document.getElementById('banReason').textContent = banInfo.reason || 'No reason provided';
-                    document.getElementById('bannedBy').textContent = banInfo.bannedBy || 'System Administrator';
-                } else {
-                    // If not actually banned, redirect to home
-                    window.location.href = 'index.html';
-                }
-            } catch (error) {
-                document.getElementById('banReason').textContent = 'Unable to load ban information';
-                document.getElementById('bannedBy').textContent = 'System Administrator';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', loadBanInfo);
-    </script>
 </body>
 </html>

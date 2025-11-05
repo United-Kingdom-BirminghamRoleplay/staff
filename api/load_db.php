@@ -1,4 +1,7 @@
 <?php
+// Include rate limiter for DDoS protection
+require_once 'rate-limiter.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
@@ -9,6 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../backend/connect.php';
+
+// Request validation
+if (empty($_GET['type'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing type parameter']);
+    exit;
+}
 
 $type = $_GET['type'] ?? '';
 
@@ -49,32 +59,8 @@ if ($type === 'announcements') {
     
     echo json_encode($logs);
 
-} elseif ($type === 'users') {
-    $stmt = $conn->prepare("SELECT id, robloxUsername, discordUsername, requestedRank, rank, status, registeredAt, approvedAt, approvedBy, notes FROM users ORDER BY registeredAt DESC");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $users = [];
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
-    
-    echo json_encode($users);
 
-} elseif ($type === 'user_details') {
-    $userId = $_GET['userId'] ?? '';
-    
-    $stmt = $conn->prepare("SELECT id, robloxUsername, discordUsername, rank, registeredAt, approvedAt, notes FROM users WHERE id = ?");
-    $stmt->bind_param("s", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        echo json_encode(['success' => true, 'user' => $user]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'User not found']);
-    }
+
 
 } elseif ($type === 'trainings') {
     $stmt = $conn->prepare("SELECT * FROM trainings ORDER BY date ASC, time ASC");

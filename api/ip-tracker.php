@@ -1,4 +1,7 @@
 <?php
+// Include rate limiter for DDoS protection
+require_once 'rate-limiter.php';
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');

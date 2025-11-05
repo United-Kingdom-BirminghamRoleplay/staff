@@ -1,38 +1,61 @@
-// Dynamic Component Loader
+// Dynamic Component Loader with request optimization
+let componentCache = new Map();
+let loadingComponents = new Set();
+
 async function loadComponent(elementId, componentPath) {
     try {
+        // Prevent duplicate requests
+        if (loadingComponents.has(componentPath)) {
+            return;
+        }
+        
+        // Check cache first
+        if (componentCache.has(componentPath)) {
+            document.getElementById(elementId).innerHTML = componentCache.get(componentPath);
+            handleComponentLoaded(componentPath);
+            return;
+        }
+        
+        loadingComponents.add(componentPath);
+        
         const response = await fetch(componentPath);
         const html = await response.text();
-        document.getElementById(elementId).innerHTML = html;
         
-        // Set active nav link and show founder panel
-        if (componentPath.includes('sidebar')) {
-            setActiveNavLink();
-            
-            // Show navigation based on user permissions
-            setTimeout(() => {
-                if (window.newAuthSystem && newAuthSystem.isAuthenticated()) {
-                    const user = newAuthSystem.getCurrentUser();
-                    
-                    // Populate user profile section
-                    populateUserProfile();
-                    
-                    // Show founder-only links
-                    if (newAuthSystem.hasPermission('founder')) {
-                        const founderLinks = document.querySelectorAll('.founder-only');
-                        founderLinks.forEach(link => link.style.display = 'block');
-                    }
-                    
-                    // Show HR+ links
-                    if (newAuthSystem.hasPermission('human_resources')) {
-                        const hrLinks = document.querySelectorAll('.hr-only');
-                        hrLinks.forEach(link => link.style.display = 'block');
-                    }
-                }
-            }, 100);
-        }
+        // Cache the component
+        componentCache.set(componentPath, html);
+        
+        document.getElementById(elementId).innerHTML = html;
+        handleComponentLoaded(componentPath);
+        
     } catch (error) {
         console.error('Failed to load component:', error);
+    } finally {
+        loadingComponents.delete(componentPath);
+    }
+}
+
+function handleComponentLoaded(componentPath) {
+    if (componentPath.includes('sidebar')) {
+        setActiveNavLink();
+        
+        // Show navigation based on user permissions
+        setTimeout(() => {
+            if (window.newAuthSystem && newAuthSystem.isAuthenticated()) {
+                populateUserProfile();
+                
+                // Show founder-only links
+                if (newAuthSystem.hasPermission('founder')) {
+                    const founderLinks = document.querySelectorAll('.founder-only');
+                    founderLinks.forEach(link => link.style.display = 'block');
+                }
+                
+                // Show HR+ links
+                if (newAuthSystem.hasPermission('human_resources')) {
+                    const hrLinks = document.querySelectorAll('.hr-only');
+                    hrLinks.forEach(link => link.style.display = 'block');
+                }
+            }
+        }, 100);
     }
 }
 
@@ -61,9 +84,10 @@ function populateUserProfile() {
         sidebarUser.style.display = 'block';
         
         if (userAvatar) {
-            userAvatar.src = discordUser.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const avatarUrl = discordUser.avatar || `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
+            userAvatar.src = avatarUrl;
             userAvatar.onerror = () => {
-                userAvatar.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+                userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
             };
         }
         
@@ -88,53 +112,87 @@ function populateUserProfile() {
     }
 }
 
-// Load components on page load
+// Optimized page loading with request batching
+let initializationPromise = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
-    // Track IP access
-    try {
-        const user = window.newAuthSystem ? newAuthSystem.getCurrentUser() : null;
-        await fetch('./api/ip-tracker.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user: user?.rank || null })
-        });
-    } catch (error) {
-        console.error('IP tracking failed:', error);
+    if (initializationPromise) {
+        return initializationPromise;
     }
     
-    await loadComponent('sidebar-container', 'sidebar.html');
-    await loadComponent('footer-container', 'footer.html');
-    
-    // Check for party mode
-    try {
-        const response = await fetch('./api/load.php?type=party_mode');
-        const partyData = await response.json();
-        if (partyData.active) {
-            activateGlobalPartyMode();
-        }
-    } catch (error) {
-        console.log('Party mode check failed');
-    }
-    
-    // Show navigation based on user permissions
-    setTimeout(() => {
-        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-            populateUserProfile();
-            
-            // Show founder-only links
-            if (window.discordAuth.hasPermission('founder')) {
-                const founderLinks = document.querySelectorAll('.founder-only');
-                founderLinks.forEach(link => link.style.display = 'block');
-            }
-            
-            // Show HR+ links
-            if (window.discordAuth.hasPermission('human_resources')) {
-                const hrLinks = document.querySelectorAll('.hr-only');
-                hrLinks.forEach(link => link.style.display = 'block');
-            }
-        }
-    }, 200);
+    initializationPromise = initializePage();
+    return initializationPromise;
 });
+
+async function initializePage() {
+    try {
+        // Batch component loading
+        await Promise.all([
+            loadComponent('sidebar-container', 'sidebar.html'),
+            loadComponent('footer-container', 'footer.html')
+        ]);
+        
+        // Batch API calls with delay to prevent overwhelming
+        const apiCalls = [];
+        
+        // Track IP access (reduced frequency)
+        if (!sessionStorage.getItem('ip_tracked_' + Date.now().toString().slice(0, -5))) {
+            apiCalls.push(
+                fetch('./api/ip-tracker.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: window.newAuthSystem?.getCurrentUser()?.rank || null })
+                }).then(() => {
+                    sessionStorage.setItem('ip_tracked_' + Date.now().toString().slice(0, -5), 'true');
+                }).catch(error => console.error('IP tracking failed:', error))
+            );
+        }
+        
+        // Check for party mode (cached for 5 minutes)
+        const partyModeKey = 'party_mode_check';
+        const lastCheck = localStorage.getItem(partyModeKey);
+        const now = Date.now();
+        
+        if (!lastCheck || (now - parseInt(lastCheck)) > 300000) {
+            apiCalls.push(
+                fetch('./api/load_db.php?type=website_control')
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem(partyModeKey, now.toString());
+                        if (data.party_mode) {
+                            activateGlobalPartyMode();
+                        }
+                    })
+                    .catch(error => console.log('Party mode check failed'))
+            );
+        }
+        
+        // Execute API calls with staggered timing
+        for (let i = 0; i < apiCalls.length; i++) {
+            setTimeout(() => apiCalls[i], i * 200);
+        }
+        
+        // Show navigation based on user permissions
+        setTimeout(() => {
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                populateUserProfile();
+                
+                if (window.discordAuth.hasPermission('founder')) {
+                    const founderLinks = document.querySelectorAll('.founder-only');
+                    founderLinks.forEach(link => link.style.display = 'block');
+                }
+                
+                if (window.discordAuth.hasPermission('human_resources')) {
+                    const hrLinks = document.querySelectorAll('.hr-only');
+                    hrLinks.forEach(link => link.style.display = 'block');
+                }
+            }
+        }, 200);
+        
+    } catch (error) {
+        console.error('Page initialization failed:', error);
+    }
+}
 
 // Security measures
 const Security = {
