@@ -492,20 +492,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!newAuthSystem.isAuthenticated()) {
-                window.location.href = 'login.html';
-                return;
+            // Check if user is developer (bypass all checks) or assistant_founder+
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                if (user.rank === 'developer' || window.discordAuth.hasPermission('assistant_founder')) {
+                    loadWebsiteStatus();
+                    loadFounderButtons();
+                    setInterval(loadSystemStatus, 30000);
+                    return;
+                }
             }
             
-            if (!newAuthSystem.hasPermission('assistant_founder')) {
-                alert('Access denied. Assistant Founder+ only.');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            loadWebsiteStatus();
-            loadFounderButtons();
-            setInterval(loadSystemStatus, 30000); // Update every 30 seconds
+            alert('Access denied. Assistant Founder+ only.');
+            window.location.href = 'index.html';
         });
     </script>
 </body>

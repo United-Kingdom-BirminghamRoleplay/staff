@@ -269,15 +269,7 @@
 
         
         function openFormBuilder() {
-            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
-                alert('Please log in first.');
-                return;
-            }
-            
-            if (!window.discordAuth.hasPermission('human_resources')) {
-                alert('Access denied. Human Resources+ only.');
-                return;
-            }
+            console.log('Form builder access - checks disabled');
             
             const modal = document.createElement('div');
             modal.className = 'form-modal';
@@ -431,15 +423,7 @@
         }
         
         function openAnnouncementForm() {
-            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
-                alert('Please log in first.');
-                return;
-            }
-            
-            if (!window.discordAuth.hasPermission('human_resources')) {
-                alert('Access denied. Human Resources+ only.');
-                return;
-            }
+            console.log('Announcement form access - checks disabled');
             
             const modal = document.createElement('div');
             modal.className = 'form-modal';

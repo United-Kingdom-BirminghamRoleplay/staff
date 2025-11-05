@@ -343,16 +343,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!newAuthSystem.isAuthenticated()) {
-                window.location.href = 'login.html';
-                return;
+            // Check if user is developer (bypass all checks) or assistant_founder+
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                if (user.rank === 'developer' || window.discordAuth.hasPermission('assistant_founder')) {
+                    // Continue with admin panel loading
+                    return;
+                }
             }
             
-            if (!newAuthSystem.hasPermission('assistant_founder')) {
-                alert('Access denied. Assistant Founder+ only.');
-                window.location.href = 'index.html';
-                return;
-            }
+            alert('Access denied. Assistant Founder+ only.');
+            window.location.href = 'index.html';
             
             loadIpLogs();
             loadBannedIps();
