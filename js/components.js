@@ -111,14 +111,7 @@ function populateUserProfile() {
                 userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
             };
             
-            // Set small avatar too
-            const userAvatarSmall = document.getElementById('userAvatarSmall');
-            if (userAvatarSmall) {
-                userAvatarSmall.src = avatarUrl;
-                userAvatarSmall.onerror = () => {
-                    userAvatarSmall.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
-                };
-            }
+
         }
         
         if (userName) {
