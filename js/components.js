@@ -44,16 +44,16 @@ function handleComponentLoaded(componentPath) {
                 populateUserProfile();
                 
                 const user = window.discordAuth.getCurrentUser();
-                const userRank = user.rank;
+                console.log('Current user:', user); // Debug log
                 
-                // Show founder-only links (rank 8 and 9 only)
-                if (userRank === 8 || userRank === 9) {
+                // Show founder-only links
+                if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => link.style.display = 'block');
                 }
                 
-                // Show HR+ links (rank 3+)
-                if (userRank >= 3) {
+                // Show HR+ links
+                if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => link.style.display = 'block');
                 }
@@ -100,17 +100,18 @@ function populateUserProfile() {
         
         if (userRank) {
             const rankNames = {
-                1: 'Moderation',
-                2: 'Administration', 
-                3: 'Human Resources',
-                4: 'Oversight & Enforcement',
-                5: 'Advisory Board',
-                6: 'Assistant Founder',
-                7: 'Co-Founder',
-                8: 'Founder',
-                9: 'Developer'
+                'moderation': 'Moderation',
+                'administration': 'Administration', 
+                'human_resources': 'Human Resources',
+                'oversight_enforcement': 'Oversight & Enforcement',
+                'advisory_board': 'Advisory Board',
+                'assistant_founder': 'Assistant Founder',
+                'co_founder': 'Co-Founder',
+                'founder': 'Founder',
+                'developer': 'Developer'
             };
-            userRank.textContent = rankNames[discordUser.rank] || 'Staff';
+            userRank.textContent = rankNames[discordUser.rank] || discordUser.rank || 'Staff';
+            console.log('Displaying rank:', discordUser.rank, 'as', rankNames[discordUser.rank] || discordUser.rank || 'Staff');
         }
     }
 }
@@ -180,17 +181,14 @@ async function initializePage() {
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 populateUserProfile();
                 
-                const user = window.discordAuth.getCurrentUser();
-                const userRank = user.rank;
-                
-                // Show founder-only links (rank 8 and 9 only)
-                if (userRank === 8 || userRank === 9) {
+                // Show founder-only links
+                if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => link.style.display = 'block');
                 }
                 
-                // Show HR+ links (rank 3+)
-                if (userRank >= 3) {
+                // Show HR+ links
+                if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => link.style.display = 'block');
                 }

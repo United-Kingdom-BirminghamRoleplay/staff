@@ -390,6 +390,57 @@ body::before {
     50% { transform: translateX(100%); }
 }
 
+/* Enhanced Button Styles */
+.btn-glass {
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.15) 0%, 
+        rgba(255, 107, 53, 0.2) 100%);
+    border: 2px solid rgba(255, 107, 53, 0.3);
+    color: var(--primary-color);
+    padding: 12px 24px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.btn-glass::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.btn-glass:hover::before {
+    left: 100%;
+}
+
+.btn-glass:hover {
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.25) 0%, 
+        rgba(255, 107, 53, 0.3) 100%);
+    border-color: rgba(255, 107, 53, 0.6);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px) scale(1.02);
+    color: var(--orange-glow);
+}
+
 .hero h1 {
     font-size: 2.5rem;
     color: var(--text-primary);
@@ -417,17 +468,21 @@ body::before {
 }
 
 .card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    padding: 2.5rem 2rem;
-    border-radius: 20px;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.05) 0%, 
+        rgba(255, 107, 53, 0.08) 50%, 
+        rgba(247, 147, 30, 0.05) 100%);
+    backdrop-filter: blur(25px);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    padding: 3rem 2.5rem;
+    border-radius: 28px;
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .card::before {
@@ -437,21 +492,52 @@ body::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(239, 68, 68, 0.08) 50%, rgba(248, 113, 113, 0.08) 100%);
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.1) 0%, 
+        rgba(255, 107, 53, 0.15) 50%, 
+        rgba(247, 147, 30, 0.1) 100%);
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s ease;
+    border-radius: 26px;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, 
+        transparent, 
+        rgba(255, 107, 53, 0.1), 
+        transparent, 
+        rgba(247, 147, 30, 0.1), 
+        transparent);
+    animation: rotate 8s linear infinite;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-12px) scale(1.03);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 30px rgba(220, 38, 38, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 107, 53, 0.4);
+    transform: translateY(-15px) scale(1.04);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 50px rgba(255, 107, 53, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .card:hover::before {
     opacity: 1;
+}
+
+.card:hover::after {
+    opacity: 0.3;
 }
 
 .card > * {
@@ -542,16 +628,36 @@ body::before {
 }
 
 .announcements, .whitelist-section, .roblox-search, .guidelines-section {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    padding: 2.5rem;
-    border-radius: 20px;
-    margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.03) 0%, 
+        rgba(255, 107, 53, 0.05) 50%, 
+        rgba(247, 147, 30, 0.03) 100%);
+    backdrop-filter: blur(25px);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    padding: 3rem;
+    border-radius: 28px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
     position: relative;
     overflow: hidden;
+}
+
+.announcements::after, .whitelist-section::after, .roblox-search::after, .guidelines-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(255, 107, 53, 0.02) 45%, 
+        rgba(247, 147, 30, 0.02) 55%, 
+        transparent 70%);
+    animation: shimmer 6s ease-in-out infinite;
+    pointer-events: none;
 }
 
 .top-search {
@@ -668,40 +774,85 @@ body::before {
 }
 
 .info-box {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 30px;
-    transition: all 0.3s ease;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.05) 0%, 
+        rgba(255, 107, 53, 0.08) 50%, 
+        rgba(247, 147, 30, 0.05) 100%);
+    backdrop-filter: blur(25px);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 24px;
+    padding: 35px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.info-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.1) 0%, 
+        rgba(255, 107, 53, 0.15) 50%, 
+        rgba(247, 147, 30, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 22px;
+}
+
+.info-box:hover::before {
+    opacity: 1;
 }
 
 .info-box:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--primary-color);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 30px rgba(220, 38, 38, 0.3);
-    transform: translateY(-5px);
+    border: 2px solid rgba(255, 107, 53, 0.4);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3),
+                0 0 40px rgba(255, 107, 53, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-8px) scale(1.02);
+}
+
+.info-box > * {
+    position: relative;
+    z-index: 1;
 }
 
 .info-box-icon {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 15px;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--orange-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
     display: block;
+    filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.3));
+    transition: all 0.4s ease;
+}
+
+.info-box:hover .info-box-icon {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 6px 12px rgba(220, 38, 38, 0.5));
 }
 
 .info-box h3 {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
     color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .info-box p {
     color: var(--text-muted);
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 0.95rem;
 }
 
 .announcements::before, .whitelist-section::before, .roblox-search::before, .guidelines-section::before {
@@ -719,18 +870,20 @@ body::before {
 .announcement {
     display: flex;
     align-items: flex-start;
-    gap: 1rem;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    transition: all 0.3s ease;
+    gap: 1.5rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.04) 0%, 
+        rgba(255, 107, 53, 0.06) 100%);
+    backdrop-filter: blur(25px);
+    border: 2px solid rgba(255, 107, 53, 0.15);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .announcement::before {
@@ -739,16 +892,34 @@ body::before {
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary-color), var(--orange-accent));
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--primary-color), 
+        var(--orange-accent), 
+        var(--orange-glow));
+    border-radius: 24px 24px 0 0;
+}
+
+.announcement::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, 
+        rgba(255, 107, 53, 0.1) 0%, 
+        transparent 70%);
+    border-radius: 50%;
+    transform: translate(30px, -30px);
 }
 
 .announcement:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 30px rgba(220, 38, 38, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 107, 53, 0.4);
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3),
+                0 0 40px rgba(255, 107, 53, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .announcement-icon {
@@ -842,27 +1013,32 @@ body::before {
 
 .search-input {
     width: 100%;
-    height: 60px;
-    padding: 0 60px 0 60px;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(15px);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 30px;
+    height: 65px;
+    padding: 0 65px 0 65px;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.6) 0%, 
+        rgba(220, 38, 38, 0.05) 100%);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 107, 53, 0.2);
+    border-radius: 35px;
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 30px rgba(255, 107, 107, 0.2),
-                inset 0 2px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3),
+                inset 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .search-input:focus {
     outline: none;
-    border-color: var(--neon-glow);
-    background: rgba(0, 0, 0, 0.8);
-    box-shadow: 0 0 40px rgba(255, 107, 107, 0.5),
-                inset 0 2px 10px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px);
+    border-color: rgba(255, 107, 53, 0.6);
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.8) 0%, 
+        rgba(220, 38, 38, 0.08) 100%);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(255, 107, 53, 0.3),
+                inset 0 2px 10px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px) scale(1.01);
 }
 
 .search-input::placeholder {
@@ -2304,21 +2480,47 @@ html {
 }
 
 .form-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    border: 1px solid var(--glass-border);
-    border-radius: 15px;
-    padding: 25px;
-    margin: 10px;
-    transition: all 0.3s ease;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.04) 0%, 
+        rgba(255, 107, 53, 0.06) 100%);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 107, 53, 0.15);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.form-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 107, 53, 0.1), 
+        transparent);
+    transition: left 0.6s ease;
+}
+
+.form-card:hover::before {
+    left: 100%;
 }
 
 .form-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--secondary-color);
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
-    transform: translateY(-5px);
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.08) 0%, 
+        rgba(255, 107, 53, 0.12) 100%);
+    border-color: rgba(255, 107, 53, 0.4);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25),
+                0 0 30px rgba(255, 107, 53, 0.2);
+    transform: translateY(-8px) scale(1.02);
 }
 
 .form-card h4 {
@@ -2352,28 +2554,52 @@ html {
     transform: translateY(-2px);
 }
 
-/* Form Modal */
+/* Enhanced Form Modal */
 .form-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    animation: fadeIn 0.3s ease;
 }
 
 .form-modal-content {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 40px;
-    max-width: 500px;
+    background: linear-gradient(135deg, 
+        rgba(220, 38, 38, 0.08) 0%, 
+        rgba(255, 107, 53, 0.12) 50%, 
+        rgba(247, 147, 30, 0.08) 100%);
+    backdrop-filter: blur(25px);
+    border: 2px solid rgba(255, 107, 53, 0.3);
+    border-radius: 28px;
+    padding: 50px;
+    max-width: 550px;
     width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.form-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--primary-color), 
+        var(--orange-accent), 
+        var(--orange-glow));
+    border-radius: 28px 28px 0 0;
 }
 
 .form-modal-content h3 {

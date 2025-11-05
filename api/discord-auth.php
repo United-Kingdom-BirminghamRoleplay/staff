@@ -28,10 +28,10 @@ if (empty($CLIENT_SECRET)) {
 // Map Discord roles to staff ranks and define processing order (highest to lowest)
 // The role IDs are the keys, and the custom rank names are the values.
 $ROLE_HIERARCHY = [
+    '1422299020122128464' => 'developer',
     '1345504810077524028' => 'founder',
     '1345541100059885698' => 'co_founder',
     '1345446581239021618' => 'assistant_founder',
-    '1422299020122128464' => 'developer',
     '1377005605016834252' => 'advisory_board',
     '1360335196171403304' => 'oversight_enforcement',
     '1345453439156621353' => 'human_resources',

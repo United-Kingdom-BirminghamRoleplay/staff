@@ -79,6 +79,8 @@ class DiscordAuth {
                 refreshToken: tokenData.refresh_token,
                 expiresAt: Date.now() + (tokenData.expires_in * 1000)
             };
+            
+            console.log('Discord Auth Data:', authData); // Debug log
 
             localStorage.setItem('discord_auth', JSON.stringify(authData));
             
@@ -143,14 +145,19 @@ class DiscordAuth {
             'human_resources': 3,
             'oversight_enforcement': 4,
             'advisory_board': 5,
-            'developer': 9,
-            'assistant_founder': 7,
-            'co_founder': 8,
-            'founder': 9
+            'assistant_founder': 6,
+            'co_founder': 7,
+            'founder': 8,
+            'developer': 9
         };
 
         const userLevel = rankHierarchy[user.rank] || 0;
         const requiredLevel = rankHierarchy[requiredRank] || 0;
+
+        // Special case: founder content only for founders and developers
+        if (requiredRank === 'founder') {
+            return user.rank === 'founder' || user.rank === 'developer';
+        }
 
         return userLevel >= requiredLevel;
     }
