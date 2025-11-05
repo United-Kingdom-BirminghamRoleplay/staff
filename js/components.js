@@ -136,13 +136,18 @@ function populateUserProfile() {
 
 // Force page initialization on every load
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing page...');
     initializePage();
 });
 
 // Backup initialization
 window.addEventListener('load', () => {
+    console.log('Window loaded, checking sidebar...');
     if (!document.querySelector('.sidebar')) {
+        console.log('Sidebar not found, re-initializing...');
         initializePage();
+    } else {
+        console.log('Sidebar found, page loaded successfully');
     }
 });
 

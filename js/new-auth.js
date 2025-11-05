@@ -5,21 +5,34 @@ class NewAuthSystem {
     }
     
     init() {
-        // Simple auth check without blocking
-        // Disabled automatic redirects to prevent page clearing
-        return;
+        // Check authentication on page load with delay to ensure Discord auth is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => this.performAuthCheck(), 100);
+            });
+        } else {
+            setTimeout(() => this.performAuthCheck(), 100);
+        }
     }
     
     performAuthCheck() {
+        console.log('Performing auth check...');
+        
         // Skip auth check if we're already authenticated
         if (this.isAuthenticated()) {
+            console.log('User is authenticated, checking page permissions...');
             this.checkPagePermissions();
             return;
         }
         
+        console.log('User not authenticated, checking if public page...');
+        
         // Only redirect to login if not authenticated and not on public page
         if (!this.isPublicPage()) {
+            console.log('Not a public page, redirecting to login...');
             this.redirectToLogin();
+        } else {
+            console.log('Public page, allowing access');
         }
     }
     
@@ -94,7 +107,10 @@ class NewAuthSystem {
     
     checkPagePermissions() {
         if (!this.isAuthenticated()) {
-            return; // Skip permission check if not authenticated
+            if (!this.isPublicPage()) {
+                this.redirectToLogin();
+            }
+            return;
         }
         
         const currentPage = window.location.pathname.split('/').pop();
@@ -103,11 +119,13 @@ class NewAuthSystem {
             'file-manager.html': 'human_resources',
             'founder-panel.html': 'assistant_founder',
             'admin-panel.html': 'assistant_founder',
-            'security-dashboard.html': 'assistant_founder'
+            'security-dashboard.html': 'assistant_founder',
+            'forms.html': 'moderation'
         };
         
         // Developers get access to everything
         if (window.discordAuth && window.discordAuth.getCurrentUser()?.rank === 'developer') {
+            console.log('Developer access granted for:', currentPage);
             return;
         }
         
@@ -115,10 +133,13 @@ class NewAuthSystem {
             const hasAccess = window.discordAuth && window.discordAuth.hasPermission(restrictedPages[currentPage]);
             console.log('Page access check:', currentPage, 'Required:', restrictedPages[currentPage], 'Has access:', hasAccess);
             if (!hasAccess) {
-                alert('Access denied. Insufficient permissions.');
+                alert('Access denied. Insufficient permissions for ' + currentPage);
                 window.location.href = 'index.html';
+                return;
             }
         }
+        
+        console.log('Page access granted for:', currentPage);
     }
     
     redirectToLogin() {
@@ -147,16 +168,29 @@ class NewAuthSystem {
 // Initialize authentication system with error handling
 let newAuthSystem;
 try {
+    console.log('Initializing new auth system...');
     newAuthSystem = new NewAuthSystem();
+    console.log('New auth system initialized successfully');
 } catch (error) {
     console.error('Auth system failed to initialize:', error);
-    newAuthSystem = { isAuthenticated: () => false, isPublicPage: () => true };
+    newAuthSystem = { 
+        isAuthenticated: () => false, 
+        isPublicPage: () => true,
+        checkPagePermissions: () => {},
+        performAuthCheck: () => {}
+    };
 }
 
 // Global logout function
 function logout() {
-    newAuthSystem.logout();
+    if (newAuthSystem && newAuthSystem.logout) {
+        newAuthSystem.logout();
+    } else {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    }
 }
 
 // Export for use in other scripts
 window.newAuthSystem = newAuthSystem;
+console.log('Auth system exported to window:', !!window.newAuthSystem);

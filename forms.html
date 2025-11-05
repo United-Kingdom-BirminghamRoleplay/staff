@@ -1004,25 +1004,34 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('Forms page DOM loaded');
+            
             // Show cards based on permissions
             setTimeout(() => {
+                console.log('Checking permissions for form cards...');
                 if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                     const user = window.discordAuth.getCurrentUser();
+                    console.log('Current user:', user);
                     
                     if (window.discordAuth.hasPermission('human_resources')) {
+                        console.log('User has HR permissions');
                         const managementCard = document.querySelector('.management-only');
                         if (managementCard) managementCard.style.display = 'block';
                     }
                     
                     if (window.discordAuth.hasPermission('founder') || user.rank === 'developer') {
+                        console.log('User has founder permissions');
                         const founderCards = document.querySelectorAll('.founder-only');
                         founderCards.forEach(card => card.style.display = 'block');
                     }
                     
-                    if (window.discordAuth.hasPermission('advisory') || user.rank === 'developer') {
+                    if (window.discordAuth.hasPermission('advisory_board') || user.rank === 'developer') {
+                        console.log('User has advisory permissions');
                         const advisoryCard = document.querySelector('.advisory-only');
                         if (advisoryCard) advisoryCard.style.display = 'block';
                     }
+                } else {
+                    console.log('User not authenticated or Discord auth not available');
                 }
             }, 500);
         });

@@ -235,3 +235,8 @@ class DiscordAuth {
 
 // Initialize Discord auth
 window.discordAuth = new DiscordAuth();
+
+// Start token refresh if authenticated
+if (window.discordAuth.isAuthenticated()) {
+    window.discordAuth.startTokenRefresh();
+}
