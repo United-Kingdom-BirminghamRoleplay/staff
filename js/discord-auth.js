@@ -141,6 +141,12 @@ class DiscordAuth {
             return false;
         }
 
+        // Developer gets all access
+        if (user.rank === 'developer') {
+            console.log('Developer access granted');
+            return true;
+        }
+
         const rankHierarchy = {
             'moderation': 1,
             'administration': 2,
@@ -149,8 +155,7 @@ class DiscordAuth {
             'advisory_board': 5,
             'assistant_founder': 6,
             'co_founder': 7,
-            'founder': 8,
-            'developer': 9
+            'founder': 8
         };
 
         const userLevel = rankHierarchy[user.rank] || 0;
@@ -158,9 +163,9 @@ class DiscordAuth {
         
         console.log('Permission check:', user.rank, 'vs', requiredRank, userLevel, '>=', requiredLevel);
 
-        // Special case: founder content for assistant_founder and above, developers get all access
+        // Special case: founder content for assistant_founder and above
         if (requiredRank === 'founder') {
-            const hasAccess = user.rank === 'developer' || userLevel >= 6; // developer or assistant_founder and above
+            const hasAccess = userLevel >= 6; // assistant_founder and above
             console.log('Founder access:', hasAccess);
             return hasAccess;
         }

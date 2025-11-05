@@ -110,6 +110,15 @@ function populateUserProfile() {
             userAvatar.onerror = () => {
                 userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
             };
+            
+            // Set small avatar too
+            const userAvatarSmall = document.getElementById('userAvatarSmall');
+            if (userAvatarSmall) {
+                userAvatarSmall.src = avatarUrl;
+                userAvatarSmall.onerror = () => {
+                    userAvatarSmall.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
+                };
+            }
         }
         
         if (userName) {
@@ -282,4 +291,9 @@ function activateGlobalPartyMode() {
         
         setTimeout(() => notification.remove(), 5000);
     }, 1000);
+}
+// Sidebar toggle function
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
 }

@@ -492,9 +492,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if user is developer (bypass all checks) or assistant_founder+
+            // Check if user is developer or assistant_founder+
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 const user = window.discordAuth.getCurrentUser();
+                console.log('Current user:', user);
                 if (user.rank === 'developer' || window.discordAuth.hasPermission('assistant_founder')) {
                     loadWebsiteStatus();
                     loadFounderButtons();

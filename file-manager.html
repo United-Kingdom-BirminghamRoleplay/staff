@@ -187,8 +187,6 @@
                 const files = await response.json();
                 
                 const user = newAuthSystem.getCurrentUser();
-                const isFounder = newAuthSystem.hasPermission('founder');
-                
                 const approved = files.filter(f => f.status === 'approved');
                 const pending = files.filter(f => f.status === 'pending');
                 
@@ -214,7 +212,8 @@
             }
             
             const user = newAuthSystem.getCurrentUser();
-            const isFounder = newAuthSystem.hasPermission('founder');
+            const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+            const isFounder = user && (user.rank === 'developer' || window.discordAuth.hasPermission('founder'));
             
             container.innerHTML = files.map(file => {
                 const isImage = file.type && file.type.startsWith('image/');
@@ -376,7 +375,18 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('File manager loading - auth checks disabled');
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = window.discordAuth.getCurrentUser();
+            if (user.rank !== 'developer' && !window.discordAuth.hasPermission('human_resources')) {
+                alert('Access denied. Human Resources+ only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
             loadFiles();
         });
     </script>
