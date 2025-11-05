@@ -156,18 +156,7 @@ async function initializePage() {
         // Batch API calls with delay to prevent overwhelming
         const apiCalls = [];
         
-        // Track IP access (reduced frequency)
-        if (!sessionStorage.getItem('ip_tracked_' + Date.now().toString().slice(0, -5))) {
-            apiCalls.push(
-                fetch('./api/ip-tracker.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user: window.newAuthSystem?.getCurrentUser()?.rank || null })
-                }).then(() => {
-                    sessionStorage.setItem('ip_tracked_' + Date.now().toString().slice(0, -5), 'true');
-                }).catch(error => console.error('IP tracking failed:', error))
-            );
-        }
+        // IP tracking removed for privacy compliance
         
         // Check for party mode (cached for 5 minutes)
         const partyModeKey = 'party_mode_check';
@@ -243,7 +232,7 @@ const Security = {
     addCSP() {
         const meta = document.createElement('meta');
         meta.httpEquiv = 'Content-Security-Policy';
-        meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://discord.com;";
+        meta.content = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https://cdn.discordapp.com; connect-src 'self' https://discord.com;";
         document.head.appendChild(meta);
     },
     

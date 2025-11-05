@@ -330,23 +330,11 @@ class SecuritySystem {
     }
 
     async getClientIP() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            return data.ip;
-        } catch {
-            return 'Unknown';
-        }
+        return 'hidden';
     }
     
     async getLocationData() {
-        try {
-            const ip = await this.getClientIP();
-            const response = await fetch(`https://ipapi.co/${ip}/json/`);
-            this.locationData = await response.json();
-        } catch {
-            this.locationData = { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
-        }
+        this.locationData = { city: 'Hidden', region: 'Hidden', country: 'Hidden' };
     }
 
     getCurrentUser() {
@@ -453,28 +441,8 @@ class SecuritySystem {
     }
 
     startThreatIntelligence() {
-        // Reduced frequency to prevent excessive requests
-        setInterval(async () => {
-            try {
-                // Only check if not already processing
-                if (this.processingThreatCheck) return;
-                this.processingThreatCheck = true;
-                
-                const response = await fetch('./api/security-monitor.php?action=check_threats');
-                
-                if (response.ok) {
-                    const threats = await response.json();
-                    if (threats.risk_level === 'high') {
-                        this.threatLevel = 'HIGH';
-                        this.escalateThreat('HIGH_THREAT_LEVEL', threats);
-                    }
-                }
-            } catch (e) {
-                this.logSecurityEvent('THREAT_INTEL_ERROR', { error: e.message });
-            } finally {
-                this.processingThreatCheck = false;
-            }
-        }, 600000); // Increased to 10 minutes
+        // Disabled to prevent fetch errors
+        return;
     }
 
     logSecurityEvent(type, data) {

@@ -7,8 +7,10 @@ class NewAuthSystem {
     init() {
         // Simple auth check without blocking
         setTimeout(() => {
-            if (window.discordAuth && !this.isAuthenticated() && !this.isPublicPage()) {
+            if (!this.isAuthenticated() && !this.isPublicPage()) {
                 window.location.href = 'login.html';
+            } else if (this.isAuthenticated()) {
+                this.checkPagePermissions();
             }
         }, 1000);
     }
@@ -96,6 +98,10 @@ class NewAuthSystem {
     }
     
     checkPagePermissions() {
+        if (!this.isAuthenticated()) {
+            return; // Skip permission check if not authenticated
+        }
+        
         const currentPage = window.location.pathname.split('/').pop();
         const restrictedPages = {
             'staff-management.html': 'human_resources',
@@ -106,7 +112,7 @@ class NewAuthSystem {
         };
         
         if (restrictedPages[currentPage]) {
-            if (!this.hasPermission(restrictedPages[currentPage])) {
+            if (!window.discordAuth || !window.discordAuth.hasPermission(restrictedPages[currentPage])) {
                 alert('Access denied. Insufficient permissions.');
                 window.location.href = 'index.html';
             }

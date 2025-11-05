@@ -86,17 +86,17 @@
         
         function getRankName(rank) {
             const rankNames = {
-                1: 'Moderation',
-                2: 'Administration', 
-                3: 'Human Resources',
-                4: 'Oversight & Enforcement',
-                5: 'Advisory Board',
-                6: 'Assistant Founder',
-                7: 'Co-Founder',
-                8: 'Founder',
-                9: 'Developer'
+                'moderation': 'Moderation',
+                'administration': 'Administration', 
+                'human_resources': 'Human Resources',
+                'oversight_enforcement': 'Oversight & Enforcement',
+                'advisory_board': 'Advisory Board',
+                'assistant_founder': 'Assistant Founder',
+                'co_founder': 'Co-Founder',
+                'founder': 'Founder',
+                'developer': 'Developer'
             };
-            return rankNames[rank] || 'Staff';
+            return rankNames[rank] || rank || 'Staff';
         }
         
         function loadAccountInfo() {
@@ -113,6 +113,7 @@
                     <div>
                         <h4><i class="fas fa-star"></i> Current Rank</h4>
                         <p style="color: #00ff00; font-size: 1.1em; font-weight: 600;">${getRankName(currentUser.rank)}</p>
+                        <small style="color: #999;">Raw rank: ${currentUser.rank}</small>
                     </div>
                 </div>
                 <div style="margin-top: 20px; padding: 15px; background: rgba(88, 101, 242, 0.1); border-radius: 8px; border: 1px solid rgba(88, 101, 242, 0.3);">
