@@ -191,8 +191,8 @@ async function initializePage() {
                 if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => {
-                        link.style.display = 'block';
-                        link.parentElement.style.display = 'block';
+                        if (link.style) link.style.display = 'block';
+                        if (link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
                     });
                 }
                 
@@ -200,8 +200,8 @@ async function initializePage() {
                 if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => {
-                        link.style.display = 'block';
-                        link.parentElement.style.display = 'block';
+                        if (link.style) link.style.display = 'block';
+                        if (link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
                     });
                 }
             }
@@ -237,10 +237,8 @@ const Security = {
     },
     
     validateSession() {
-        if (window.newAuthSystem && !newAuthSystem.isAuthenticated() && !newAuthSystem.isPublicPage()) {
-            // Redirect to login if not authenticated
-            console.log('Session validation required');
-        }
+        // Disabled to prevent page clearing
+        return;
     }
 };
 
