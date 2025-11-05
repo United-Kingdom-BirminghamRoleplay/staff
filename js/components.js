@@ -38,32 +38,33 @@ function handleComponentLoaded(componentPath) {
     if (componentPath.includes('sidebar')) {
         setActiveNavLink();
         
+        // Ensure sidebar is visible
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.style.display = 'flex';
+        }
+        
         // Show navigation based on user permissions
         setTimeout(() => {
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 populateUserProfile();
                 
-                const user = window.discordAuth.getCurrentUser();
-                console.log('Current user:', user);
-                
                 // Show founder-only links
                 if (window.discordAuth.hasPermission('founder')) {
                     const founderLinks = document.querySelectorAll('.founder-only');
                     founderLinks.forEach(link => {
-                        link.style.display = 'block';
-                        link.parentElement.style.display = 'block';
+                        if (link && link.style) link.style.display = 'block';
+                        if (link && link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
                     });
-                    console.log('Founder permissions granted');
                 }
                 
                 // Show HR+ links
                 if (window.discordAuth.hasPermission('human_resources')) {
                     const hrLinks = document.querySelectorAll('.hr-only');
                     hrLinks.forEach(link => {
-                        link.style.display = 'block';
-                        link.parentElement.style.display = 'block';
+                        if (link && link.style) link.style.display = 'block';
+                        if (link && link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
                     });
-                    console.log('HR permissions granted');
                 }
             }
         }, 100);
@@ -133,82 +134,46 @@ function populateUserProfile() {
     }
 }
 
-// Optimized page loading with request batching
-let initializationPromise = null;
+// Force page initialization on every load
+document.addEventListener('DOMContentLoaded', () => {
+    initializePage();
+});
 
-document.addEventListener('DOMContentLoaded', async () => {
-    if (initializationPromise) {
-        return initializationPromise;
+// Backup initialization
+window.addEventListener('load', () => {
+    if (!document.querySelector('.sidebar')) {
+        initializePage();
     }
-    
-    initializationPromise = initializePage();
-    return initializationPromise;
 });
 
 async function initializePage() {
     try {
-        // Batch component loading
-        await Promise.all([
-            loadComponent('sidebar-container', 'sidebar.html'),
-            loadComponent('footer-container', 'footer.html')
-        ]);
-        
-        // Batch API calls with delay to prevent overwhelming
-        const apiCalls = [];
-        
-        // IP tracking removed for privacy compliance
-        
-        // Check for party mode (cached for 5 minutes)
-        const partyModeKey = 'party_mode_check';
-        const lastCheck = localStorage.getItem(partyModeKey);
-        const now = Date.now();
-        
-        if (!lastCheck || (now - parseInt(lastCheck)) > 300000) {
-            apiCalls.push(
-                fetch('./api/load_db.php?type=website_control')
-                    .then(response => response.json())
-                    .then(data => {
-                        localStorage.setItem(partyModeKey, now.toString());
-                        if (data.party_mode) {
-                            activateGlobalPartyMode();
-                        }
-                    })
-                    .catch(error => console.log('Party mode check failed'))
-            );
+        // Always load sidebar first
+        if (document.getElementById('sidebar-container')) {
+            await loadComponent('sidebar-container', 'sidebar.html');
         }
         
-        // Execute API calls with staggered timing
-        for (let i = 0; i < apiCalls.length; i++) {
-            setTimeout(() => apiCalls[i], i * 200);
+        // Load footer
+        if (document.getElementById('footer-container')) {
+            await loadComponent('footer-container', 'footer.html');
         }
         
-        // Show navigation based on user permissions
+        // Ensure sidebar is visible
         setTimeout(() => {
-            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-                populateUserProfile();
-                
-                // Show founder-only links
-                if (window.discordAuth.hasPermission('founder')) {
-                    const founderLinks = document.querySelectorAll('.founder-only');
-                    founderLinks.forEach(link => {
-                        if (link.style) link.style.display = 'block';
-                        if (link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
-                    });
-                }
-                
-                // Show HR+ links
-                if (window.discordAuth.hasPermission('human_resources')) {
-                    const hrLinks = document.querySelectorAll('.hr-only');
-                    hrLinks.forEach(link => {
-                        if (link.style) link.style.display = 'block';
-                        if (link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
-                    });
-                }
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.style.display = 'flex';
             }
-        }, 200);
+        }, 100);
         
     } catch (error) {
         console.error('Page initialization failed:', error);
+        // Fallback: try to load components again
+        setTimeout(() => {
+            if (document.getElementById('sidebar-container') && !document.querySelector('.sidebar')) {
+                loadComponent('sidebar-container', 'sidebar.html');
+            }
+        }, 1000);
     }
 }
 
