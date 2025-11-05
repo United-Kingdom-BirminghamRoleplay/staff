@@ -631,10 +631,6 @@ class SecuritySystem {
     }
 }
 
-// Initialize security system with error handling
-try {
-    window.securitySystem = new SecuritySystem();
-} catch (error) {
-    console.error('Security system failed to initialize:', error);
-    window.securitySystem = null;
-}
+// Security system temporarily disabled
+console.log('Security system disabled for debugging');
+window.securitySystem = null;
