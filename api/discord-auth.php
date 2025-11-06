@@ -145,6 +145,14 @@ if ($action === 'exchange_code') {
         'guildMember' => $guildMember
     ]);
 
+} elseif ($action === 'get_guild_members') {
+    // This action requires bot token, not user token
+    // For now, return empty array or mock data
+    echo json_encode([
+        'success' => false,
+        'error' => 'Guild member listing requires bot permissions. Contact developer to set up bot token.'
+    ]);
+    
 } elseif ($action === 'refresh_token') {
     $refreshToken = $input['refresh_token'] ?? '';
     

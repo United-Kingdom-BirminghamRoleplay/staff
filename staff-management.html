@@ -442,7 +442,15 @@
                 });
                 const data = await response.json();
                 if (!data.success) {
-                    throw new Error(data.error || 'Failed to load Discord members');
+                    // Show helpful message for Discord API limitation
+                    document.getElementById('userList').innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #ff6b35;">
+                            <h3>Discord Member Management Unavailable</h3>
+                            <p>${data.error}</p>
+                            <p style="margin-top: 20px; color: #999;">This feature requires additional Discord bot permissions that are not currently configured.</p>
+                        </div>
+                    `;
+                    return;
                 }
                 allUsers = data.members.map(member => ({
                     id: member.user.id,
@@ -799,12 +807,14 @@
 
         function showLoading(show) {
             const refreshBtn = document.querySelector('.btn-glass');
-            if (show) {
-                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-                refreshBtn.disabled = true;
-            } else {
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-                refreshBtn.disabled = false;
+            if (refreshBtn) {
+                if (show) {
+                    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                    refreshBtn.disabled = true;
+                } else {
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Discord Data';
+                    refreshBtn.disabled = false;
+                }
             }
         }
 

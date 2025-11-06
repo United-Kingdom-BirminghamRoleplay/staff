@@ -59,6 +59,17 @@
             0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); }
             50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.6); }
         }
+        .btn-glass:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -115,6 +126,7 @@
         async function uploadFile() {
             const fileInput = document.getElementById('fileInput');
             const description = document.getElementById('fileDescription').value.trim();
+            const uploadBtn = document.querySelector('.btn-glass');
             
             if (!fileInput.files[0]) {
                 alert('Please select a file to upload');
@@ -129,7 +141,11 @@
                 return;
             }
             
-            const user = newAuthSystem.getCurrentUser();
+            // Show upload animation
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            uploadBtn.disabled = true;
+            
+            const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
             
             const fileData = {
                 id: Date.now().toString(),
@@ -169,6 +185,10 @@
             } catch (error) {
                 console.error('Upload error:', error);
                 alert('Error uploading file: ' + error.message);
+            } finally {
+                // Reset button
+                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload File';
+                uploadBtn.disabled = false;
             }
         }
         
@@ -211,7 +231,6 @@
                 return;
             }
             
-            const user = newAuthSystem.getCurrentUser();
             const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
             const isFounder = user && (user.rank === 'developer' || window.discordAuth.hasPermission('founder'));
             
