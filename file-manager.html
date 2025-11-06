@@ -97,7 +97,7 @@
                     <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Drag & drop or click to select files</p>
                     <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip,.rar" style="margin-bottom: 15px;">
                     <input type="text" id="fileDescription" placeholder="File description (optional)" style="margin-bottom: 15px;">
-                    <button class="btn-glass" onclick="uploadFile()"><i class="fas fa-upload"></i> Upload File</button>
+                    <button class="btn-glass" id="uploadBtn"><i class="fas fa-upload"></i> Upload File</button>
                 </div>
             </div>
         </section>
@@ -406,6 +406,7 @@
                 return;
             }
             
+            document.getElementById('uploadBtn').addEventListener('click', uploadFile);
             loadFiles();
         });
     </script>
