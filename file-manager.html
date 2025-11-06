@@ -409,7 +409,10 @@
                 return;
             }
             
-            document.getElementById('uploadBtn').addEventListener('click', uploadFile);
+            const uploadBtn = document.getElementById('uploadBtn');
+            if (uploadBtn) {
+                uploadBtn.addEventListener('click', uploadFile);
+            }
             loadFiles();
         });
     </script>

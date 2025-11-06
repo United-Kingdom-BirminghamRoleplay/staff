@@ -695,6 +695,16 @@ body::before {
     flex-wrap: wrap;
 }
 
+.quick-access-grid.full-width {
+    justify-content: stretch;
+}
+
+.quick-access-grid.full-width .quick-box {
+    flex: 1;
+    min-width: 200px;
+    max-width: 250px;
+}
+
 .quick-box {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);

@@ -163,10 +163,22 @@ class DiscordAuth {
         
         console.log('Permission check:', user.rank, 'vs', requiredRank, userLevel, '>=', requiredLevel);
 
-        // Special case: founder content for assistant_founder and above
+        // Special cases
         if (requiredRank === 'founder') {
             const hasAccess = userLevel >= 6; // assistant_founder and above
             console.log('Founder access:', hasAccess);
+            return hasAccess;
+        }
+        
+        if (requiredRank === 'assistant_founder') {
+            const hasAccess = userLevel >= 6; // assistant_founder and above
+            console.log('Assistant founder access:', hasAccess);
+            return hasAccess;
+        }
+        
+        if (requiredRank === 'advisory_board') {
+            const hasAccess = userLevel >= 5; // advisory_board and above
+            console.log('Advisory board access:', hasAccess);
             return hasAccess;
         }
 
