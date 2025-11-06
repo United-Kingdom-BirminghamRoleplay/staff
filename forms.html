@@ -9,6 +9,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
+        .hero-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .hero-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(220, 38, 38, 0.1));
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+        .hero-card:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+        .hero-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+            border-color: var(--orange-accent);
+        }
+        .hero-icon {
+            font-size: 4rem;
+            color: var(--orange-accent);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+        .hero-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ff6b35, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-btn {
+            background: linear-gradient(135deg, var(--orange-accent), var(--red-accent));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+            margin-top: 20px;
+        }
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--orange-accent);
+            margin-bottom: 15px;
+            display: block;
+        }
+        .card-icon.premium {
+            background: linear-gradient(135deg, #ffd700, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .form-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .form-card.creator {
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 0, 0.05));
+        }
+        .form-card.premium {
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 107, 53, 0.1));
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .card-badge.hr { background: rgba(0, 255, 0, 0.3); color: #00ff00; }
+        .card-badge.mgmt { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+        .card-badge.founder { background: rgba(255, 215, 0, 0.3); color: #ffd700; }
+        .card-badge.advisory { background: rgba(139, 92, 246, 0.3); color: #8b5cf6; }
+        .btn-glass.premium {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 53, 0.2));
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            color: #ffd700;
+        }
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
         .form-modal-content {
             max-width: 700px;
             width: 95%;
@@ -124,66 +245,92 @@
         </section>
 
         <section class="forms-section">
-            <h2><i class="fas fa-file-alt"></i> Available Forms</h2>
+            <h2><i class="fas fa-rocket"></i> Quick Actions</h2>
+            <div class="hero-cards">
+                <div class="hero-card primary">
+                    <div class="hero-icon"><i class="fas fa-plus-circle"></i></div>
+                    <h3>Create Report</h3>
+                    <p>Submit incident reports and staff feedback</p>
+                    <button class="hero-btn" onclick="openGeneralReport()">Submit Report</button>
+                </div>
+                <div class="hero-card secondary">
+                    <div class="hero-icon"><i class="fas fa-handshake"></i></div>
+                    <h3>Touchpoint</h3>
+                    <p>Connect with departments and leadership</p>
+                    <button class="hero-btn" onclick="openTouchpoint()">Create Touchpoint</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-tools"></i> Management Tools</h2>
             <div class="forms-grid" id="formsGrid">
-                <div class="form-card">
+                <div class="form-card creator">
+                    <div class="card-icon"><i class="fas fa-magic"></i></div>
                     <h4>Form Builder</h4>
-                    <p>Create custom forms for staff use (Human Resources+ only)</p>
+                    <p>Create custom forms for staff use</p>
+                    <div class="card-badge hr">HR+</div>
                     <button class="btn-glass" onclick="openFormBuilder()">Build Form</button>
                 </div>
                 
-                <div class="form-card">
+                <div class="form-card creator">
+                    <div class="card-icon"><i class="fas fa-bullhorn"></i></div>
                     <h4>Announcements</h4>
-                    <p>Create staff announcements (Human Resources+ only)</p>
+                    <p>Create staff announcements</p>
+                    <div class="card-badge hr">HR+</div>
                     <button class="btn-glass" onclick="openAnnouncementForm()">Create Announcement</button>
                 </div>
                 
                 <div class="form-card">
-                    <h4>General Report</h4>
-                    <p>Submit reports for staff review</p>
-                    <button class="btn-glass" onclick="openGeneralReport()">Submit Report</button>
-                </div>
-                
-                <div class="form-card">
+                    <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
                     <h4>Trial Logs</h4>
                     <p>Log staff member trials and results</p>
                     <button class="btn-glass" onclick="openTrialLog()">Log Trial</button>
                 </div>
                 
-                <div class="form-card">
-                    <h4>Touchpoint</h4>
-                    <p>Get in contact with other staff members or departments</p>
-                    <button class="btn-glass" onclick="openTouchpoint()">Create Touchpoint</button>
-                </div>
-                
                 <div class="form-card management-only" style="display: none;">
+                    <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
                     <h4>Training Management</h4>
                     <p>Create and manage training sessions</p>
+                    <div class="card-badge mgmt">MGMT</div>
                     <button class="btn-glass" onclick="openTrainingForm()">Create Training</button>
                 </div>
-                
-                <div class="form-card founder-only" style="display: none;">
+            </div>
+        </section>
+
+        <section class="forms-section">
+            <h2><i class="fas fa-crown"></i> Leadership Suite</h2>
+            <div class="forms-grid leadership-grid">
+                <div class="form-card founder-only premium" style="display: none;">
+                    <div class="card-icon premium"><i class="fas fa-clipboard-list"></i></div>
                     <h4>Assessment Builder</h4>
                     <p>Create comprehensive assessments with marking schemes</p>
-                    <button class="btn-glass" onclick="window.location.href='assessment-builder.html'">Build Assessment</button>
+                    <div class="card-badge founder">FOUNDER</div>
+                    <button class="btn-glass premium" onclick="window.location.href='assessment-builder.html'">Build Assessment</button>
                 </div>
                 
-                <div class="form-card founder-only" style="display: none;">
+                <div class="form-card founder-only premium" style="display: none;">
+                    <div class="card-icon premium"><i class="fas fa-chart-line"></i></div>
                     <h4>Assessment Manager</h4>
                     <p>Manage assessments, generate links, and view responses</p>
-                    <button class="btn-glass" onclick="window.location.href='assessment-manager.html'">Manage Assessments</button>
+                    <div class="card-badge founder">FOUNDER</div>
+                    <button class="btn-glass premium" onclick="window.location.href='assessment-manager.html'">Manage Assessments</button>
                 </div>
                 
-                <div class="form-card founder-only" style="display: none;">
+                <div class="form-card founder-only premium" style="display: none;">
+                    <div class="card-icon premium"><i class="fas fa-shield-alt"></i></div>
                     <h4>Security Dashboard</h4>
                     <p>Monitor security events and threats in real-time</p>
-                    <button class="btn-glass" onclick="window.location.href='security-dashboard.html'">Security Center</button>
+                    <div class="card-badge founder">FOUNDER</div>
+                    <button class="btn-glass premium" onclick="window.location.href='security-dashboard.html'">Security Center</button>
                 </div>
                 
-                <div class="form-card advisory-only" style="display: none;">
+                <div class="form-card advisory-only premium" style="display: none;">
+                    <div class="card-icon premium"><i class="fas fa-comments"></i></div>
                     <h4>Touchpoint Manager</h4>
                     <p>View and respond to all touchpoint requests</p>
-                    <button class="btn-glass" onclick="window.location.href='touchpoint-manager.html'">Manage Touchpoints</button>
+                    <div class="card-badge advisory">ADVISORY</div>
+                    <button class="btn-glass premium" onclick="window.location.href='touchpoint-manager.html'">Manage Touchpoints</button>
                 </div>
             </div>
         </section>

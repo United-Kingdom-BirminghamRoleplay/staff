@@ -212,6 +212,9 @@
                 
                 displayFiles('approvedFiles', approved, true);
                 
+                const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+                const isFounder = user && (user.rank === 'developer' || window.discordAuth.hasPermission('founder'));
+                
                 if (isFounder && pending.length > 0) {
                     document.getElementById('pendingSection').style.display = 'block';
                     displayFiles('pendingFiles', pending, false);
