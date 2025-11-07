@@ -84,6 +84,9 @@ class DiscordAuth {
             console.log('Discord Auth Data:', authData); // Debug log
             console.log('User level from API:', authData.level);
             console.log('Guild member data:', authData.guildMember);
+            if (userData.debug) {
+                console.log('DEBUG INFO:', userData.debug);
+            }
 
             localStorage.setItem('discord_auth', JSON.stringify(authData));
             
