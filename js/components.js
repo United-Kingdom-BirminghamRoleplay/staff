@@ -110,12 +110,11 @@ function populateUserProfile() {
         }
         
         if (userLevel) {
-            const level = discordUser.level || window.discordAuth.getUserLevel(discordUser.rank);
-            userLevel.textContent = `Level ${level}`;
+            userLevel.textContent = `Level ${discordUser.level || 0}`;
         }
         
         // Show navigation groups based on access level
-        const userAccessLevel = discordUser.level || window.discordAuth.getUserLevel(discordUser.rank);
+        const userAccessLevel = discordUser.level || 0;
         
         const level2Groups = document.querySelectorAll('.level-2');
         const level5Groups = document.querySelectorAll('.level-5');

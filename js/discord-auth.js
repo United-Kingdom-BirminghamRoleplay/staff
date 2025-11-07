@@ -75,7 +75,7 @@ class DiscordAuth {
                 avatar: userData.user.avatar ? `https://cdn.discordapp.com/avatars/${userData.user.id}/${userData.user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${userData.user.discriminator % 5}.png`,
                 guildMember: userData.guildMember,
                 rank: userData.guildMember?.rank || 'pending',
-                level: this.getUserLevel(userData.guildMember?.rank || 'pending'),
+                level: userData.guildMember?.level || 0,
                 accessToken: tokenData.access_token,
                 refreshToken: tokenData.refresh_token,
                 expiresAt: Date.now() + (tokenData.expires_in * 1000)
@@ -152,15 +152,12 @@ class DiscordAuth {
     // Get user's access level (1-6)
     getUserLevel(rank) {
         const levelMap = {
-            'moderation': 1,
-            'administration': 1,
-            'human_resources': 2,
-            'oversight_enforcement': 3,
-            'advisory_board': 4,
-            'assistant_founder': 5,
-            'developer': 5,
-            'co_founder': 6,
-            'founder': 6
+            'level_1': 1,
+            'level_2': 2,
+            'level_3': 3,
+            'level_4': 4,
+            'level_5': 5,
+            'level_6': 6
         };
         return levelMap[rank] || 0;
     }

@@ -25,18 +25,27 @@ if (empty($CLIENT_SECRET)) {
     exit;
 }
 
-// Map Discord roles to staff ranks and define processing order (highest to lowest)
-// The role IDs are the keys, and the custom rank names are the values.
-$ROLE_HIERARCHY = [
-    '1422299020122128464' => 'developer',
-    '1345504810077524028' => 'founder',
-    '1345541100059885698' => 'co_founder',
-    '1345446581239021618' => 'assistant_founder',
-    '1377005605016834252' => 'advisory_board',
-    '1360335196171403304' => 'oversight_enforcement',
-    '1345453439156621353' => 'human_resources',
-    '1345472285053812788' => 'administration',
-    '1345470593537147056' => 'moderation'
+// Access Level roles for permissions
+$ACCESS_LEVELS = [
+    '1434504645866422292' => 6,
+    '1434504492245843998' => 5, 
+    '1434504487908802770' => 4,
+    '1434504485778231396' => 3,
+    '1434504483295068303' => 2,
+    '1434504474755600485' => 1
+];
+
+// Display roles (for showing rank names)
+$DISPLAY_ROLES = [
+    '1345504810077524028' => 'Founder',
+    '1345541100059885698' => 'Co-Founder',
+    '1345446581239021618' => 'Assistant Founder',
+    '1422299020122128464' => 'Developer',
+    '1377005605016834252' => 'Advisory Board',
+    '1360335196171403304' => 'Oversight & Enforcement',
+    '1345453439156621353' => 'Human Resources',
+    '1345472285053812788' => 'Administration',
+    '1345470593537147056' => 'Moderation'
 ];
 
 
@@ -119,15 +128,22 @@ if ($action === 'exchange_code') {
     if ($memberHttpCode === 200) {
         $memberData = json_decode($memberResponse, true);
         
-        $userRank = 'pending';
+        $userLevel = 0;
+        $userRank = 'Staff';
         
-        // Find the highest rank based on the defined hierarchy order
-        foreach ($ROLE_HIERARCHY as $roleId => $rankName) {
+        // Find highest access level
+        foreach ($ACCESS_LEVELS as $roleId => $level) {
             if (in_array($roleId, $memberData['roles'])) {
-                // Since $ROLE_HIERARCHY is ordered highest-to-lowest, 
-                // the first match found is the highest rank.
-                $userRank = $rankName;
-                break; 
+                $userLevel = $level;
+                break;
+            }
+        }
+        
+        // Find display role name
+        foreach ($DISPLAY_ROLES as $roleId => $roleName) {
+            if (in_array($roleId, $memberData['roles'])) {
+                $userRank = $roleName;
+                break;
             }
         }
         
@@ -135,7 +151,8 @@ if ($action === 'exchange_code') {
             'nick' => $memberData['nick'],
             'roles' => $memberData['roles'],
             'joined_at' => $memberData['joined_at'],
-            'rank' => $userRank
+            'rank' => $userRank,
+            'level' => $userLevel
         ];
     }
     
