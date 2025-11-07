@@ -129,7 +129,7 @@
 
     <script src="js/ip-check.js"></script>
     <script src="js/components.js"></script>
-    <script src="js/new-auth.js"></script>
+    <script src="js/discord-auth.js"></script>
     <script src="js/security.js"></script>
     <script>
         let allTouchpoints = [];
@@ -221,7 +221,7 @@
                 return;
             }
             
-            const currentUser = newAuthSystem.getCurrentUser();
+            const currentUser = window.discordAuth.getCurrentUser();
             
             try {
                 const response = await fetch('./api/save.php', {
@@ -231,7 +231,7 @@
                         type: 'touchpoint_reply',
                         touchpointId,
                         reply,
-                        repliedBy: currentUser.robloxUsername
+                        repliedBy: currentUser.username
                     })
                 });
                 
@@ -274,11 +274,17 @@
         document.getElementById('departmentFilter').addEventListener('change', filterTouchpoints);
         
         document.addEventListener('DOMContentLoaded', () => {
-            if (!newAuthSystem.hasPermission('advisory_board')) {
-                alert('Access denied. Advisory Board+ only.');
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (!window.discordAuth.hasPermission(4)) {
+                alert('Access denied. Level 4+ required.');
                 window.location.href = 'index.html';
                 return;
             }
+            
             loadTouchpoints();
         });
     </script>
