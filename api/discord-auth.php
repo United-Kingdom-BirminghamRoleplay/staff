@@ -139,6 +139,11 @@ if ($action === 'exchange_code') {
             }
         }
         
+        // Debug: Log roles and level
+        error_log('User roles: ' . json_encode($memberData['roles']));
+        error_log('Access levels config: ' . json_encode($ACCESS_LEVELS));
+        error_log('Detected level: ' . $userLevel);
+        
         // Find display role name
         foreach ($DISPLAY_ROLES as $roleId => $roleName) {
             if (in_array($roleId, $memberData['roles'])) {
