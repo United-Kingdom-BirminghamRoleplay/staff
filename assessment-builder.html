@@ -9,40 +9,358 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        .section-item {
-            background: rgba(255, 255, 255, 0.05);
+        .builder-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .builder-header {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(220, 38, 38, 0.05));
             border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .builder-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange-accent), var(--primary-color));
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--orange-accent);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+            outline: none;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .total-marks-display {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1));
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 15px;
             padding: 20px;
-            margin: 20px 0;
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .total-marks-display h4 {
+            color: #22c55e;
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .pass-marks-input {
+            width: 200px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .section-item {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(220, 38, 38, 0.05));
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .section-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--orange-accent), var(--primary-color));
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .section-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+        }
+        
+        .section-title {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .remove-btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+        }
+        
+        .section-title-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .section-title-input:focus {
+            border-color: var(--orange-accent);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
         }
         
         .question-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
             position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .question-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .question-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        
+        .question-content {
+            flex: 1;
+        }
+        
+        .question-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 100px;
+        }
+        
+        .question-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .question-type-select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 15px;
         }
         
         .marks-input {
             width: 80px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: white;
+            padding: 10px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            border-radius: 10px;
+            color: #22c55e;
             text-align: center;
+            font-weight: 700;
+            font-size: 16px;
         }
         
-        .total-marks {
-            background: rgba(0, 255, 0, 0.2);
-            border: 2px solid rgba(0, 255, 0, 0.5);
-            border-radius: 8px;
-            padding: 15px;
+        .marks-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            font-weight: 600;
             text-align: center;
-            margin: 20px 0;
+            margin-bottom: 5px;
+        }
+        
+        .options-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .option-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            margin: 8px 0;
+        }
+        
+        .add-option-btn {
+            background: linear-gradient(135deg, var(--orange-accent), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-option-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+        
+        .add-section-btn {
+            background: linear-gradient(135deg, var(--orange-accent), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px 20px 0;
+        }
+        
+        .add-section-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+        
+        .add-question-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-question-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 107, 53, 0.2);
+        }
+        
+        .create-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .create-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+        
+        .preview-btn {
+            background: rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-btn:hover {
+            background: rgba(59, 130, 246, 0.5);
+            color: white;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -56,41 +374,49 @@
             <p class="greeting-subtitle">Create comprehensive assessments with sections and marking schemes (Founder+ only)</p>
         </section>
 
-        <section class="forms-section">
-            <div class="form-card">
-                <h3><i class="fas fa-clipboard-list"></i> Create New Assessment</h3>
-                
-                <div style="margin-bottom: 20px;">
-                    <label>Assessment Title</label>
-                    <input type="text" id="assessmentTitle" placeholder="Enter assessment title" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label>Description</label>
-                    <textarea id="assessmentDesc" placeholder="Assessment description and instructions" rows="3" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;"></textarea>
-                </div>
-                
-                <div class="total-marks">
-                    <h4>Total Marks: <span id="totalMarks">0</span></h4>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label>Marks Required to Pass</label>
-                    <input type="number" id="passMarks" placeholder="Enter minimum marks to pass" min="1" style="width: 200px; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; margin-top: 8px;">
+        <div class="builder-container">
+            <section class="forms-section">
+                <div class="builder-header">
+                    <h3 style="color: var(--text-primary); font-size: 1.5rem; margin: 0 0 25px 0;"><i class="fas fa-clipboard-list"></i> Create New Assessment</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Assessment Title</label>
+                        <input type="text" id="assessmentTitle" class="form-input" placeholder="Enter assessment title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="assessmentDesc" class="form-input form-textarea" placeholder="Assessment description and instructions" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="total-marks-display">
+                        <h4>Total Marks: <span id="totalMarks">0</span></h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Marks Required to Pass</label>
+                        <input type="number" id="passMarks" class="pass-marks-input" placeholder="Enter minimum marks to pass" min="1">
+                    </div>
                 </div>
                 
                 <div id="sectionsContainer">
                     <!-- Sections will be added here -->
                 </div>
                 
-                <button onclick="addSection()" class="btn-glass" style="margin: 20px 10px 20px 0;">+ Add Section</button>
+                <button onclick="addSection()" class="add-section-btn">
+                    <i class="fas fa-plus"></i> Add Section
+                </button>
                 
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button onclick="createAssessment()" class="btn-glass" style="background: rgba(0, 255, 0, 0.3);">Create Assessment</button>
-                    <button onclick="previewAssessment()" class="btn-glass">Preview</button>
+                <div class="action-buttons">
+                    <button onclick="createAssessment()" class="create-btn">
+                        <i class="fas fa-check"></i> Create Assessment
+                    </button>
+                    <button onclick="previewAssessment()" class="preview-btn">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
 
     <div id="footer-container"></div>
@@ -109,18 +435,22 @@
             sectionDiv.id = `section_${sectionCount}`;
             
             sectionDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h4>Section ${sectionCount}</h4>
-                    <button onclick="removeSection('section_${sectionCount}')" style="background: #dc2626; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">×</button>
+                <div class="section-header">
+                    <h4 class="section-title">Section ${sectionCount}</h4>
+                    <button onclick="removeSection('section_${sectionCount}')" class="remove-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 
-                <input type="text" placeholder="Section Title" class="section-title" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; margin-bottom: 15px;">
+                <input type="text" placeholder="Section Title" class="section-title section-title-input">
                 
                 <div class="questions-container">
                     <!-- Questions will be added here -->
                 </div>
                 
-                <button onclick="addQuestion('section_${sectionCount}')" class="btn-glass" style="font-size: 14px;">+ Add Question</button>
+                <button onclick="addQuestion('section_${sectionCount}')" class="add-question-btn">
+                    <i class="fas fa-plus"></i> Add Question
+                </button>
             `;
             
             container.appendChild(sectionDiv);
@@ -139,11 +469,11 @@
             questionDiv.id = `question_${questionCount}`;
             
             questionDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                    <div style="flex: 1; margin-right: 15px;">
-                        <input type="text" placeholder="Question" class="question-text" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; margin-bottom: 10px;">
+                <div class="question-layout">
+                    <div class="question-content">
+                        <input type="text" placeholder="Enter your question" class="question-text question-input">
                         
-                        <select class="question-type" onchange="updateQuestionType(this)" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; margin-bottom: 10px;">
+                        <select class="question-type question-type-select" onchange="updateQuestionType(this)">
                             <option value="text">Short Answer</option>
                             <option value="textarea">Long Answer</option>
                             <option value="radio">Multiple Choice</option>
@@ -151,15 +481,19 @@
                         </select>
                         
                         <div class="options-container" style="display: none;">
-                            <input type="text" placeholder="Option 1" class="option-input" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; margin: 5px 0;">
-                            <button type="button" onclick="addOption(this)" style="background: #ff6b35; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 5px;">+ Add Option</button>
+                            <input type="text" placeholder="Option 1" class="option-input">
+                            <button type="button" onclick="addOption(this)" class="add-option-btn">
+                                <i class="fas fa-plus"></i> Add Option
+                            </button>
                         </div>
                     </div>
                     
-                    <div style="text-align: center;">
-                        <label style="display: block; margin-bottom: 5px; font-size: 12px;">Marks</label>
+                    <div class="question-controls">
+                        <div class="marks-label">Marks</div>
                         <input type="number" min="1" max="100" value="1" class="marks-input" onchange="updateTotalMarks()">
-                        <button onclick="removeQuestion('question_${questionCount}')" style="background: #dc2626; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; margin-top: 10px; display: block; margin-left: auto; margin-right: auto;">×</button>
+                        <button onclick="removeQuestion('question_${questionCount}')" class="remove-btn" style="width: 30px; height: 30px; font-size: 14px;">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
             `;
@@ -189,7 +523,7 @@
             input.type = 'text';
             input.placeholder = `Option ${optionCount}`;
             input.className = 'option-input';
-            input.style.cssText = 'width: 100%; padding: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; margin: 5px 0;';
+            input.className = 'option-input';
             container.insertBefore(input, btn);
         }
 
