@@ -120,6 +120,8 @@
         .card-badge.mgmt { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
         .card-badge.founder { background: rgba(255, 215, 0, 0.3); color: #ffd700; }
         .card-badge.advisory { background: rgba(139, 92, 246, 0.3); color: #8b5cf6; }
+        .card-badge.denied { background: rgba(220, 38, 38, 0.3); color: #dc2626; }
+        .form-card.no-access { border: 2px solid rgba(220, 38, 38, 0.3); background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(239, 68, 68, 0.05)); }
         .btn-glass.premium {
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 53, 0.2));
             border: 1px solid rgba(255, 215, 0, 0.5);
@@ -305,12 +307,12 @@
 
         <section class="forms-section">
             <h2><i class="fas fa-crown"></i> Leadership Suite</h2>
-            <div class="forms-grid leadership-grid">
+            <div class="forms-grid leadership-grid" id="leadershipGrid">
                 <div class="form-card founder-only premium" style="display: none;">
                     <div class="card-icon premium"><i class="fas fa-clipboard-list"></i></div>
                     <h4>Assessment Builder</h4>
                     <p>Create comprehensive assessments with marking schemes</p>
-                    <div class="card-badge founder">FOUNDER</div>
+                    <div class="card-badge founder">LEVEL 5+</div>
                     <button class="btn-glass premium" onclick="window.location.href='assessment-builder.html'">Build Assessment</button>
                 </div>
                 
@@ -318,7 +320,7 @@
                     <div class="card-icon premium"><i class="fas fa-chart-line"></i></div>
                     <h4>Assessment Manager</h4>
                     <p>Manage assessments, generate links, and view responses</p>
-                    <div class="card-badge founder">FOUNDER</div>
+                    <div class="card-badge founder">LEVEL 5+</div>
                     <button class="btn-glass premium" onclick="window.location.href='assessment-manager.html'">Manage Assessments</button>
                 </div>
                 
@@ -326,7 +328,7 @@
                     <div class="card-icon premium"><i class="fas fa-shield-alt"></i></div>
                     <h4>Security Dashboard</h4>
                     <p>Monitor security events and threats in real-time</p>
-                    <div class="card-badge founder">FOUNDER</div>
+                    <div class="card-badge founder">LEVEL 5+</div>
                     <button class="btn-glass premium" onclick="window.location.href='security-dashboard.html'">Security Center</button>
                 </div>
                 
@@ -334,8 +336,15 @@
                     <div class="card-icon premium"><i class="fas fa-comments"></i></div>
                     <h4>Touchpoint Manager</h4>
                     <p>View and respond to all touchpoint requests</p>
-                    <div class="card-badge advisory">ADVISORY</div>
+                    <div class="card-badge advisory">LEVEL 4+</div>
                     <button class="btn-glass premium" onclick="window.location.href='touchpoint-manager.html'">Manage Touchpoints</button>
+                </div>
+                
+                <div class="form-card no-access" id="noAccessCard" style="display: none;">
+                    <div class="card-icon"><i class="fas fa-lock"></i></div>
+                    <h4>Access Restricted</h4>
+                    <p>You don't have permission to view leadership tools. Contact an administrator for access.</p>
+                    <div class="card-badge denied">ACCESS DENIED</div>
                 </div>
             </div>
         </section>
@@ -1144,24 +1153,31 @@
                 console.log('Checking permissions for form cards...');
                 if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                     const user = window.discordAuth.getCurrentUser();
-                    console.log('Current user:', user);
+                    const userLevel = user.level || 0;
+                    console.log('Current user level:', userLevel);
                     
-                    if (window.discordAuth.hasPermission('human_resources')) {
-                        console.log('User has HR permissions');
+                    if (userLevel >= 2) {
+                        console.log('User has level 2+ permissions');
                         const managementCard = document.querySelector('.management-only');
                         if (managementCard) managementCard.style.display = 'block';
                     }
                     
-                    if (window.discordAuth.hasPermission('founder') || user.rank === 'developer') {
-                        console.log('User has founder permissions');
+                    if (userLevel >= 5) {
+                        console.log('User has level 5+ permissions');
                         const founderCards = document.querySelectorAll('.founder-only');
                         founderCards.forEach(card => card.style.display = 'block');
                     }
                     
-                    if (window.discordAuth.hasPermission('advisory_board') || user.rank === 'developer') {
-                        console.log('User has advisory permissions');
+                    if (userLevel >= 4) {
+                        console.log('User has level 4+ permissions');
                         const advisoryCard = document.querySelector('.advisory-only');
                         if (advisoryCard) advisoryCard.style.display = 'block';
+                    }
+                    
+                    // Show no access message if user doesn't have level 4+
+                    if (userLevel < 4) {
+                        const noAccessCard = document.getElementById('noAccessCard');
+                        if (noAccessCard) noAccessCard.style.display = 'block';
                     }
                 } else {
                     console.log('User not authenticated or Discord auth not available');

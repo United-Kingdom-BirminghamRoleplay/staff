@@ -51,16 +51,19 @@ function handleComponentLoaded(componentPath) {
                 
                 // Show navigation based on access level
                 const user = window.discordAuth.getCurrentUser();
-                const userLevel = user.level || window.discordAuth.getUserLevel(user.rank);
+                const userLevel = user.level || 0;
+                console.log('User level for navigation:', userLevel);
                 
                 const level2Groups = document.querySelectorAll('.level-2');
                 const level5Groups = document.querySelectorAll('.level-5');
                 
                 if (userLevel >= 2) {
+                    console.log('Showing level 2 groups');
                     level2Groups.forEach(group => group.style.display = 'block');
                 }
                 
                 if (userLevel >= 5) {
+                    console.log('Showing level 5 groups');
                     level5Groups.forEach(group => group.style.display = 'block');
                 }
             }
@@ -115,15 +118,18 @@ function populateUserProfile() {
         
         // Show navigation groups based on access level
         const userAccessLevel = discordUser.level || 0;
+        console.log('Populating profile, user level:', userAccessLevel);
         
         const level2Groups = document.querySelectorAll('.level-2');
         const level5Groups = document.querySelectorAll('.level-5');
         
         if (userAccessLevel >= 2) {
+            console.log('User has level 2+ access, showing management');
             level2Groups.forEach(group => group.style.display = 'block');
         }
         
         if (userAccessLevel >= 5) {
+            console.log('User has level 5+ access, showing leadership');
             level5Groups.forEach(group => group.style.display = 'block');
         }
     }
