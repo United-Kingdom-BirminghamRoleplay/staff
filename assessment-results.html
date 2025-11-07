@@ -67,7 +67,7 @@
     <div id="footer-container"></div>
 
     <script src="js/components.js"></script>
-    <script src="js/new-auth.js"></script>
+    <script src="js/discord-auth.js"></script>
     <script>
         const RESULTS_WEBHOOK = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
 
@@ -218,7 +218,7 @@
                         totalScore,
                         maxScore,
                         marks: JSON.stringify(marks),
-                        gradedBy: newAuthSystem.getCurrentUser().robloxUsername
+                        gradedBy: window.discordAuth.getCurrentUser().username
                     })
                 });
 
@@ -247,7 +247,7 @@
                     { name: 'Status', value: status.toUpperCase(), inline: true },
                     { name: 'Time Taken', value: `${responseData.timeTaken} minutes`, inline: true },
                     { name: 'Questions Answered', value: `${responseData.answeredQuestions}/${responseData.totalQuestions}`, inline: true },
-                    { name: 'Graded By', value: newAuthSystem.getCurrentUser().robloxUsername, inline: true },
+                    { name: 'Graded By', value: window.discordAuth.getCurrentUser().username, inline: true },
                     { name: 'Reason', value: reason, inline: false }
                 ],
                 timestamp: new Date().toISOString(),
@@ -266,13 +266,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!newAuthSystem.isAuthenticated()) {
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
                 window.location.href = 'login.html';
                 return;
             }
             
-            if (!newAuthSystem.hasPermission('founder')) {
-                alert('Access denied. Founder only.');
+            if (!window.discordAuth.hasPermission(5)) {
+                alert('Access denied. Level 5+ required.');
                 window.location.href = 'index.html';
                 return;
             }
