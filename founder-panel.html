@@ -88,32 +88,6 @@
             }
         }
 
-        function loadSystemStatus() {
-            const container = document.getElementById('systemStatus');
-            const uptime = Math.floor(Math.random() * 72) + 1;
-            const activeUsers = Math.floor(Math.random() * 15) + 3;
-            const totalRequests = Math.floor(Math.random() * 5000) + 1000;
-            
-            container.innerHTML = `
-                <div class="form-card">
-                    <h4><i class="fas fa-clock" style="color: #00ff00;"></i> System Uptime</h4>
-                    <p style="font-size: 1.5em; color: #00ff00;">${uptime} hours</p>
-                </div>
-                <div class="form-card">
-                    <h4><i class="fas fa-users" style="color: #ff6b35;"></i> Active Users</h4>
-                    <p style="font-size: 1.5em; color: #ff6b35;">${activeUsers} online</p>
-                </div>
-                <div class="form-card">
-                    <h4><i class="fas fa-server" style="color: #3b82f6;"></i> Total Requests</h4>
-                    <p style="font-size: 1.5em; color: #3b82f6;">${totalRequests.toLocaleString()}</p>
-                </div>
-                <div class="form-card">
-                    <h4><i class="fas fa-shield-alt" style="color: #10b981;"></i> Security Status</h4>
-                    <p style="font-size: 1.2em; color: #10b981;">All Systems Secure</p>
-                </div>
-            `;
-        }
-
         async function toggleLock() {
             const newLocked = !websiteStatus.locked;
             
