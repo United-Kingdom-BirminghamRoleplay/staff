@@ -147,10 +147,36 @@ if ($action === 'exchange_code') {
         ];
         error_log('DEBUG: ' . json_encode($debug));
         
-        // Find display role name
+        // Find display role name and assign level based on role
         foreach ($DISPLAY_ROLES as $roleId => $roleName) {
             if (in_array($roleId, $memberData['roles'])) {
                 $userRank = $roleName;
+                // Assign level based on role if no access level role found
+                if ($userLevel == 0) {
+                    switch($roleName) {
+                        case 'Founder':
+                        case 'Co-Founder':
+                            $userLevel = 6;
+                            break;
+                        case 'Assistant Founder':
+                        case 'Developer':
+                            $userLevel = 5;
+                            break;
+                        case 'Advisory Board':
+                            $userLevel = 4;
+                            break;
+                        case 'Oversight & Enforcement':
+                            $userLevel = 3;
+                            break;
+                        case 'Human Resources':
+                            $userLevel = 2;
+                            break;
+                        case 'Administration':
+                        case 'Moderation':
+                            $userLevel = 1;
+                            break;
+                    }
+                }
                 break;
             }
         }
