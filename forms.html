@@ -1154,6 +1154,8 @@
                     const user = window.discordAuth.getCurrentUser();
                     const userLevel = user.level || 0;
                     console.log('Current user level:', userLevel);
+                    console.log('Full user object:', user);
+                    console.log('Guild member data:', user.guildMember);
                     
                     if (userLevel >= 2) {
                         console.log('User has level 2+ permissions');
