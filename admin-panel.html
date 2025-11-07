@@ -59,16 +59,19 @@
             <h2><i class="fas fa-tools"></i> Security Actions</h2>
             <div class="forms-grid">
                 <div class="form-card">
+                    <div class="card-icon"><i class="fas fa-trash-alt"></i></div>
                     <h4>Clear All Logs</h4>
-                    <button class="btn-glass" onclick="clearSecurityLogs()" style="background: rgba(220, 38, 38, 0.3);">Clear Logs</button>
+                    <button class="btn-glass" onclick="clearSecurityLogs()" style="background: rgba(220, 38, 38, 0.3);"><i class="fas fa-trash"></i> Clear Logs</button>
                 </div>
                 <div class="form-card">
+                    <div class="card-icon"><i class="fas fa-download"></i></div>
                     <h4>Export Logs</h4>
-                    <button class="btn-glass" onclick="exportLogs()">Export CSV</button>
+                    <button class="btn-glass" onclick="exportLogs()"><i class="fas fa-file-csv"></i> Export CSV</button>
                 </div>
                 <div class="form-card">
+                    <div class="card-icon"><i class="fas fa-heartbeat"></i></div>
                     <h4>System Status</h4>
-                    <button class="btn-glass" onclick="checkSystemStatus()">Check Status</button>
+                    <button class="btn-glass" onclick="checkSystemStatus()"><i class="fas fa-check-circle"></i> Check Status</button>
                 </div>
             </div>
         </section>
@@ -229,7 +232,7 @@
 
         async function banIp(ip, reason) {
             try {
-                const user = newAuthSystem.getCurrentUser();
+                const user = window.discordAuth.getCurrentUser();
                 
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
