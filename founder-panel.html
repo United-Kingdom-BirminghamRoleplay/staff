@@ -82,7 +82,6 @@
                 lockBtn.textContent = websiteStatus.locked ? 'Unlock Website' : 'Lock Website';
                 lockBtn.style.background = websiteStatus.locked ? 'rgba(220, 38, 38, 0.3)' : 'rgba(0, 255, 0, 0.3)';
                 
-                loadSystemStatus();
             } catch (error) {
                 console.error('Error loading website status:', error);
             }
@@ -372,7 +371,7 @@
             try {
                 const response = await fetch('./founder-buttons.json');
                 const data = await response.json();
-                const currentUser = newAuthSystem.getCurrentUser();
+                const currentUser = window.discordAuth.getCurrentUser();
                 
                 const container = document.getElementById('founderButtons');
                 
@@ -498,7 +497,6 @@
             
             loadWebsiteStatus();
             loadFounderButtons();
-            setInterval(loadSystemStatus, 30000);
         });
     </script>
 </body>
