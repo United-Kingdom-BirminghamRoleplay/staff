@@ -121,7 +121,6 @@
 
     <script src="js/components.js"></script>
     <script src="js/discord-auth.js"></script>
-    <script src="js/new-auth.js"></script>
     <script>
         async function uploadFile() {
             const fileInput = document.getElementById('fileInput');
@@ -402,9 +401,8 @@
                 return;
             }
             
-            const user = window.discordAuth.getCurrentUser();
-            if (user.rank !== 'developer' && !window.discordAuth.hasPermission('human_resources')) {
-                alert('Access denied. Human Resources+ only.');
+            if (!window.discordAuth.hasPermission(2)) {
+                alert('Access denied. Level 2+ required.');
                 window.location.href = 'index.html';
                 return;
             }

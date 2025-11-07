@@ -343,24 +343,24 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if user is developer or assistant_founder+
-            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
-                const user = window.discordAuth.getCurrentUser();
-                console.log('Current user:', user);
-                if (user.rank === 'developer' || window.discordAuth.hasPermission('assistant_founder')) {
-                    loadIpLogs();
-                    loadBannedIps();
-                    loadSecurityLogs();
-                    setInterval(() => {
-                        loadIpLogs();
-                        loadSecurityLogs();
-                    }, 30000); // Refresh every 30 seconds
-                    return;
-                }
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
             }
             
-            alert('Access denied. Assistant Founder+ only.');
-            window.location.href = 'index.html';
+            if (!window.discordAuth.hasPermission(5)) {
+                alert('Access denied. Level 5+ required.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadIpLogs();
+            loadBannedIps();
+            loadSecurityLogs();
+            setInterval(() => {
+                loadIpLogs();
+                loadSecurityLogs();
+            }, 30000);
         });
     </script>
 </body>
