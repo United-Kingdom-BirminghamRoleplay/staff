@@ -553,7 +553,8 @@
 
             const sections = [];
             document.querySelectorAll('.section-item').forEach(sectionEl => {
-                const sectionTitle = sectionEl.querySelector('.section-title').value.trim();
+                const sectionTitleInput = sectionEl.querySelector('.section-title-input');
+                const sectionTitle = sectionTitleInput ? sectionTitleInput.value.trim() : '';
                 if (!sectionTitle) return;
                 
                 const questions = [];
