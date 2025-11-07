@@ -75,6 +75,7 @@
             try {
                 const response = await fetch('./api/load.php?type=assessment_responses');
                 const responses = await response.json();
+                window.currentResponses = responses; // Store for access in other functions
                 
                 const container = document.getElementById('responsesContainer');
                 
@@ -94,7 +95,14 @@
                     }
                 }
                 
-                container.innerHTML = responses.map(resp => `
+                // Add publish results button
+                container.innerHTML = `
+                    <div style="margin-bottom: 30px; text-align: center;">
+                        <button onclick="showPublishDialog()" class="btn-glass" style="background: rgba(88, 101, 242, 0.3); padding: 15px 30px; font-size: 16px;">
+                            <i class="fab fa-discord"></i> Publish Results to Discord
+                        </button>
+                    </div>
+                ` + responses.map(resp => `
                     <div class="response-card">
                         <div class="response-header">
                             <div>
@@ -127,7 +135,10 @@
                             </div>
                         ` : `
                             <div style="margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 6px;">
-                                <strong>Final Score:</strong> ${resp.totalScore || 0} / ${resp.maxScore || 0} - ${resp.status.toUpperCase()}
+                                <strong>Final Score:</strong> ${resp.totalScore || 0} / ${resp.maxScore || 0} (Pass: ${resp.assessment?.passMarks || 'N/A'}) - ${resp.status.toUpperCase()}
+                                <button onclick="sendIndividualResult('${resp.id}')" class="btn-glass" style="background: rgba(88, 101, 242, 0.3); margin-left: 15px; padding: 8px 15px;">
+                                    <i class="fab fa-discord"></i> Send to Discord
+                                </button>
                             </div>
                         `}
                     </div>
@@ -204,8 +215,10 @@
                 marks.push(parseInt(input.value) || 0);
             });
             
-            // Determine pass/fail based on assessment pass marks
-            const status = totalScore >= (maxScore * 0.6) ? 'passed' : 'failed'; // Default 60% if no pass marks set
+            // Get the actual assessment to check pass marks
+            const responseData = window.currentResponses.find(r => r.id === responseId);
+            const passMarks = responseData?.assessment?.passMarks || Math.ceil(maxScore * 0.6);
+            const status = totalScore >= passMarks ? 'passed' : 'failed';
             
             try {
                 const response = await fetch('./api/save.php', {
@@ -224,7 +237,7 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert(`Assessment graded: ${totalScore}/${maxScore} - ${status.toUpperCase()}`);
+                    alert(`Assessment graded: ${totalScore}/${maxScore} (Pass: ${passMarks}) - ${status.toUpperCase()}`);
                     loadResponses();
                 } else {
                     alert('Failed to save marks');
@@ -234,24 +247,27 @@
             }
         }
 
-        async function sendResultToDiscord(responseData, status, reason) {
-            const color = status === 'passed' ? 0x22c55e : 0xef4444;
-            const emoji = status === 'passed' ? '✅' : '❌';
+        async function sendIndividualResult(responseId) {
+            const resp = window.currentResponses.find(r => r.id === responseId);
+            if (!resp) return;
+            
+            const color = resp.status === 'passed' ? 0x22c55e : 0xef4444;
+            const emoji = resp.status === 'passed' ? '✅' : '❌';
+            const passMarks = resp.assessment?.passMarks || 'N/A';
             
             const embed = {
-                title: `${emoji} Assessment Result: ${status.toUpperCase()}`,
+                title: `${emoji} Assessment Result: ${resp.status.toUpperCase()}`,
                 color: color,
                 fields: [
-                    { name: 'Student', value: responseData.username, inline: true },
-                    { name: 'Assessment', value: responseData.assessmentTitle || 'Unknown', inline: true },
-                    { name: 'Status', value: status.toUpperCase(), inline: true },
-                    { name: 'Time Taken', value: `${responseData.timeTaken} minutes`, inline: true },
-                    { name: 'Questions Answered', value: `${responseData.answeredQuestions}/${responseData.totalQuestions}`, inline: true },
-                    { name: 'Graded By', value: window.discordAuth.getCurrentUser().username, inline: true },
-                    { name: 'Reason', value: reason, inline: false }
+                    { name: 'Student', value: resp.username, inline: true },
+                    { name: 'Assessment', value: resp.assessmentTitle || 'Unknown', inline: true },
+                    { name: 'Score', value: `${resp.totalScore || 0} / ${resp.maxScore || 0}`, inline: true },
+                    { name: 'Pass Mark', value: passMarks.toString(), inline: true },
+                    { name: 'Status', value: resp.status.toUpperCase(), inline: true },
+                    { name: 'Time Taken', value: `${resp.timeTaken} minutes`, inline: true }
                 ],
                 timestamp: new Date().toISOString(),
-                footer: { text: 'Assessment Grading System' }
+                footer: { text: 'UK Birmingham Staff Assessment System' }
             };
 
             try {
@@ -260,8 +276,117 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ embeds: [embed] })
                 });
+                alert('Result sent to Discord!');
             } catch (error) {
-                console.error('Failed to send Discord notification:', error);
+                alert('Failed to send to Discord');
+            }
+        }
+        
+        function showPublishDialog() {
+            const gradedResponses = window.currentResponses.filter(r => r.status && r.status !== 'pending');
+            
+            if (gradedResponses.length === 0) {
+                alert('No graded assessments to publish');
+                return;
+            }
+            
+            const assessments = [...new Set(gradedResponses.map(r => r.assessmentTitle))];
+            
+            let html = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closePublishDialog()">
+                    <div style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 165, 0, 0.1)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 15px; padding: 30px; max-width: 500px; width: 90%;" onclick="event.stopPropagation()">
+                        <h3 style="margin-bottom: 20px; text-align: center;"><i class="fab fa-discord"></i> Publish Results to Discord</h3>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px;">Select Assessment:</label>
+                            <select id="publishAssessment" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+                                <option value="all">All Assessments (${gradedResponses.length} results)</option>
+                                ${assessments.map(title => {
+                                    const count = gradedResponses.filter(r => r.assessmentTitle === title).length;
+                                    return `<option value="${title}">${title} (${count} results)</option>`;
+                                }).join('')}
+                            </select>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <button onclick="publishResults()" class="btn-glass" style="background: rgba(88, 101, 242, 0.3); margin-right: 10px;">
+                                <i class="fab fa-discord"></i> Publish Selected
+                            </button>
+                            <button onclick="closePublishDialog()" class="btn-glass" style="background: rgba(220, 38, 38, 0.3);">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+        
+        function closePublishDialog() {
+            const dialog = document.querySelector('[onclick="closePublishDialog()"]');
+            if (dialog) dialog.remove();
+        }
+        
+        async function publishResults() {
+            const selectedAssessment = document.getElementById('publishAssessment').value;
+            const gradedResponses = window.currentResponses.filter(r => r.status && r.status !== 'pending');
+            
+            let toPublish = gradedResponses;
+            if (selectedAssessment !== 'all') {
+                toPublish = gradedResponses.filter(r => r.assessmentTitle === selectedAssessment);
+            }
+            
+            if (toPublish.length === 0) {
+                alert('No results to publish');
+                return;
+            }
+            
+            const embeds = toPublish.map(resp => {
+                const color = resp.status === 'passed' ? 0x22c55e : 0xef4444;
+                const emoji = resp.status === 'passed' ? '✅' : '❌';
+                const passMarks = resp.assessment?.passMarks || 'N/A';
+                
+                return {
+                    title: `${emoji} Assessment Result: ${resp.status.toUpperCase()}`,
+                    color: color,
+                    fields: [
+                        { name: 'Student', value: resp.username, inline: true },
+                        { name: 'Assessment', value: resp.assessmentTitle || 'Unknown', inline: true },
+                        { name: 'Score', value: `${resp.totalScore || 0} / ${resp.maxScore || 0}`, inline: true },
+                        { name: 'Pass Mark', value: passMarks.toString(), inline: true },
+                        { name: 'Status', value: resp.status.toUpperCase(), inline: true },
+                        { name: 'Time Taken', value: `${resp.timeTaken} minutes`, inline: true }
+                    ],
+                    timestamp: new Date().toISOString(),
+                    footer: { text: 'UK Birmingham Staff Assessment System' }
+                };
+            });
+            
+            // Discord has a limit of 10 embeds per message
+            const chunks = [];
+            for (let i = 0; i < embeds.length; i += 10) {
+                chunks.push(embeds.slice(i, i + 10));
+            }
+            
+            try {
+                for (const chunk of chunks) {
+                    await fetch(RESULTS_WEBHOOK, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ embeds: chunk })
+                    });
+                    
+                    // Small delay between chunks to avoid rate limiting
+                    if (chunks.length > 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                alert(`Successfully published ${toPublish.length} results to Discord!`);
+                closePublishDialog();
+            } catch (error) {
+                alert('Failed to publish results to Discord');
             }
         }
 

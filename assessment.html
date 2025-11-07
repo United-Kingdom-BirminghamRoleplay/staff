@@ -306,38 +306,42 @@
                             <h2 class="section-title">${section.title}</h2>
                         </div>`;
 
-                    section.questions.forEach((question, questionIndex) => {
-                        const questionId = `q_${sectionIndex}_${questionIndex}`;
-                        
-                        html += `<div class="question-card">
-                            <div class="question-header">
-                                <div class="question-number">Question ${questionIndex + 1}</div>
-                                <div class="question-marks">${question.marks} marks</div>
-                            </div>
-                            <div class="question-text">${question.text}</div>`;
+                    if (section.questions && Array.isArray(section.questions)) {
+                        section.questions.forEach((question, questionIndex) => {
+                            const questionId = `q_${sectionIndex}_${questionIndex}`;
+                            
+                            html += `<div class="question-card">
+                                <div class="question-header">
+                                    <div class="question-number">Question ${questionIndex + 1}</div>
+                                    <div class="question-marks">${question.marks} marks</div>
+                                </div>
+                                <div class="question-text">${question.text}</div>`;
 
-                        if (question.type === 'text') {
-                            html += `<input type="text" class="answer-input" id="${questionId}" placeholder="Enter your answer">`;
-                        } else if (question.type === 'textarea') {
-                            html += `<textarea class="answer-input" id="${questionId}" rows="4" placeholder="Enter your detailed answer"></textarea>`;
-                        } else if (question.type === 'radio') {
-                            question.options.forEach((option, optionIndex) => {
-                                html += `<label class="option-label">
-                                    <input type="radio" name="${questionId}" value="${option}">
-                                    ${option}
-                                </label>`;
-                            });
-                        } else if (question.type === 'checkbox') {
-                            question.options.forEach((option, optionIndex) => {
-                                html += `<label class="option-label">
-                                    <input type="checkbox" name="${questionId}" value="${option}">
-                                    ${option}
-                                </label>`;
-                            });
-                        }
+                            if (question.type === 'text') {
+                                html += `<input type="text" class="answer-input" id="${questionId}" placeholder="Enter your answer">`;
+                            } else if (question.type === 'textarea') {
+                                html += `<textarea class="answer-input" id="${questionId}" rows="4" placeholder="Enter your detailed answer"></textarea>`;
+                            } else if (question.type === 'radio' && question.options) {
+                                question.options.forEach((option, optionIndex) => {
+                                    html += `<label class="option-label">
+                                        <input type="radio" name="${questionId}" value="${option}">
+                                        ${option}
+                                    </label>`;
+                                });
+                            } else if (question.type === 'checkbox' && question.options) {
+                                question.options.forEach((option, optionIndex) => {
+                                    html += `<label class="option-label">
+                                        <input type="checkbox" name="${questionId}" value="${option}">
+                                        ${option}
+                                    </label>`;
+                                });
+                            }
 
-                        html += `</div>`;
-                    });
+                            html += `</div>`;
+                        });
+                    } else {
+                        html += `<p style="color: #fbbf24; text-align: center; padding: 20px;">No questions in this section</p>`;
+                    }
                     
                     html += `</div>`;
                 });
@@ -373,19 +377,31 @@
         
         function nextSection() {
             if (currentSectionIndex < totalSections - 1) {
-                document.getElementById(`section_${currentSectionIndex}`).classList.remove('active');
+                const currentSection = document.getElementById(`section_${currentSectionIndex}`);
+                if (currentSection) currentSection.classList.remove('active');
+                
                 currentSectionIndex++;
-                document.getElementById(`section_${currentSectionIndex}`).classList.add('active');
+                
+                const nextSection = document.getElementById(`section_${currentSectionIndex}`);
+                if (nextSection) nextSection.classList.add('active');
+                
                 updateNavigation();
+                window.scrollTo(0, 0);
             }
         }
         
         function previousSection() {
             if (currentSectionIndex > 0) {
-                document.getElementById(`section_${currentSectionIndex}`).classList.remove('active');
+                const currentSection = document.getElementById(`section_${currentSectionIndex}`);
+                if (currentSection) currentSection.classList.remove('active');
+                
                 currentSectionIndex--;
-                document.getElementById(`section_${currentSectionIndex}`).classList.add('active');
+                
+                const prevSection = document.getElementById(`section_${currentSectionIndex}`);
+                if (prevSection) prevSection.classList.add('active');
+                
                 updateNavigation();
+                window.scrollTo(0, 0);
             }
         }
 
@@ -408,29 +424,31 @@
             if (!Array.isArray(sections)) sections = [];
             
             sections.forEach((section, sectionIndex) => {
-                section.questions.forEach((question, questionIndex) => {
-                    const questionId = `q_${sectionIndex}_${questionIndex}`;
-                    totalQuestions++;
-                    
-                    let answer = null;
-                    
-                    if (question.type === 'text' || question.type === 'textarea') {
-                        const input = document.getElementById(questionId);
-                        answer = input ? input.value.trim() : '';
-                    } else if (question.type === 'radio') {
-                        const selected = document.querySelector(`input[name="${questionId}"]:checked`);
-                        answer = selected ? selected.value : '';
-                    } else if (question.type === 'checkbox') {
-                        const selected = document.querySelectorAll(`input[name="${questionId}"]:checked`);
-                        answer = Array.from(selected).map(cb => cb.value);
-                    }
-                    
-                    if (answer && (Array.isArray(answer) ? answer.length > 0 : answer !== '')) {
-                        answeredQuestions++;
-                    }
-                    
-                    answers[questionId] = answer;
-                });
+                if (section.questions && Array.isArray(section.questions)) {
+                    section.questions.forEach((question, questionIndex) => {
+                        const questionId = `q_${sectionIndex}_${questionIndex}`;
+                        totalQuestions++;
+                        
+                        let answer = null;
+                        
+                        if (question.type === 'text' || question.type === 'textarea') {
+                            const input = document.getElementById(questionId);
+                            answer = input ? input.value.trim() : '';
+                        } else if (question.type === 'radio') {
+                            const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+                            answer = selected ? selected.value : '';
+                        } else if (question.type === 'checkbox') {
+                            const selected = document.querySelectorAll(`input[name="${questionId}"]:checked`);
+                            answer = Array.from(selected).map(cb => cb.value);
+                        }
+                        
+                        if (answer && (Array.isArray(answer) ? answer.length > 0 : answer !== '')) {
+                            answeredQuestions++;
+                        }
+                        
+                        answers[questionId] = answer;
+                    });
+                }
             });
 
             if (answeredQuestions < totalQuestions * 0.8) {
