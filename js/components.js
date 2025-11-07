@@ -49,22 +49,19 @@ function handleComponentLoaded(componentPath) {
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
                 populateUserProfile();
                 
-                // Show founder-only links
-                if (window.discordAuth.hasPermission('founder')) {
-                    const founderLinks = document.querySelectorAll('.founder-only');
-                    founderLinks.forEach(link => {
-                        if (link && link.style) link.style.display = 'block';
-                        if (link && link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
-                    });
+                // Show navigation based on access level
+                const user = window.discordAuth.getCurrentUser();
+                const userLevel = user.level || window.discordAuth.getUserLevel(user.rank);
+                
+                const level2Groups = document.querySelectorAll('.level-2');
+                const level5Groups = document.querySelectorAll('.level-5');
+                
+                if (userLevel >= 2) {
+                    level2Groups.forEach(group => group.style.display = 'block');
                 }
                 
-                // Show HR+ links
-                if (window.discordAuth.hasPermission('human_resources')) {
-                    const hrLinks = document.querySelectorAll('.hr-only');
-                    hrLinks.forEach(link => {
-                        if (link && link.style) link.style.display = 'block';
-                        if (link && link.parentElement && link.parentElement.style) link.parentElement.style.display = 'block';
-                    });
+                if (userLevel >= 5) {
+                    level5Groups.forEach(group => group.style.display = 'block');
                 }
             }
         }, 100);
@@ -87,14 +84,11 @@ function populateUserProfile() {
     if (!window.discordAuth || !window.discordAuth.isAuthenticated()) return;
     
     const discordUser = window.discordAuth.getCurrentUser();
-    const sidebarUser = document.getElementById('sidebarUser');
     const userAvatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
-    const userRank = document.getElementById('userRank');
+    const userLevel = document.getElementById('userLevel');
     
-    if (sidebarUser && discordUser) {
-        sidebarUser.style.display = 'block';
-        
+    if (discordUser) {
         if (userAvatar) {
             let avatarUrl;
             if (discordUser.avatar && discordUser.avatar.startsWith('http')) {
@@ -106,32 +100,32 @@ function populateUserProfile() {
             }
             
             userAvatar.src = avatarUrl;
-            userAvatar.style.display = 'block';
             userAvatar.onerror = () => {
                 userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${(discordUser.discriminator || 0) % 5}.png`;
             };
-            
-
         }
         
         if (userName) {
             userName.textContent = discordUser.username || 'User';
         }
         
-        if (userRank) {
-            const rankNames = {
-                'moderation': 'Moderation',
-                'administration': 'Administration', 
-                'human_resources': 'Human Resources',
-                'oversight_enforcement': 'Oversight & Enforcement',
-                'advisory_board': 'Advisory Board',
-                'assistant_founder': 'Assistant Founder',
-                'co_founder': 'Co-Founder',
-                'founder': 'Founder',
-                'developer': 'Developer'
-            };
-            userRank.textContent = rankNames[discordUser.rank] || discordUser.rank || 'Staff';
-            console.log('Displaying rank:', discordUser.rank, 'as', rankNames[discordUser.rank] || discordUser.rank || 'Staff');
+        if (userLevel) {
+            const level = discordUser.level || window.discordAuth.getUserLevel(discordUser.rank);
+            userLevel.textContent = `Level ${level}`;
+        }
+        
+        // Show navigation groups based on access level
+        const userAccessLevel = discordUser.level || window.discordAuth.getUserLevel(discordUser.rank);
+        
+        const level2Groups = document.querySelectorAll('.level-2');
+        const level5Groups = document.querySelectorAll('.level-5');
+        
+        if (userAccessLevel >= 2) {
+            level2Groups.forEach(group => group.style.display = 'block');
+        }
+        
+        if (userAccessLevel >= 5) {
+            level5Groups.forEach(group => group.style.display = 'block');
         }
     }
 }

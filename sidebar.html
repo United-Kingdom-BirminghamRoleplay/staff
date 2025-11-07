@@ -1,59 +1,67 @@
 <nav class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
-    <div class="sidebar-user" id="sidebarUser" style="display: none;">
-        <div class="user-avatar">
-            <img id="userAvatar" src="" alt="User Avatar">
-        </div>
-        <div class="user-info">
-            <div class="user-name" id="userName"></div>
-            <div class="user-rank" id="userRank"></div>
+    <div class="sidebar-header">
+        <div class="user-profile">
+            <img id="userAvatar" src="" alt="Avatar" class="profile-avatar">
+            <div class="profile-info">
+                <div class="profile-name" id="userName">Loading...</div>
+                <div class="profile-level" id="userLevel">Level 0</div>
+            </div>
         </div>
     </div>
-    <ul class="sidebar-nav">
-        <li><a href="index.html" class="nav-link">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a></li>
-        <li><a href="ranks.html" class="nav-link">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Schedule</span>
-        </a></li>
-
-        <li><a href="resources.html" class="nav-link">
-            <i class="fas fa-tools"></i>
-            <span>Staff Material</span>
-        </a></li>
-        <li><a href="forms.html" class="nav-link">
-            <i class="fas fa-file-alt"></i>
-            <span>Forms</span>
-        </a></li>
-        <li class="hr-only" style="display: none;"><a href="file-manager.html" class="nav-link">
-            <i class="fas fa-folder-open"></i>
-            <span>File Manager</span>
-        </a></li>
-        <li class="hr-only" style="display: none;"><a href="staff-management.html" class="nav-link">
-            <i class="fas fa-users-cog"></i>
-            <span>Staff Management</span>
-        </a></li>
-        <li><a href="my-account.html" class="nav-link">
+    
+    <div class="nav-section">
+        <div class="nav-group">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="ranks.html" class="nav-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Schedule</span>
+            </a>
+            <a href="resources.html" class="nav-item">
+                <i class="fas fa-tools"></i>
+                <span>Resources</span>
+            </a>
+            <a href="forms.html" class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Forms</span>
+            </a>
+        </div>
+        
+        <div class="nav-group level-2" style="display: none;">
+            <div class="group-label">Management</div>
+            <a href="file-manager.html" class="nav-item">
+                <i class="fas fa-folder-open"></i>
+                <span>File Manager</span>
+            </a>
+            <a href="staff-management.html" class="nav-item">
+                <i class="fas fa-users-cog"></i>
+                <span>Staff Management</span>
+            </a>
+        </div>
+        
+        <div class="nav-group level-5" style="display: none;">
+            <div class="group-label">Leadership</div>
+            <a href="founder-panel.html" class="nav-item">
+                <i class="fas fa-crown"></i>
+                <span>Founder Panel</span>
+            </a>
+            <a href="admin-panel.html" class="nav-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin Panel</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="sidebar-footer">
+        <a href="my-account.html" class="nav-item account-link">
             <i class="fas fa-user-circle"></i>
             <span>My Account</span>
-        </a></li>
-        <li class="founder-only" style="display: none;"><a href="founder-panel.html" class="nav-link">
-            <i class="fas fa-crown"></i>
-            <span>Founder Panel</span>
-        </a></li>
-        <li class="founder-only" style="display: none;"><a href="admin-panel.html" class="nav-link">
-            <i class="fas fa-shield-alt"></i>
-            <span>Admin Panel</span>
-        </a></li>
-    </ul>
-    <div class="sidebar-logout">
-        <button class="logout-btn" onclick="discordAuth.logout()">
+        </a>
+        <button class="logout-button" onclick="window.discordAuth?.logout()">
             <i class="fas fa-sign-out-alt"></i>
-            <span class="logout-text">Logout</span>
+            <span>Logout</span>
         </button>
     </div>
 </nav>

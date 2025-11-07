@@ -81,6 +81,164 @@ body::before {
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
 }
 
+.sidebar-header {
+    padding: 20px 15px;
+    border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid var(--orange-accent);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.profile-info {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    min-width: 0;
+}
+
+.sidebar:hover .profile-info {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-level {
+    font-size: 0.75rem;
+    color: var(--orange-accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-section {
+    flex: 1;
+    padding: 10px 0;
+}
+
+.nav-group {
+    margin-bottom: 20px;
+}
+
+.group-label {
+    padding: 8px 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+}
+
+.sidebar:hover .group-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 2px 10px;
+    position: relative;
+}
+
+.nav-item:hover {
+    background: rgba(255, 107, 53, 0.15);
+    transform: translateX(5px);
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+    width: 40px;
+    text-align: center;
+    color: var(--orange-accent);
+    flex-shrink: 0;
+}
+
+.nav-item span {
+    margin-left: 8px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sidebar:hover .nav-item span {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.account-link {
+    margin-bottom: 10px;
+}
+
+.logout-button {
+    width: 100%;
+    background: rgba(220, 38, 38, 0.8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.logout-button:hover {
+    background: rgba(220, 38, 38, 1);
+    transform: translateY(-2px);
+}
+
+.logout-button span {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-weight: 500;
+}
+
+.sidebar:hover .logout-button {
+    justify-content: flex-start;
+    padding-left: 20px;
+}
+
+.sidebar:hover .logout-button span {
+    opacity: 1;
+}
+
 
 
 .sidebar-user {

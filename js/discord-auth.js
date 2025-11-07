@@ -75,6 +75,7 @@ class DiscordAuth {
                 avatar: userData.user.avatar ? `https://cdn.discordapp.com/avatars/${userData.user.id}/${userData.user.avatar}.png?size=128` : `https://cdn.discordapp.com/embed/avatars/${userData.user.discriminator % 5}.png`,
                 guildMember: userData.guildMember,
                 rank: userData.guildMember?.rank || 'pending',
+                level: this.getUserLevel(userData.guildMember?.rank || 'pending'),
                 accessToken: tokenData.access_token,
                 refreshToken: tokenData.refresh_token,
                 expiresAt: Date.now() + (tokenData.expires_in * 1000)
@@ -133,58 +134,49 @@ class DiscordAuth {
         return this.getAuthData();
     }
 
-    // Check permissions based on Discord roles
-    hasPermission(requiredRank) {
+    // Check permissions based on access levels (1-6)
+    hasPermission(requiredLevel) {
         const user = this.getCurrentUser();
         if (!user || !user.guildMember) {
             console.log('Permission denied: No user or guild member');
             return false;
         }
 
-        // Developer gets all access
-        if (user.rank === 'developer') {
-            console.log('Developer access granted');
-            return true;
-        }
+        const userLevel = this.getUserLevel(user.rank);
+        const required = typeof requiredLevel === 'number' ? requiredLevel : this.getLevelFromRank(requiredLevel);
+        
+        console.log('Permission check: Level', userLevel, 'vs required', required);
+        return userLevel >= required;
+    }
 
-        const rankHierarchy = {
+    // Get user's access level (1-6)
+    getUserLevel(rank) {
+        const levelMap = {
             'moderation': 1,
-            'administration': 2,
-            'human_resources': 3,
-            'oversight_enforcement': 4,
-            'advisory_board': 5,
-            'assistant_founder': 6,
-            'co_founder': 7,
-            'founder': 8
+            'administration': 1,
+            'human_resources': 2,
+            'oversight_enforcement': 3,
+            'advisory_board': 4,
+            'assistant_founder': 5,
+            'developer': 5,
+            'co_founder': 6,
+            'founder': 6
         };
+        return levelMap[rank] || 0;
+    }
 
-        const userLevel = rankHierarchy[user.rank] || 0;
-        const requiredLevel = rankHierarchy[requiredRank] || 0;
-        
-        console.log('Permission check:', user.rank, 'vs', requiredRank, userLevel, '>=', requiredLevel);
-
-        // Special cases
-        if (requiredRank === 'founder') {
-            const hasAccess = userLevel >= 6; // assistant_founder and above
-            console.log('Founder access:', hasAccess);
-            return hasAccess;
-        }
-        
-        if (requiredRank === 'assistant_founder') {
-            const hasAccess = userLevel >= 6; // assistant_founder and above
-            console.log('Assistant founder access:', hasAccess);
-            return hasAccess;
-        }
-        
-        if (requiredRank === 'advisory_board') {
-            const hasAccess = userLevel >= 5; // advisory_board and above
-            console.log('Advisory board access:', hasAccess);
-            return hasAccess;
-        }
-
-        const hasAccess = userLevel >= requiredLevel;
-        console.log('Access granted:', hasAccess);
-        return hasAccess;
+    // Convert old rank names to levels for compatibility
+    getLevelFromRank(rankName) {
+        const rankToLevel = {
+            'moderation': 1,
+            'administration': 1,
+            'human_resources': 2,
+            'oversight_enforcement': 3,
+            'advisory_board': 4,
+            'assistant_founder': 5,
+            'founder': 5
+        };
+        return rankToLevel[rankName] || 0;
     }
 
     // Refresh access token
