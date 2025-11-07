@@ -82,7 +82,7 @@
     <div id="footer-container"></div>
 
     <script src="js/components.js"></script>
-    <script src="js/new-auth.js"></script>
+    <script src="js/discord-auth.js"></script>
     <script>
         let currentAssessment = null;
         let startTime = Date.now();
@@ -188,7 +188,7 @@
         async function submitAssessment() {
             if (!currentAssessment) return;
 
-            const user = newAuthSystem.getCurrentUser();
+            const user = window.discordAuth.getCurrentUser();
             const answers = {};
             let totalQuestions = 0;
             let answeredQuestions = 0;
@@ -246,7 +246,7 @@
                         response: {
                             assessmentId: currentAssessment.id,
                             userId: user.userId,
-                            username: user.robloxUsername,
+                            username: user.username,
                             answers: answers,
                             timeTaken: timeTaken,
                             totalQuestions: totalQuestions,
@@ -268,7 +268,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!newAuthSystem.isAuthenticated()) {
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
                 window.location.href = 'login.html';
                 return;
             }
