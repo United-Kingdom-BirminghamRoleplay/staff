@@ -147,7 +147,7 @@ class DiscordAuth {
             return false;
         }
 
-        const userLevel = this.getUserLevel(user.rank);
+        const userLevel = user.level || 0;
         const required = typeof requiredLevel === 'number' ? requiredLevel : this.getLevelFromRank(requiredLevel);
         
         console.log('Permission check: Level', userLevel, 'vs required', required);
