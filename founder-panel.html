@@ -376,14 +376,15 @@
                 const container = document.getElementById('founderButtons');
                 
                 // Show all buttons but highlight current user's button
+                const userName = currentUser?.username || '';
                 container.innerHTML = data.founders.map(founder => `
-                    <div class="form-card" ${founder.name.toLowerCase() === currentUser.robloxUsername.toLowerCase() ? 'style="border: 2px solid var(--orange-accent);"' : ''}>
+                    <div class="form-card" ${founder.name.toLowerCase() === userName.toLowerCase() ? 'style="border: 2px solid var(--orange-accent);"' : ''}>
                         <h4><i class="fas fa-user-crown"></i> ${founder.name}'s Button</h4>
                         <p>${founder.description}</p>
                         <button class="btn-glass" onclick="executeFounderAction('${founder.action}', '${founder.name}')">
                             ${founder.buttonText}
                         </button>
-                        ${founder.name.toLowerCase() === currentUser.robloxUsername.toLowerCase() ? '<small style="color: var(--orange-accent);">Your Button</small>' : ''}
+                        ${founder.name.toLowerCase() === userName.toLowerCase() ? '<small style="color: var(--orange-accent);">Your Button</small>' : ''}
                     </div>
                 `).join('');
             } catch (error) {
