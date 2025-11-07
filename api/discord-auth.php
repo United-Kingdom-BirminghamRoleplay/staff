@@ -123,27 +123,11 @@ if ($action === 'exchange_code') {
         $userLevel = 0;
         $userRank = 'Staff';
         
-        // Find highest access level
-        foreach ($ACCESS_LEVELS as $roleId => $level) {
-            if (in_array($roleId, $memberData['roles'])) {
-                $userLevel = $level;
-                break;
-            }
-        }
-        
-        // Debug: Log roles and level - output to response for debugging
-        $debug = [
-            'user_roles' => $memberData['roles'],
-            'access_levels_config' => $ACCESS_LEVELS,
-            'detected_level' => $userLevel
-        ];
-        error_log('DEBUG: ' . json_encode($debug));
-        
         // Find display role name and assign level based on role
         foreach ($DISPLAY_ROLES as $roleId => $roleName) {
             if (in_array($roleId, $memberData['roles'])) {
                 $userRank = $roleName;
-                // Always assign level based on role name
+                // Assign level based on role name
                 switch($roleName) {
                     case 'Founder':
                     case 'Co-Founder':
@@ -170,6 +154,14 @@ if ($action === 'exchange_code') {
                 break;
             }
         }
+        
+        // Debug: Log roles and level
+        $debug = [
+            'user_roles' => $memberData['roles'],
+            'detected_rank' => $userRank,
+            'assigned_level' => $userLevel
+        ];
+        error_log('DEBUG: ' . json_encode($debug));
         
         $guildMember = [
             'nick' => $memberData['nick'],
