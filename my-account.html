@@ -47,11 +47,39 @@
 
         <section class="forms-section">
             <h2><i class="fas fa-history"></i> Staff Actions</h2>
-            <div class="form-card">
-                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
-                    <i class="fas fa-clock" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
-                    <h3>Coming Soon</h3>
-                    <p>Staff action history will be available here soon. This will show promotions, warnings, and other actions taken on your account.</p>
+            
+            <!-- Search and Filter Controls -->
+            <div class="form-card" style="margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 15px; align-items: center;">
+                    <div style="position: relative;">
+                        <input type="text" id="actionSearch" placeholder="Search actions by reason, type, or staff member..." 
+                               style="width: 100%; padding: 12px 15px 12px 40px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+                        <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5);"></i>
+                    </div>
+                    
+                    <select id="actionTypeFilter" style="padding: 12px 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; min-width: 150px;">
+                        <option value="">All Types</option>
+                        <option value="promotions">Promotions</option>
+                        <option value="terminations">Terminations</option>
+                        <option value="quota strikes">Quota Strikes</option>
+                        <option value="promotion points">Promotion Points</option>
+                        <option value="consequences">Consequences</option>
+                        <option value="under investigation">Under Investigation</option>
+                        <option value="demotion">Demotion</option>
+                        <option value="retrain">Retrain</option>
+                    </select>
+                    
+                    <button onclick="clearFilters()" class="btn-glass" style="padding: 12px 20px;">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Actions Container -->
+            <div id="staffActionsContainer">
+                <div class="form-card" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                    <p>Loading staff actions...</p>
                 </div>
             </div>
         </section>
@@ -73,8 +101,11 @@
     <script src="js/components.js"></script>
     <script src="js/discord-auth.js"></script>
     <script src="js/new-auth.js"></script>
+    <script src="js/staff-action-data.js"></script>
     <script>
         let currentUser = null;
+        let allUserActions = [];
+        let filteredActions = [];
         
         function getRankName(rank) {
             const rankNames = {
@@ -275,6 +306,119 @@
             }
         }
         
+        async function loadStaffActions() {
+            if (!currentUser) return;
+            
+            try {
+                await window.staffActionData.initialize();
+                allUserActions = window.staffActionData.getActionsForUser(currentUser.userId);
+                filteredActions = [...allUserActions];
+                displayStaffActions();
+            } catch (error) {
+                console.error('Error loading staff actions:', error);
+                document.getElementById('staffActionsContainer').innerHTML = `
+                    <div class="form-card" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 15px; color: #f59e0b;"></i>
+                        <h3>Error Loading Actions</h3>
+                        <p>Unable to load staff actions. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayStaffActions() {
+            const container = document.getElementById('staffActionsContainer');
+            
+            if (filteredActions.length === 0) {
+                container.innerHTML = `
+                    <div class="form-card" style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h3>No Actions Found</h3>
+                        <p>No staff actions found for your account${document.getElementById('actionSearch').value || document.getElementById('actionTypeFilter').value ? ' matching your filters' : ''}.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredActions.map(actionData => {
+                const color = window.staffActionData.getActionTypeColor(actionData.action);
+                const icon = window.staffActionData.getActionTypeIcon(actionData.action);
+                const timestamp = window.staffActionData.formatTimestamp(actionData.timestamp);
+                
+                return `
+                    <div class="form-card" style="border-left: 4px solid ${color}; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="background: ${color}20; color: ${color}; padding: 10px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="${icon}"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0; color: ${color}; text-transform: capitalize;">${actionData.action}</h4>
+                                    <p style="margin: 5px 0 0 0; color: rgba(255,255,255,0.7); font-size: 0.9rem;">${timestamp}</p>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <p style="margin: 0; color: rgba(255,255,255,0.6); font-size: 0.85rem;">Action ID</p>
+                                <p style="margin: 5px 0 0 0; color: var(--orange-accent); font-weight: 600;">#${actionData.id.slice(-6)}</p>
+                            </div>
+                        </div>
+                        
+                        ${actionData.reason ? `
+                            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                <h5 style="margin: 0 0 8px 0; color: rgba(255,255,255,0.8);">Reason:</h5>
+                                <p style="margin: 0; line-height: 1.5;">${actionData.reason}</p>
+                            </div>
+                        ` : ''}
+                        
+                        ${actionData.oldRank && actionData.newRank ? `
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                                    <p style="margin: 0; color: #ef4444; font-size: 0.85rem; font-weight: 600;">Previous Rank</p>
+                                    <p style="margin: 5px 0 0 0; color: white;">${actionData.oldRank}</p>
+                                </div>
+                                <div style="background: rgba(34, 197, 94, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.2);">
+                                    <p style="margin: 0; color: #22c55e; font-size: 0.85rem; font-weight: 600;">New Rank</p>
+                                    <p style="margin: 5px 0 0 0; color: white;">${actionData.newRank}</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${actionData.duration ? `
+                            <div style="background: rgba(251, 191, 36, 0.1); padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px solid rgba(251, 191, 36, 0.2);">
+                                <p style="margin: 0; color: #fbbf24; font-size: 0.85rem; font-weight: 600;">Duration</p>
+                                <p style="margin: 5px 0 0 0; color: white;">${actionData.duration}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function filterActions() {
+            const searchTerm = document.getElementById('actionSearch').value.toLowerCase();
+            const typeFilter = document.getElementById('actionTypeFilter').value;
+            
+            filteredActions = allUserActions.filter(actionData => {
+                const matchesSearch = !searchTerm || 
+                    actionData.reason?.toLowerCase().includes(searchTerm) ||
+                    actionData.action?.toLowerCase().includes(searchTerm);
+                    
+                const matchesType = !typeFilter || actionData.action?.toLowerCase() === typeFilter;
+                
+                return matchesSearch && matchesType;
+            });
+            
+            displayStaffActions();
+        }
+        
+        function clearFilters() {
+            document.getElementById('actionSearch').value = '';
+            document.getElementById('actionTypeFilter').value = '';
+            filteredActions = [...allUserActions];
+            displayStaffActions();
+        }
+        
+        // Add event listeners for search and filter
         document.addEventListener('DOMContentLoaded', () => {
             // Start Discord token refresh if authenticated
             if (window.discordAuth && window.discordAuth.isAuthenticated()) {
@@ -284,7 +428,22 @@
             setTimeout(() => {
                 loadMyTouchpoints();
                 loadMyAssessments();
+                loadStaffActions();
             }, 500);
+            
+            // Add search and filter event listeners
+            setTimeout(() => {
+                const searchInput = document.getElementById('actionSearch');
+                const typeFilter = document.getElementById('actionTypeFilter');
+                
+                if (searchInput) {
+                    searchInput.addEventListener('input', filterActions);
+                }
+                
+                if (typeFilter) {
+                    typeFilter.addEventListener('change', filterActions);
+                }
+            }, 1000);
         });
     </script>
 </body>
