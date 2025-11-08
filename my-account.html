@@ -101,17 +101,17 @@
     <script src="js/components.js"></script>
     <script src="js/discord-auth.js"></script>
     <script src="js/new-auth.js"></script>
-    <script type="module">
-        import { getStaffActions, getActionTypeColor, getActionTypeIcon, formatTimestamp } from './backend/staff-action-data.js';
-        
+    <script src="js/staff-actions.js"></script>
+    <script>
+        let currentUser = null;
         let allUserActions = [];
         let filteredActions = [];
         
-        window.loadStaffActions = async function() {
+        async function loadStaffActions() {
             if (!currentUser) return;
             
             try {
-                const allActions = await getStaffActions();
+                const allActions = await window.StaffActions.loadActions();
                 allUserActions = allActions.filter(action => action.targetId === currentUser.userId);
                 filteredActions = [...allUserActions];
                 displayStaffActions();
@@ -125,9 +125,9 @@
                     </div>
                 `;
             }
-        };
+        }
         
-        window.displayStaffActions = function() {
+        function displayStaffActions() {
             const container = document.getElementById('staffActionsContainer');
             
             if (filteredActions.length === 0) {
@@ -142,9 +142,9 @@
             }
             
             container.innerHTML = filteredActions.map(actionData => {
-                const color = getActionTypeColor(actionData.action);
-                const icon = getActionTypeIcon(actionData.action);
-                const timestamp = formatTimestamp(actionData.timestamp);
+                const color = window.StaffActions.getActionTypeColor(actionData.action);
+                const icon = window.StaffActions.getActionTypeIcon(actionData.action);
+                const timestamp = window.StaffActions.formatTimestamp(actionData.timestamp);
                 
                 return `
                     <div class="form-card" style="border-left: 4px solid ${color}; margin-bottom: 15px;">
@@ -173,9 +173,9 @@
                     </div>
                 `;
             }).join('');
-        };
+        }
         
-        window.filterActions = function() {
+        function filterActions() {
             const searchTerm = document.getElementById('actionSearch').value.toLowerCase();
             const typeFilter = document.getElementById('actionTypeFilter').value;
             
@@ -190,17 +190,14 @@
             });
             
             displayStaffActions();
-        };
+        }
         
-        window.clearFilters = function() {
+        function clearFilters() {
             document.getElementById('actionSearch').value = '';
             document.getElementById('actionTypeFilter').value = '';
             filteredActions = [...allUserActions];
             displayStaffActions();
-        };
-    </script>
-    <script>
-        let currentUser = null;
+        }
         
         function getRankName(rank) {
             const rankNames = {
@@ -413,7 +410,7 @@
             setTimeout(() => {
                 loadMyTouchpoints();
                 loadMyAssessments();
-                window.loadStaffActions();
+                loadStaffActions();
             }, 500);
             
             // Add search and filter event listeners
