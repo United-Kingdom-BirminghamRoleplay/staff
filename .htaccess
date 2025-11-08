@@ -4,7 +4,10 @@ Header always set X-Frame-Options DENY
 Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-Header always set Content-Security-Policy "default-src 'self'; connect-src 'self' https://discord.com https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://cdn.discordapp.com https://www.google.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com;"
+# Force CSP update - timestamp: 2025-11-08-14:38
+Header always set Content-Security-Policy "default-src 'self'; connect-src 'self' https://discord.com https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com; img-src 'self' data: https://cdn.discordapp.com https://www.google.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com;"
+Header always unset Content-Security-Policy
+Header always set Content-Security-Policy "default-src 'self'; connect-src 'self' https://discord.com https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com; img-src 'self' data: https://cdn.discordapp.com https://www.google.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com;"
 
 # Error Pages
 ErrorDocument 404 /staff/404.html
@@ -45,7 +48,7 @@ DirectoryIndex index.html
     AddOutputFilterByType DEFLATE application/x-javascript
 </IfModule>
 
-# Caching
+# Disable caching for CSP update
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType text/css "access plus 1 month"
@@ -56,5 +59,10 @@ DirectoryIndex index.html
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/ico "access plus 1 month"
     ExpiresByType image/icon "access plus 1 month"
-    ExpiresByType text/html "access plus 1 hour"
+    ExpiresByType text/html "access plus 0 seconds"
 </IfModule>
+
+# Force no cache for HTML
+Header always set Cache-Control "no-cache, no-store, must-revalidate"
+Header always set Pragma "no-cache"
+Header always set Expires "0"
