@@ -5,7 +5,7 @@ Header always set X-XSS-Protection "1; mode=block"
 Header always set Referrer-Policy "strict-origin-when-cross-origin"
 Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 # Force CSP update - timestamp: 2025-11-08-14:38
-Header always set Content-Security-Policy "default-src 'self'; connect-src 'self' https://www.positivessl.com/images/seals/positivessl_trust_seal_lg_222x54.png https://discord.com https://firestore.googleapis.com https://firebase.googleapis.com https://www.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com; img-src 'self' data: https://cdn.discordapp.com https://www.google.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.googleapis.com;"
+
 
 # Error Pages
 ErrorDocument 404 /staff/404.html
