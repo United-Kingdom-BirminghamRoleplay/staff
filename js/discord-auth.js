@@ -91,14 +91,7 @@ class DiscordAuth {
             localStorage.setItem('discord_auth', JSON.stringify(authData));
             localStorage.setItem('discord_login_time', Date.now().toString());
             
-            // Set up session check interval
-            setInterval(() => {
-                const loginTime = localStorage.getItem('discord_login_time');
-                const oneDayMs = 24 * 60 * 60 * 1000;
-                if (!loginTime || (Date.now() - parseInt(loginTime)) > oneDayMs) {
-                    this.logout();
-                }
-            }, 60000);
+            // Session check disabled
             
             // Log security event
             if (window.securitySystem) {

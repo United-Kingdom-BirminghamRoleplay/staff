@@ -209,26 +209,7 @@ const Security = {
     },
     
     validateSession() {
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-        
-        // Skip validation on login and auth callback pages
-        if (currentPage === 'login.html' || currentPage === 'auth-callback.html') {
-            return;
-        }
-        
-        if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        const user = window.discordAuth.getCurrentUser();
-        const loginTime = localStorage.getItem('discord_login_time');
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        
-        if (!loginTime || (Date.now() - parseInt(loginTime)) > oneDayMs) {
-            this.logSecurityEvent('Session expired - auto logout', user.username);
-            window.discordAuth.logout();
-        }
+        // Session validation disabled
     },
     
     async logSecurityEvent(action, username) {
