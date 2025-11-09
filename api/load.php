@@ -32,20 +32,6 @@ if ($type === 'announcements') {
     $forms = [];
     while ($row = $result->fetch_assoc()) {
         $row['fields'] = json_decode($row['fields'], true);
-        
-        // Load responses for this form
-        $respStmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
-        $respStmt->bind_param("s", $row['id']);
-        $respStmt->execute();
-        $respResult = $respStmt->get_result();
-        
-        $responses = [];
-        while ($respRow = $respResult->fetch_assoc()) {
-            $respRow['response_data'] = json_decode($respRow['response_data'], true);
-            $responses[] = $respRow;
-        }
-        $row['responses'] = $responses;
-        
         $forms[] = $row;
     }
     
