@@ -184,9 +184,9 @@
                         <div class="response-item">
                             <div class="response-header">
                                 <strong>Response #${i + 1}</strong>
-                                <span>${r.submitted ? new Date(r.submitted).toLocaleString() : 'Unknown date'}</span>
+                                <span>${r.created ? new Date(r.created).toLocaleString() : 'Unknown date'}</span>
                             </div>
-                            ${Object.entries(r.data || {}).map(([k, v]) => `
+                            ${Object.entries(r.response_data?.data || r.response_data || {}).map(([k, v]) => `
                                 <p><strong>${k}:</strong> ${Array.isArray(v) ? v.join(', ') : v}</p>
                             `).join('')}
                         </div>

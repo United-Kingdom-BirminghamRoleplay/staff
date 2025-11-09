@@ -32,6 +32,20 @@ if ($type === 'announcements') {
     $forms = [];
     while ($row = $result->fetch_assoc()) {
         $row['fields'] = json_decode($row['fields'], true);
+        
+        // Load responses for this form
+        $respStmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
+        $respStmt->bind_param("s", $row['id']);
+        $respStmt->execute();
+        $respResult = $respStmt->get_result();
+        
+        $responses = [];
+        while ($respRow = $respResult->fetch_assoc()) {
+            $respRow['response_data'] = json_decode($respRow['response_data'], true);
+            $responses[] = $respRow;
+        }
+        $row['responses'] = $responses;
+        
         $forms[] = $row;
     }
     
@@ -244,6 +258,22 @@ if ($type === 'announcements') {
 } elseif ($type === 'ip_logs') {
     // Return empty array for now since ip_logs table doesn't exist
     echo json_encode([]);
+
+} elseif ($type === 'form_responses') {
+    $formId = $_GET['formId'] ?? '';
+    
+    $stmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
+    $stmt->bind_param("s", $formId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $responses = [];
+    while ($row = $result->fetch_assoc()) {
+        $row['response_data'] = json_decode($row['response_data'], true);
+        $responses[] = $row;
+    }
+    
+    echo json_encode($responses);
 
 } elseif ($type === 'touchpoints') {
     $stmt = $conn->prepare("SELECT * FROM touchpoints ORDER BY created DESC");
