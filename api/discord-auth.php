@@ -29,8 +29,8 @@ if (empty($CLIENT_SECRET)) {
 
 // Display roles (for showing rank names)
 $DISPLAY_ROLES = [
-    '1345504810077524028' => 'Founder',
-    '1345541100059885698' => 'Co-Founder',
+    '1345451578664030293' => 'Founder',
+    '1345451578664030293' => 'Co-Founder',
     '1345446581239021618' => 'Assistant Founder',
     '1422299020122128464' => 'Developer',
     '1377005605016834252' => 'Advisory Board',
