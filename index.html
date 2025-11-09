@@ -281,8 +281,22 @@
         // Update greeting when user logs in
         document.addEventListener('userLoggedIn', updateGreeting);
         
+        const searchablePages = {
+            'home': { url: 'index.html', title: 'Home' },
+            'schedule': { url: 'ranks.html', title: 'Schedule' },
+            'forms': { url: 'forms.html', title: 'Forms' },
+            'resources': { url: 'resources.html', title: 'Resources' },
+            'file manager': { url: 'file-manager.html', title: 'File Manager' },
+            'my account': { url: 'my-account.html', title: 'My Account' },
+            'founder panel': { url: 'founder-panel.html', title: 'Founder Panel' },
+            'admin panel': { url: 'admin-panel.html', title: 'Admin Panel' },
+            'announcements': { url: 'index.html#announcements', title: 'Announcements' },
+            'trial logs': { url: 'forms.html', title: 'Trial Logs' },
+            'staff material': { url: 'resources.html', title: 'Staff Material' }
+        };
+        
         function siteSearch() {
-            const query = document.getElementById('siteSearch').value.toLowerCase();
+            const query = document.getElementById('siteSearch').value.toLowerCase().trim();
             const results = document.getElementById('searchResults');
             
             if (!query) {
@@ -290,26 +304,66 @@
                 return;
             }
             
-            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li');
-            const matches = [];
+            const pageMatches = [];
+            const contentMatches = [];
             
+            // Search pages
+            Object.entries(searchablePages).forEach(([key, page]) => {
+                if (key.includes(query) || page.title.toLowerCase().includes(query)) {
+                    pageMatches.push(page);
+                }
+            });
+            
+            // Search current page content
+            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li');
             searchableElements.forEach(el => {
                 if (el.textContent.toLowerCase().includes(query)) {
-                    matches.push({
-                        text: el.textContent.substring(0, 100) + '...',
+                    contentMatches.push({
+                        text: el.textContent.substring(0, 80) + '...',
                         element: el
                     });
                 }
             });
             
-            if (matches.length > 0) {
-                results.innerHTML = matches.map(match => `
-                    <div class="search-result" onclick="scrollToElement(this)">
+            let resultsHTML = '';
+            
+            if (pageMatches.length > 0) {
+                resultsHTML += pageMatches.map(page => `
+                    <div class="search-result page-result" onclick="navigateToPage('${page.url}')">
+                        <i class="fas fa-external-link-alt"></i>
+                        <p><strong>${page.title}</strong> - Navigate to page</p>
+                    </div>
+                `).join('');
+            }
+            
+            if (contentMatches.length > 0) {
+                resultsHTML += contentMatches.slice(0, 5).map((match, index) => `
+                    <div class="search-result content-result" onclick="scrollToElement(${index})">
+                        <i class="fas fa-search"></i>
                         <p>${match.text}</p>
                     </div>
                 `).join('');
+            }
+            
+            if (resultsHTML) {
+                results.innerHTML = resultsHTML;
+                window.searchMatches = contentMatches;
             } else {
-                results.innerHTML = '<div class="no-results">No results found</div>';
+                results.innerHTML = '<div class="no-results"><i class="fas fa-search"></i> No results found</div>';
+            }
+        }
+        
+        function navigateToPage(url) {
+            window.location.href = url;
+        }
+        
+        function scrollToElement(index) {
+            if (window.searchMatches && window.searchMatches[index]) {
+                window.searchMatches[index].element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                window.searchMatches[index].element.style.backgroundColor = 'rgba(255, 107, 53, 0.3)';
+                setTimeout(() => {
+                    window.searchMatches[index].element.style.backgroundColor = '';
+                }, 2000);
             }
         }
         
