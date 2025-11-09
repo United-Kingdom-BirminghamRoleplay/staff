@@ -19,12 +19,13 @@ try {
         $id = uniqid();
         $pin = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
         
-        $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy) VALUES (?, ?, ?, ?, ?, ?)");
         $fieldsJson = json_encode($form['fields']);
         $title = $form['title'] ?? 'Untitled Form';
         $description = $form['description'] ?? '';
+        $createdBy = $form['createdBy'] ?? 'System';
         
-        $stmt->bind_param("sssss", $id, $title, $description, $fieldsJson, $pin);
+        $stmt->bind_param("ssssss", $id, $title, $description, $fieldsJson, $pin, $createdBy);
         
         if ($stmt->execute()) {
             echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
