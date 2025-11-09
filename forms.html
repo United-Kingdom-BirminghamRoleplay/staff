@@ -272,26 +272,27 @@
         <section class="forms-section">
             <h2><i class="fas fa-tools"></i> Management Tools</h2>
             <div class="forms-grid" id="formsGrid">
-                <div class="form-card creator">
+                <div class="form-card creator management-tool" style="display: none;">
                     <div class="card-icon"><i class="fas fa-magic"></i></div>
                     <h4>Form Builder</h4>
                     <p>Create custom forms for staff use</p>
-                    <div class="card-badge hr">HR+</div>
+                    <div class="card-badge hr">LEVEL 2+</div>
                     <button class="btn-glass" onclick="openFormBuilder()">Build Form</button>
                 </div>
                 
-                <div class="form-card creator">
+                <div class="form-card creator management-tool" style="display: none;">
                     <div class="card-icon"><i class="fas fa-bullhorn"></i></div>
                     <h4>Announcements</h4>
                     <p>Create staff announcements</p>
-                    <div class="card-badge hr">HR+</div>
+                    <div class="card-badge hr">LEVEL 2+</div>
                     <button class="btn-glass" onclick="openAnnouncementForm()">Create Announcement</button>
                 </div>
                 
-                <div class="form-card">
+                <div class="form-card management-tool" style="display: none;">
                     <div class="card-icon"><i class="fas fa-clipboard-check"></i></div>
                     <h4>Trial Logs</h4>
                     <p>Log staff member trials and results</p>
+                    <div class="card-badge hr">LEVEL 2+</div>
                     <button class="btn-glass" onclick="openTrialLog()">Log Trial</button>
                 </div>
                 
@@ -1162,6 +1163,9 @@
                         console.log('User has level 2+ permissions');
                         const managementCard = document.querySelector('.management-only');
                         if (managementCard) managementCard.style.display = 'block';
+                        
+                        const managementTools = document.querySelectorAll('.management-tool');
+                        managementTools.forEach(card => card.style.display = 'block');
                     }
                     
                     if (userLevel >= 5) {
