@@ -22,30 +22,76 @@
             border-color: var(--orange-accent);
             background: rgba(255, 107, 53, 0.1);
         }
-        .file-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
+        .file-card {
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
         }
-        .file-item:hover {
+        .file-card:hover {
             background: rgba(255, 255, 255, 0.08);
-            transform: translateX(5px);
+            transform: translateY(-2px);
+        }
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
         }
         .file-icon {
-            font-size: 2rem;
-            margin-right: 15px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 107, 53, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             color: var(--orange-accent);
         }
         .file-info {
             flex: 1;
         }
+        .file-info h4 {
+            margin: 0 0 5px 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+        .file-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin: 2px 0;
+        }
         .file-actions {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .file-actions .btn-glass {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            min-width: auto;
+        }
+        .file-preview {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+        }
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .warning-box {
             background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.1));
@@ -69,6 +115,29 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        .upload-form {
+            display: grid;
+            gap: 15px;
+        }
+        .upload-form input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+        .upload-form input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+        .upload-form input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
     </style>
 </head>
@@ -95,9 +164,11 @@
                     <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--orange-accent); margin-bottom: 15px;"></i>
                     <h4>Upload New File</h4>
                     <p style="margin-bottom: 20px; color: rgba(255,255,255,0.7);">Drag & drop or click to select files</p>
-                    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip,.rar" style="margin-bottom: 15px;">
-                    <input type="text" id="fileDescription" placeholder="File description (optional)" style="margin-bottom: 15px;">
-                    <button class="btn-glass" id="uploadBtn"><i class="fas fa-upload"></i> Upload File</button>
+                    <div class="upload-form">
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip,.rar">
+                        <input type="text" id="fileDescription" placeholder="File description (optional)">
+                        <button class="btn-glass" id="uploadBtn"><i class="fas fa-upload"></i> Upload File</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -240,35 +311,40 @@
                 const isDoc = file.type && (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'));
                 
                 return `
-                    <div class="form-card">
-                        <div style="display: flex; gap: 20px;">
-                            <div style="flex: 1;">
-                                <h4><i class="fas fa-file"></i> ${file.name}</h4>
-                                <p><strong>Size:</strong> ${formatFileSize(file.size)}</p>
-                                <p><strong>Uploaded by:</strong> ${file.uploadedBy}</p>
-                                <p><strong>Date:</strong> ${new Date(file.uploadDate || file.created).toLocaleDateString()}</p>
-                                ${file.description ? `<p><strong>Description:</strong> ${file.description}</p>` : ''}
-                                
-                                <div style="margin-top: 15px;">
-                                    ${showDownload ? `<button class="btn-glass" onclick="downloadFile('${file.id}')">Download</button>` : ''}
-                                    ${!showDownload && isFounder ? `
-                                        <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(0, 255, 0, 0.3);">Approve</button>
-                                        <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Reject</button>
-                                    ` : ''}
-                                    ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(220, 38, 38, 0.3);">Delete</button>` : ''}
-                                    ${isImage || isDoc ? `<button class="btn-glass" onclick="previewFile('${file.id}', '${file.type}')">Preview</button>` : ''}
+                    <div class="file-card">
+                        <div style="display: flex; align-items: flex-start; gap: 15px;">
+                            <div class="file-header" style="flex: 1; margin-bottom: 0;">
+                                <div class="file-icon">
+                                    <i class="fas ${isImage ? 'fa-image' : isDoc ? 'fa-file-alt' : 'fa-file'}"></i>
+                                </div>
+                                <div class="file-info">
+                                    <h4>${file.name}</h4>
+                                    <div class="file-meta">Size: ${formatFileSize(file.size)}</div>
+                                    <div class="file-meta">Uploaded by: ${file.uploadedBy}</div>
+                                    <div class="file-meta">Date: ${new Date(file.uploadDate || file.created).toLocaleDateString()}</div>
+                                    ${file.description ? `<div class="file-meta">Description: ${file.description}</div>` : ''}
                                 </div>
                             </div>
                             
                             ${isImage ? `
-                                <div style="width: 150px; height: 100px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.1);">
-                                    <img src="${file.fileData}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
+                                <div class="file-preview">
+                                    <img src="${file.fileData}" onerror="this.style.display='none'">
                                 </div>
                             ` : isDoc ? `
-                                <div style="width: 150px; height: 100px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                <div class="file-preview">
                                     <i class="fas fa-file-alt" style="font-size: 2rem; color: var(--orange-accent);"></i>
                                 </div>
                             ` : ''}
+                        </div>
+                        
+                        <div class="file-actions">
+                            ${showDownload ? `<button class="btn-glass" onclick="downloadFile('${file.id}')"><i class="fas fa-download"></i> Download</button>` : ''}
+                            ${!showDownload && isFounder ? `
+                                <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(34, 197, 94, 0.3);"><i class="fas fa-check"></i> Approve</button>
+                                <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(239, 68, 68, 0.3);"><i class="fas fa-times"></i> Reject</button>
+                            ` : ''}
+                            ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(239, 68, 68, 0.3);"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                            ${isImage || isDoc ? `<button class="btn-glass" onclick="previewFile('${file.id}', '${file.type}')"><i class="fas fa-eye"></i> Preview</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -408,7 +484,7 @@
             
             const uploadBtn = document.getElementById('uploadBtn');
             if (uploadBtn) {
-                uploadBtn.addEventListener('click', uploadFile);
+                uploadBtn.onclick = uploadFile;
             }
             loadFiles();
         });
