@@ -229,6 +229,22 @@ if ($type === 'announcements') {
         echo json_encode(['banned' => false]);
     }
 
+} elseif ($type === 'security_events') {
+    $stmt = $conn->prepare("SELECT * FROM security_events ORDER BY created DESC LIMIT 100");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $events = [];
+    while ($row = $result->fetch_assoc()) {
+        $events[] = $row;
+    }
+    
+    echo json_encode($events);
+
+} elseif ($type === 'ip_logs') {
+    // Return empty array for now since ip_logs table doesn't exist
+    echo json_encode([]);
+
 } elseif ($type === 'touchpoints') {
     $stmt = $conn->prepare("SELECT * FROM touchpoints ORDER BY created DESC");
     $stmt->execute();

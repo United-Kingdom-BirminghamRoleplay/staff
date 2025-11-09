@@ -123,7 +123,7 @@
                 const [logsResponse, bannedResponse, securityResponse] = await Promise.all([
                     fetch('./api/load.php?type=ip_logs'),
                     fetch('./api/load.php?type=banned_ips'),
-                    fetch('./api/load.php?type=security_logs')
+                    fetch('./api/load.php?type=security_events')
                 ]);
                 
                 const logs = await logsResponse.json();
@@ -132,20 +132,24 @@
                 
                 const now = new Date();
                 const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-                const recent = logs.filter(log => new Date(log.timestamp) > yesterday);
+                const recent = Array.isArray(logs) ? logs.filter(log => new Date(log.timestamp) > yesterday) : [];
                 
-                document.getElementById('totalAccess').textContent = logs.length;
-                document.getElementById('blockedCount').textContent = banned.length;
-                document.getElementById('securityEvents').textContent = security.length;
+                document.getElementById('totalAccess').textContent = Array.isArray(logs) ? logs.length : 0;
+                document.getElementById('blockedCount').textContent = Array.isArray(banned) ? banned.length : 0;
+                document.getElementById('securityEvents').textContent = Array.isArray(security) ? security.length : 0;
                 document.getElementById('recentActivity').textContent = recent.length;
             } catch (error) {
                 console.error('Error updating analytics:', error);
+                document.getElementById('totalAccess').textContent = '0';
+                document.getElementById('blockedCount').textContent = '0';
+                document.getElementById('securityEvents').textContent = '0';
+                document.getElementById('recentActivity').textContent = '0';
             }
         }
         
         function displayLogs(logs) {
             const container = document.getElementById('ipLogsContainer');
-            if (logs.length === 0) {
+            if (!logs || !Array.isArray(logs) || logs.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: #999;">No access logs yet</p>';
                 return;
             }
