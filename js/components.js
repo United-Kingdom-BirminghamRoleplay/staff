@@ -209,10 +209,15 @@ const Security = {
     },
     
     validateSession() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        
+        // Skip validation on login and auth callback pages
+        if (currentPage === 'login.html' || currentPage === 'auth-callback.html') {
+            return;
+        }
+        
         if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
-            if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('login.html')) {
-                window.location.href = 'login.html';
-            }
+            window.location.href = 'login.html';
             return;
         }
         
@@ -223,7 +228,6 @@ const Security = {
         if (!loginTime || (Date.now() - parseInt(loginTime)) > oneDayMs) {
             this.logSecurityEvent('Session expired - auto logout', user.username);
             window.discordAuth.logout();
-            window.location.href = 'login.html';
         }
     },
     
