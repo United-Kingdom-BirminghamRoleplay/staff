@@ -354,6 +354,8 @@
         }
         
         function navigateToPage(url) {
+            document.getElementById('searchResults').innerHTML = '';
+            document.getElementById('siteSearch').value = '';
             window.location.href = url;
         }
         

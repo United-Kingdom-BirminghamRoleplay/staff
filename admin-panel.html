@@ -36,6 +36,28 @@
         </section>
 
         <section class="forms-section">
+            <h2><i class="fas fa-chart-line"></i> Security Analytics</h2>
+            <div class="forms-grid">
+                <div class="form-card">
+                    <h4><i class="fas fa-eye"></i> Total Access Attempts</h4>
+                    <div id="totalAccess" style="font-size: 2rem; color: var(--orange-accent); font-weight: bold;">0</div>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-ban"></i> Blocked IPs</h4>
+                    <div id="blockedCount" style="font-size: 2rem; color: var(--error-color); font-weight: bold;">0</div>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Security Events</h4>
+                    <div id="securityEvents" style="font-size: 2rem; color: var(--warning-color); font-weight: bold;">0</div>
+                </div>
+                <div class="form-card">
+                    <h4><i class="fas fa-clock"></i> Last 24h Activity</h4>
+                    <div id="recentActivity" style="font-size: 2rem; color: var(--success-color); font-weight: bold;">0</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="forms-section">
             <h2><i class="fas fa-shield-alt"></i> Security Logs</h2>
             <div id="securityLogsContainer">
                 <!-- Security logs will be loaded here -->
@@ -90,8 +112,34 @@
                 const response = await fetch('./api/load.php?type=ip_logs');
                 allLogs = await response.json();
                 displayLogs(allLogs);
+                updateAnalytics();
             } catch (error) {
                 console.error('Error loading IP logs:', error);
+            }
+        }
+        
+        async function updateAnalytics() {
+            try {
+                const [logsResponse, bannedResponse, securityResponse] = await Promise.all([
+                    fetch('./api/load.php?type=ip_logs'),
+                    fetch('./api/load.php?type=banned_ips'),
+                    fetch('./api/load.php?type=security_logs')
+                ]);
+                
+                const logs = await logsResponse.json();
+                const banned = await bannedResponse.json();
+                const security = await securityResponse.json();
+                
+                const now = new Date();
+                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                const recent = logs.filter(log => new Date(log.timestamp) > yesterday);
+                
+                document.getElementById('totalAccess').textContent = logs.length;
+                document.getElementById('blockedCount').textContent = banned.length;
+                document.getElementById('securityEvents').textContent = security.length;
+                document.getElementById('recentActivity').textContent = recent.length;
+            } catch (error) {
+                console.error('Error updating analytics:', error);
             }
         }
         
