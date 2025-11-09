@@ -82,8 +82,8 @@
             <div class="forms-grid">
                 <div class="form-card">
                     <div class="card-icon"><i class="fas fa-trash-alt"></i></div>
-                    <h4>Clear All Logs</h4>
-                    <button class="btn-glass" onclick="clearSecurityLogs()" style="background: rgba(220, 38, 38, 0.3);"><i class="fas fa-trash"></i> Clear Logs</button>
+                    <h4>Clear Security Events</h4>
+                    <button class="btn-glass" onclick="clearAllSecurityEvents()" style="background: rgba(220, 38, 38, 0.3);"><i class="fas fa-trash"></i> Clear All Events</button>
                 </div>
                 <div class="form-card">
                     <div class="card-icon"><i class="fas fa-download"></i></div>
@@ -188,6 +188,49 @@
             if (!confirm('Clear all IP logs? This cannot be undone.')) return;
             
             try {
+                const user = window.discordAuth.getCurrentUser();
+                
+                // Send Discord webhook notification
+                await fetch('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🗑️ IP Logs Cleared',
+                            color: 0xffa500,
+                            fields: [
+                                { name: 'Admin', value: user.username, inline: true },
+                                { name: 'Action', value: 'CLEAR_IP_LOGS', inline: true },
+                                { name: 'Timestamp', value: new Date().toISOString(), inline: false }
+                            ],
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+                
+                // Log security event
+                await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'security_event',
+                        event: {
+                            type: 'ADMIN_CLEAR_LOGS',
+                            data: {
+                                action: 'clear_all_ip_logs',
+                                admin: user.username,
+                                userId: user.userId,
+                                timestamp: new Date().toISOString()
+                            },
+                            sessionId: 'admin_panel',
+                            fingerprint: 'admin_action',
+                            ip: 'admin_panel',
+                            userAgent: navigator.userAgent,
+                            url: window.location.href
+                        }
+                    })
+                });
+                
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -286,6 +329,50 @@
             try {
                 const user = window.discordAuth.getCurrentUser();
                 
+                // Send Discord webhook notification
+                await fetch('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🚫 IP Address Banned',
+                            color: 0xff0000,
+                            fields: [
+                                { name: 'IP Address', value: ip, inline: true },
+                                { name: 'Admin', value: user.username, inline: true },
+                                { name: 'Reason', value: reason, inline: false },
+                                { name: 'Timestamp', value: new Date().toISOString(), inline: false }
+                            ],
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+                
+                // Log security event
+                await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'security_event',
+                        event: {
+                            type: 'ADMIN_IP_BAN',
+                            data: {
+                                action: 'ban_ip',
+                                ip: ip,
+                                reason: reason,
+                                admin: user.username,
+                                userId: user.userId,
+                                timestamp: new Date().toISOString()
+                            },
+                            sessionId: 'admin_panel',
+                            fingerprint: 'admin_action',
+                            ip: 'admin_panel',
+                            userAgent: navigator.userAgent,
+                            url: window.location.href
+                        }
+                    })
+                });
+                
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -293,7 +380,7 @@
                         type: 'ban_ip',
                         ip: ip,
                         reason: reason,
-                        bannedBy: user.rank
+                        bannedBy: user.username
                     })
                 });
                 
@@ -301,6 +388,7 @@
                 if (result.success) {
                     alert('IP banned successfully');
                     loadBannedIps();
+                    updateAnalytics();
                 } else {
                     alert('Failed to ban IP');
                 }
@@ -313,6 +401,32 @@
             if (!confirm(`Unban IP ${ip}?`)) return;
             
             try {
+                const user = window.discordAuth.getCurrentUser();
+                
+                // Log security event
+                await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'security_event',
+                        event: {
+                            type: 'ADMIN_IP_UNBAN',
+                            data: {
+                                action: 'unban_ip',
+                                ip: ip,
+                                admin: user.username,
+                                userId: user.userId,
+                                timestamp: new Date().toISOString()
+                            },
+                            sessionId: 'admin_panel',
+                            fingerprint: 'admin_action',
+                            ip: 'admin_panel',
+                            userAgent: navigator.userAgent,
+                            url: window.location.href
+                        }
+                    })
+                });
+                
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -326,6 +440,7 @@
                 if (result.success) {
                     alert('IP unbanned successfully');
                     loadBannedIps();
+                    updateAnalytics();
                 } else {
                     alert('Failed to unban IP');
                 }
@@ -336,43 +451,88 @@
 
         async function loadSecurityLogs() {
             try {
-                const response = await fetch('./api/load.php?type=security_logs');
+                const response = await fetch('./api/load.php?type=security_events');
                 const logs = await response.json();
                 
                 const container = document.getElementById('securityLogsContainer');
-                if (logs.length === 0) {
-                    container.innerHTML = '<p style="text-align: center; color: #999;">No security logs</p>';
+                if (!logs || !Array.isArray(logs) || logs.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No security events</p>';
                     return;
                 }
                 
-                container.innerHTML = logs.slice(0, 20).map(log => `
-                    <div class="form-card">
-                        <h4><i class="fas fa-shield-alt"></i> ${log.type}</h4>
-                        <p><strong>Time:</strong> ${new Date(log.created).toLocaleString()}</p>
-                        <p><strong>Data:</strong> ${JSON.stringify(log.data).substring(0, 200)}...</p>
-                    </div>
-                `).join('');
+                container.innerHTML = logs.slice(0, 20).map(log => {
+                    const data = typeof log.data === 'string' ? JSON.parse(log.data) : log.data;
+                    const isAdminAction = log.type.startsWith('ADMIN_');
+                    const iconClass = isAdminAction ? 'fas fa-user-shield' : 'fas fa-shield-alt';
+                    const cardClass = isAdminAction ? 'border-left: 4px solid var(--warning-color);' : '';
+                    
+                    return `
+                        <div class="form-card" style="${cardClass}">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="flex: 1;">
+                                    <h4><i class="${iconClass}"></i> ${log.type}</h4>
+                                    <p><strong>Time:</strong> ${new Date(log.created).toLocaleString()}</p>
+                                    ${data.admin ? `<p><strong>Admin:</strong> ${data.admin}</p>` : ''}
+                                    ${data.action ? `<p><strong>Action:</strong> ${data.action}</p>` : ''}
+                                    ${data.ip && data.ip !== 'admin_panel' ? `<p><strong>IP:</strong> ${data.ip}</p>` : ''}
+                                    ${data.reason ? `<p><strong>Reason:</strong> ${data.reason}</p>` : ''}
+                                </div>
+                                <div style="text-align: right; color: var(--text-muted); font-size: 0.8rem;">
+                                    ID: ${log.id}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Error loading security logs:', error);
+                document.getElementById('securityLogsContainer').innerHTML = '<p style="text-align: center; color: var(--error-color);">Error loading security events</p>';
             }
         }
 
-        async function clearSecurityLogs() {
-            if (confirm('Clear all security logs? This cannot be undone.')) {
-                try {
-                    const response = await fetch('./api/save.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'clear_security_logs' })
-                    });
-                    
-                    if ((await response.json()).success) {
-                        alert('Security logs cleared');
-                        loadSecurityLogs();
-                    }
-                } catch (error) {
-                    alert('Error clearing logs');
+        async function clearAllSecurityEvents() {
+            if (!confirm('⚠️ Clear ALL 31,000+ security events? This CANNOT be undone!\n\nThis will permanently delete the entire security audit trail.')) return;
+            if (!confirm('Are you absolutely sure? This will remove all security history.')) return;
+            
+            try {
+                const user = window.discordAuth.getCurrentUser();
+                
+                // Send Discord webhook notification BEFORE clearing
+                await fetch('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🚨 CRITICAL: All Security Events Cleared',
+                            color: 0xff0000,
+                            fields: [
+                                { name: 'Admin', value: user.username, inline: true },
+                                { name: 'User ID', value: user.userId, inline: true },
+                                { name: 'Action', value: 'CLEAR_ALL_SECURITY_EVENTS', inline: false },
+                                { name: 'Timestamp', value: new Date().toISOString(), inline: false }
+                            ],
+                            footer: { text: 'Staff Sharepoint Security System' },
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+                
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'clear_all_security_events' })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ All security events cleared successfully!\nDeleted: ${result.deleted || '31000+'} events`);
+                    loadSecurityLogs();
+                    updateAnalytics();
+                } else {
+                    alert('❌ Failed to clear security events');
                 }
+            } catch (error) {
+                alert('❌ Error clearing security events');
             }
         }
 

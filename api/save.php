@@ -119,11 +119,38 @@ if ($type === 'forms') {
 
 } elseif ($type === 'delete_training') {
     $trainingId = $input['trainingId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    // Get training details before deletion
+    $getStmt = $conn->prepare("SELECT title FROM trainings WHERE id = ?");
+    $getStmt->bind_param("s", $trainingId);
+    $getStmt->execute();
+    $training = $getStmt->get_result()->fetch_assoc();
     
     $stmt = $conn->prepare("DELETE FROM trainings WHERE id = ?");
     $stmt->bind_param("s", $trainingId);
     
     if ($stmt->execute()) {
+        // Log deletion to security events
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'delete_training',
+            'trainingId' => $trainingId,
+            'trainingTitle' => $training['title'] ?? 'Unknown',
+            'deletedBy' => $deletedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $deleteType = 'DELETE_TRAINING',
+            $logData,
+            $sessionId = 'deletion_action',
+            $fingerprint = 'delete_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot delete training']);
@@ -271,11 +298,38 @@ if ($type === 'forms') {
 
 } elseif ($type === 'delete_announcement') {
     $announcementId = $input['announcementId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    // Get announcement details before deletion
+    $getStmt = $conn->prepare("SELECT title FROM announcements WHERE id = ?");
+    $getStmt->bind_param("s", $announcementId);
+    $getStmt->execute();
+    $announcement = $getStmt->get_result()->fetch_assoc();
     
     $stmt = $conn->prepare("DELETE FROM announcements WHERE id = ?");
     $stmt->bind_param("s", $announcementId);
     
     if ($stmt->execute()) {
+        // Log deletion to security events
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'delete_announcement',
+            'announcementId' => $announcementId,
+            'announcementTitle' => $announcement['title'] ?? 'Unknown',
+            'deletedBy' => $deletedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $deleteType = 'DELETE_ANNOUNCEMENT',
+            $logData,
+            $sessionId = 'deletion_action',
+            $fingerprint = 'delete_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot delete announcement']);
@@ -410,23 +464,82 @@ if ($type === 'forms') {
 
 } elseif ($type === 'delete_file') {
     $fileId = $input['fileId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    // Get file details before deletion
+    $getStmt = $conn->prepare("SELECT name FROM files WHERE id = ?");
+    $getStmt->bind_param("s", $fileId);
+    $getStmt->execute();
+    $file = $getStmt->get_result()->fetch_assoc();
     
     $stmt = $conn->prepare("DELETE FROM files WHERE id = ?");
     $stmt->bind_param("s", $fileId);
     
     if ($stmt->execute()) {
+        // Log deletion to security events
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'delete_file',
+            'fileId' => $fileId,
+            'fileName' => $file['name'] ?? 'Unknown',
+            'deletedBy' => $deletedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $deleteType = 'DELETE_FILE',
+            $logData,
+            $sessionId = 'deletion_action',
+            $fingerprint = 'delete_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot delete file']);
     }
 
 } elseif ($type === 'clear_security_logs') {
-    $stmt = $conn->prepare("DELETE FROM security_logs");
+    $stmt = $conn->prepare("DELETE FROM security_events");
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot clear security logs']);
+    }
+
+} elseif ($type === 'clear_logs') {
+    // Clear IP logs - create empty table for now
+    $conn->query("CREATE TABLE IF NOT EXISTS ip_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        ip VARCHAR(45),
+        user VARCHAR(100),
+        userAgent TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("DELETE FROM ip_logs");
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot clear IP logs']);
+    }
+
+} elseif ($type === 'clear_all_security_events') {
+    // Get count before deleting
+    $countStmt = $conn->prepare("SELECT COUNT(*) as count FROM security_events");
+    $countStmt->execute();
+    $count = $countStmt->get_result()->fetch_assoc()['count'];
+    
+    $stmt = $conn->prepare("DELETE FROM security_events");
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'deleted' => $count]);
+    } else {
+        echo json_encode(['error' => 'Cannot clear security events']);
     }
 
 } elseif ($type === 'touchpoint') {
@@ -611,6 +724,13 @@ if ($type === 'forms') {
 
 } elseif ($type === 'delete_assessment') {
     $assessmentId = $input['assessmentId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    // Get assessment details before deletion
+    $getStmt = $conn->prepare("SELECT title FROM assessments WHERE id = ?");
+    $getStmt->bind_param("s", $assessmentId);
+    $getStmt->execute();
+    $assessment = $getStmt->get_result()->fetch_assoc();
     
     // Delete assessment responses first
     $stmt = $conn->prepare("DELETE FROM assessment_responses WHERE assessmentId = ?");
@@ -622,6 +742,26 @@ if ($type === 'forms') {
     $stmt->bind_param("s", $assessmentId);
     
     if ($stmt->execute()) {
+        // Log deletion to security events
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'delete_assessment',
+            'assessmentId' => $assessmentId,
+            'assessmentTitle' => $assessment['title'] ?? 'Unknown',
+            'deletedBy' => $deletedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $deleteType = 'DELETE_ASSESSMENT',
+            $logData,
+            $sessionId = 'deletion_action',
+            $fingerprint = 'delete_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot delete assessment']);
