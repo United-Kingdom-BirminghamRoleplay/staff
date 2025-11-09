@@ -43,6 +43,9 @@ if ($type === 'forms') {
             created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
         
+        // Add createdBy column if it doesn't exist
+        $conn->query("ALTER TABLE forms ADD COLUMN createdBy VARCHAR(100) DEFAULT 'System'");
+        
         if (!$createTable) {
             throw new Exception('Failed to create forms table: ' . $conn->error);
         }
