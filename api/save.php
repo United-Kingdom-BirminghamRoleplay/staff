@@ -28,14 +28,29 @@ if ($type === 'forms') {
     $id = uniqid();
     $pin = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
     
-    $stmt = $conn->prepare("INSERT INTO forms (id, name, fields, pin, createdBy) VALUES (?, ?, ?, ?, ?)");
+    // Create forms table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS forms (
+        id VARCHAR(50) PRIMARY KEY,
+        title VARCHAR(255),
+        description TEXT,
+        fields JSON,
+        pin VARCHAR(4),
+        createdBy VARCHAR(100),
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
     $fieldsJson = json_encode($form['fields']);
-    $stmt->bind_param("sssss", $id, $form['name'], $fieldsJson, $pin, $form['createdBy']);
+    $title = $form['title'] ?? $form['name'] ?? 'Untitled Form';
+    $description = $form['description'] ?? '';
+    $createdBy = $form['createdBy'] ?? 'System';
+    
+    $stmt->bind_param("ssssss", $id, $title, $description, $fieldsJson, $pin, $createdBy);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
     } else {
-        echo json_encode(['error' => 'Cannot create form']);
+        echo json_encode(['error' => 'Cannot create form: ' . $conn->error]);
     }
 
 } elseif ($type === 'response') {

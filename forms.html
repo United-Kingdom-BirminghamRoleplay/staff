@@ -537,15 +537,26 @@
                 return;
             }
             
+            // Get current user info from Discord auth
+            let createdBy = 'System';
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const currentUser = window.discordAuth.getCurrentUser();
+                createdBy = currentUser.username || currentUser.displayName || 'System';
+            }
+            
             try {
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         type: 'forms', 
-                        form: { title, description, fields: questions }
+                        form: { title, description, fields: questions, createdBy }
                     })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 
                 const result = await response.json();
                 if (result.success) {
@@ -1148,6 +1159,12 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Forms page DOM loaded');
+            
+            // Load existing forms and data
+            loadForms();
+            loadAnnouncements();
+            loadTrialLogs();
+            loadTrainings();
             
             // Show cards based on permissions
             setTimeout(() => {
