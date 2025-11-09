@@ -232,6 +232,15 @@ body::before {
     transform: translateY(-1px);
 }
 
+.logout-button i {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 .logout-button span {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -245,6 +254,16 @@ body::before {
 
 .sidebar:hover .logout-button span {
     opacity: 1;
+}
+
+.sidebar.collapsed .logout-button {
+    width: 50px;
+    justify-content: center;
+    padding: 10px;
+}
+
+.sidebar.collapsed .logout-button i {
+    margin: 0;
 }
 
 
