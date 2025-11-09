@@ -152,7 +152,7 @@
                 size: file.size,
                 type: file.type,
                 description: description,
-                uploadedBy: user.rank,
+                uploadedBy: user ? user.username : 'Unknown',
                 uploadDate: new Date().toISOString(),
                 status: 'pending',
                 fileData: await fileToBase64(file)
@@ -205,14 +205,13 @@
                 const response = await fetch('./api/load.php?type=files');
                 const files = await response.json();
                 
-                const user = newAuthSystem.getCurrentUser();
+                const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
                 const approved = files.filter(f => f.status === 'approved');
                 const pending = files.filter(f => f.status === 'pending');
                 
                 displayFiles('approvedFiles', approved, true);
                 
-                const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
-                const isFounder = user && (user.rank === 'developer' || window.discordAuth.hasPermission('founder'));
+                const isFounder = user && window.discordAuth.hasPermission(5);
                 
                 if (isFounder && pending.length > 0) {
                     document.getElementById('pendingSection').style.display = 'block';
@@ -234,7 +233,7 @@
             }
             
             const user = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
-            const isFounder = user && (user.rank === 'developer' || window.discordAuth.hasPermission('founder'));
+            const isFounder = user && window.discordAuth.hasPermission(5);
             
             container.innerHTML = files.map(file => {
                 const isImage = file.type && file.type.startsWith('image/');

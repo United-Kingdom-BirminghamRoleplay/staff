@@ -113,7 +113,8 @@ function populateUserProfile() {
         }
         
         if (userLevel) {
-            userLevel.textContent = `Level ${discordUser.level || 0}`;
+            const rankName = getRankName(discordUser.rank);
+            userLevel.innerHTML = `${rankName}<br>Level ${discordUser.level || 0}`;
         }
         
         // Show navigation groups based on access level
@@ -208,8 +209,37 @@ const Security = {
     },
     
     validateSession() {
-        // Disabled to prevent page clearing
-        return;
+        if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+            if (window.location.pathname !== '/login.html' && !window.location.pathname.endsWith('login.html')) {
+                window.location.href = 'login.html';
+            }
+            return;
+        }
+        
+        const user = window.discordAuth.getCurrentUser();
+        const loginTime = localStorage.getItem('discord_login_time');
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        
+        if (!loginTime || (Date.now() - parseInt(loginTime)) > oneDayMs) {
+            this.logSecurityEvent('Session expired - auto logout', user.username);
+            window.discordAuth.logout();
+            window.location.href = 'login.html';
+        }
+    },
+    
+    async logSecurityEvent(action, username) {
+        try {
+            await fetch('./api/security.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action,
+                    username,
+                    timestamp: new Date().toISOString(),
+                    ip: 'auto-logout'
+                })
+            });
+        } catch (e) {}
     }
 };
 
@@ -284,6 +314,21 @@ function activateGlobalPartyMode() {
         setTimeout(() => notification.remove(), 5000);
     }, 1000);
 }
+function getRankName(rank) {
+    const rankNames = {
+        'moderation': 'Moderation',
+        'administration': 'Administration', 
+        'human_resources': 'Human Resources',
+        'oversight_enforcement': 'Oversight & Enforcement',
+        'advisory_board': 'Advisory Board',
+        'assistant_founder': 'Assistant Founder',
+        'co_founder': 'Co-Founder',
+        'founder': 'Founder',
+        'developer': 'Developer'
+    };
+    return rankNames[rank] || rank || 'Staff';
+}
+
 // Sidebar toggle function
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');

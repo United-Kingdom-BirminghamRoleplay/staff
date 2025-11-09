@@ -216,7 +216,20 @@ if ($type === 'forms') {
     $file = $input['file'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    // Create files table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS files (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(255),
+        size INT,
+        type VARCHAR(100),
+        description TEXT,
+        uploadedBy VARCHAR(100),
+        status VARCHAR(20) DEFAULT 'pending',
+        fileData LONGTEXT,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssisssss", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['fileData']);
     
     if ($stmt->execute()) {
