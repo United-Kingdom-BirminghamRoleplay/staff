@@ -1,7 +1,4 @@
 <?php
-// Include rate limiter for DDoS protection
-require_once 'rate-limiter.php';
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -11,7 +8,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once '../backend/connect.php';
+try {
+    require_once '../backend/connect.php';
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+    exit;
+}
 
 // Request validation
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -24,33 +27,46 @@ $input = json_decode(file_get_contents('php://input'), true);
 $type = $input['type'] ?? '';
 
 if ($type === 'forms') {
-    $form = $input['form'];
-    $id = uniqid();
-    $pin = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-    
-    // Create forms table if it doesn't exist
-    $conn->query("CREATE TABLE IF NOT EXISTS forms (
-        id VARCHAR(50) PRIMARY KEY,
-        title VARCHAR(255),
-        description TEXT,
-        fields JSON,
-        pin VARCHAR(4),
-        createdBy VARCHAR(100),
-        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    $fieldsJson = json_encode($form['fields']);
-    $title = $form['title'] ?? $form['name'] ?? 'Untitled Form';
-    $description = $form['description'] ?? '';
-    $createdBy = $form['createdBy'] ?? 'System';
-    
-    $stmt->bind_param("ssssss", $id, $title, $description, $fieldsJson, $pin, $createdBy);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
-    } else {
-        echo json_encode(['error' => 'Cannot create form: ' . $conn->error]);
+    try {
+        $form = $input['form'];
+        $id = uniqid();
+        $pin = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Create forms table if it doesn't exist
+        $createTable = $conn->query("CREATE TABLE IF NOT EXISTS forms (
+            id VARCHAR(50) PRIMARY KEY,
+            title VARCHAR(255),
+            description TEXT,
+            fields TEXT,
+            pin VARCHAR(4),
+            createdBy VARCHAR(100),
+            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        if (!$createTable) {
+            throw new Exception('Failed to create forms table: ' . $conn->error);
+        }
+        
+        $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy) VALUES (?, ?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            throw new Exception('Failed to prepare statement: ' . $conn->error);
+        }
+        
+        $fieldsJson = json_encode($form['fields']);
+        $title = $form['title'] ?? $form['name'] ?? 'Untitled Form';
+        $description = $form['description'] ?? '';
+        $createdBy = $form['createdBy'] ?? 'System';
+        
+        $stmt->bind_param("ssssss", $id, $title, $description, $fieldsJson, $pin, $createdBy);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
+        } else {
+            throw new Exception('Failed to execute statement: ' . $stmt->error);
+        }
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Form creation failed: ' . $e->getMessage()]);
     }
 
 } elseif ($type === 'response') {
