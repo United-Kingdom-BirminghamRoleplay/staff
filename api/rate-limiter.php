@@ -186,10 +186,10 @@ if ($rateLimiter->isDDoSAttack($clientIP)) {
 // Check rate limits based on endpoint
 $endpoint = $_SERVER['REQUEST_URI'];
 $limits = [
-    '/api/save.php' => [30, 60],      // 30 requests per minute
-    '/api/load_db.php' => [120, 60],  // 120 requests per minute
-    '/api/discord-auth.php' => [10, 60], // 10 requests per minute
-    'default' => [60, 60]             // 60 requests per minute default
+    '/api/save.php' => [20, 60],      // 20 requests per minute (stricter)
+    '/api/load.php' => [100, 60],     // 100 requests per minute
+    '/api/discord-auth.php' => [5, 60], // 5 requests per minute (stricter)
+    'default' => [30, 60]             // 30 requests per minute default (stricter)
 ];
 
 $limit = $limits['default'];

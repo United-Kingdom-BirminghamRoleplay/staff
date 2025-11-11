@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Locked - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="lock-container">
+        <div class="lock-content">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h1>Site Temporarily Locked</h1>
+            <p>The staff portal is currently locked for maintenance or security reasons.</p>
+            <p>Please contact leadership if you need immediate access.</p>
+            <div class="lock-actions">
+                <button onclick="checkUnlock()" class="btn-glass">Check Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkUnlock() {
+            try {
+                const response = await fetch('./api/load.php?type=website_control');
+                const data = await response.json();
+                
+                if (!data.site_locked) {
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Site is still locked. Please try again later.');
+                }
+            } catch (error) {
+                alert('Unable to check status. Please try again later.');
+            }
+        }
+
+        // Auto-check every 60 seconds
+        setInterval(checkUnlock, 60000);
+    </script>
+
+    <style>
+        .lock-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .lock-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+        .lock-icon {
+            font-size: 4rem;
+            color: #ff6b35;
+            margin-bottom: 30px;
+        }
+        .lock-content h1 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .lock-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .lock-actions {
+            margin-top: 30px;
+        }
+    </style>
+</body>
+</html>
