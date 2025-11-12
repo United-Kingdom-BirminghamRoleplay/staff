@@ -295,7 +295,8 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
                 const text = await response.text();
-                formResponses = text ? JSON.parse(text) : [];
+                console.log('Response text:', text);
+                formResponses = [];
             } catch (error) {
                 console.error('Error loading responses:', error);
                 formResponses = [];
