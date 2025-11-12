@@ -257,7 +257,7 @@ if ($type === 'announcements') {
             created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
         
-        $stmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
+        $stmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY submitted_at DESC");
         $stmt->bind_param("s", $formId);
         $stmt->execute();
         $result = $stmt->get_result();
