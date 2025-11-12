@@ -134,6 +134,129 @@
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(255, 107, 53, 0.5);
         }
+        .responses-header {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(220, 38, 38, 0.05));
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .header-icon {
+            background: linear-gradient(135deg, #ff6b35, #dc2626);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .header-info h1 {
+            color: white;
+            margin: 0 0 5px 0;
+            font-size: 2rem;
+        }
+        .header-info p {
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            display: block;
+            color: #ff6b35;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        .responses-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .response-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        .response-card:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .response-number {
+            background: linear-gradient(135deg, #ff6b35, #dc2626);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .response-date {
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .response-content {
+            display: grid;
+            gap: 15px;
+        }
+        .answer-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .question-label {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .answer-value {
+            color: white;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .no-responses {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .no-responses i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: rgba(255, 107, 53, 0.5);
+        }
+        .no-responses h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -156,9 +279,22 @@
             await formSystem.loadForms();
             
             if (pin) {
+                await loadResponses();
                 showResponses();
             } else {
                 showForm();
+            }
+        }
+        
+        let formResponses = [];
+        
+        async function loadResponses() {
+            try {
+                const response = await fetch(`./api/load.php?type=form_responses&formId=${formId}`);
+                formResponses = await response.json();
+            } catch (error) {
+                console.error('Error loading responses:', error);
+                formResponses = [];
             }
         }
         
@@ -269,22 +405,50 @@
                 return;
             }
 
-            const responses = form.responses || [];
             document.getElementById('content').innerHTML = `
-                <div class="form-header">
-                    <h1>${form.title} - Responses</h1>
-                    <p>Total responses: ${responses.length}</p>
+                <div class="responses-header">
+                    <div class="header-content">
+                        <div class="header-icon"><i class="fas fa-chart-bar"></i></div>
+                        <div class="header-info">
+                            <h1>${form.title}</h1>
+                            <p>Form Responses</p>
+                        </div>
+                    </div>
+                    <div class="stats-bar">
+                        <div class="stat-item">
+                            <span class="stat-number">${formResponses.length}</span>
+                            <span class="stat-label">Total Responses</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">${form.fields.length}</span>
+                            <span class="stat-label">Questions</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="responses">
-                    ${responses.length === 0 ? '<p>No responses yet</p>' : responses.map((r, i) => `
-                        <div class="response-item">
+                <div class="responses-container">
+                    ${formResponses.length === 0 ? `
+                        <div class="no-responses">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No responses yet</h3>
+                            <p>Share your form to start collecting responses</p>
+                        </div>
+                    ` : formResponses.map((r, i) => `
+                        <div class="response-card">
                             <div class="response-header">
-                                <strong>Response #${i + 1}</strong>
-                                <span>${r.created ? new Date(r.created).toLocaleString() : 'Unknown date'}</span>
+                                <div class="response-number">#${i + 1}</div>
+                                <div class="response-date">
+                                    <i class="fas fa-clock"></i>
+                                    ${new Date(r.created).toLocaleString()}
+                                </div>
                             </div>
-                            ${Object.entries(r.response_data?.data || r.response_data || {}).map(([k, v]) => `
-                                <p><strong>${k}:</strong> ${Array.isArray(v) ? v.join(', ') : v}</p>
-                            `).join('')}
+                            <div class="response-content">
+                                ${Object.entries(r.response_data?.data || r.response_data || {}).map(([k, v]) => `
+                                    <div class="answer-item">
+                                        <div class="question-label">${k.replace('q', 'Question ')}</div>
+                                        <div class="answer-value">${Array.isArray(v) ? v.join(', ') : v}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
