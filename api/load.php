@@ -248,18 +248,30 @@ if ($type === 'announcements') {
 } elseif ($type === 'form_responses') {
     $formId = $_GET['formId'] ?? '';
     
-    $stmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
-    $stmt->bind_param("s", $formId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    $responses = [];
-    while ($row = $result->fetch_assoc()) {
-        $row['response_data'] = json_decode($row['response_data'], true);
-        $responses[] = $row;
+    try {
+        // Create table if it doesn't exist
+        $conn->query("CREATE TABLE IF NOT EXISTS form_responses (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            form_id VARCHAR(50),
+            response_data TEXT,
+            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        $stmt = $conn->prepare("SELECT * FROM form_responses WHERE form_id = ? ORDER BY created DESC");
+        $stmt->bind_param("s", $formId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $responses = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['response_data'] = json_decode($row['response_data'], true);
+            $responses[] = $row;
+        }
+        
+        echo json_encode($responses);
+    } catch (Exception $e) {
+        echo json_encode([]);
     }
-    
-    echo json_encode($responses);
 
 } elseif ($type === 'touchpoints') {
     $stmt = $conn->prepare("SELECT * FROM touchpoints ORDER BY created DESC");

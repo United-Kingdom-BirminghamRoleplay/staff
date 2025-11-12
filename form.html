@@ -290,8 +290,12 @@
         
         async function loadResponses() {
             try {
-                const response = await fetch(`./api/load.php?type=form_responses&formId=${formId}`);
-                formResponses = await response.json();
+                const response = await fetch(`./api/test-responses.php?formId=${formId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const text = await response.text();
+                formResponses = text ? JSON.parse(text) : [];
             } catch (error) {
                 console.error('Error loading responses:', error);
                 formResponses = [];
