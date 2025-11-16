@@ -257,6 +257,45 @@
             color: white;
             margin-bottom: 10px;
         }
+        .responses-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        #responseSearch {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+        }
+        .response-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .response-user {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+        table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        th {
+            background: rgba(255, 107, 53, 0.2);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -389,7 +428,14 @@
                 }
             }
 
-            if (await formSystem.submitResponse(formId, data)) {
+            // Get submitter info
+            let submittedBy = 'Anonymous';
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                submittedBy = user.username || user.displayName || 'Anonymous';
+            }
+
+            if (await formSystem.submitResponse(formId, data, submittedBy)) {
                 document.getElementById('content').innerHTML = `
                     <div class="success">
                         <i class="fas fa-check-circle"></i>
@@ -429,7 +475,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="responses-container">
+                <div class="responses-controls">
+                    <input type="text" id="responseSearch" placeholder="Search responses..." onkeyup="filterResponses()">
+                    <button onclick="setView('table')" id="tableBtn">Table View</button>
+                </div>
+                <div class="responses-container" id="responsesContainer">
                     ${formResponses.length === 0 ? `
                         <div class="no-responses">
                             <i class="fas fa-inbox"></i>
@@ -440,9 +490,9 @@
                         <div class="response-card">
                             <div class="response-header">
                                 <div class="response-number">#${i + 1}</div>
-                                <div class="response-date">
-                                    <i class="fas fa-clock"></i>
-                                    ${new Date(r.submitted_at).toLocaleString()}
+                                <div class="response-info">
+                                    <div class="response-user">${r.response_data?.submittedBy || 'Anonymous'}</div>
+                                    <div class="response-date">${new Date(r.submitted_at).toLocaleString()}</div>
                                 </div>
                             </div>
                             <div class="response-content">
@@ -456,6 +506,27 @@
                         </div>
                     `).join('')}
                 </div>
+                <script>
+                function filterResponses() {
+                    const search = document.getElementById('responseSearch').value.toLowerCase();
+                    const cards = document.querySelectorAll('.response-card');
+                    cards.forEach(card => {
+                        const text = card.textContent.toLowerCase();
+                        card.style.display = text.includes(search) ? 'block' : 'none';
+                    });
+                }
+                function setView(view) {
+                    if (view === 'table') {
+                        document.getElementById('responsesContainer').innerHTML = 
+                        '<table><thead><tr><th>#</th><th>User</th><th>Date</th><th>Answers</th></tr></thead><tbody>' +
+                        formResponses.map((r, i) => 
+                            '<tr><td>' + (i+1) + '</td><td>' + (r.response_data?.submittedBy || 'Anonymous') + '</td><td>' + 
+                            new Date(r.submitted_at).toLocaleDateString() + '</td><td>' + 
+                            Object.keys(r.response_data?.data || {}).length + ' answers</td></tr>'
+                        ).join('') + '</tbody></table>';
+                    }
+                }
+                </script>
             `;
         }
     </script>

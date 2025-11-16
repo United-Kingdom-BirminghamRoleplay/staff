@@ -79,7 +79,7 @@ class FormSystem {
         }
     }
 
-    async submitResponse(formId, data) {
+    async submitResponse(formId, data, submittedBy = 'Anonymous') {
         try {
             const response = await fetch('./api/save.php', {
                 method: 'POST',
@@ -89,6 +89,7 @@ class FormSystem {
                     formId, 
                     response: {
                         data,
+                        submittedBy,
                         submitted: new Date().toISOString()
                     }
                 })

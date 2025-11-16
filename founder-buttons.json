@@ -1,11 +1,11 @@
 {
   "founders": [
     {
-      "id": "land",
-      "name": "Land",
-      "description": "Rain Hashbrowns",
-      "buttonText": "🍟 Hashbrown Storm",
-      "action": "rainHashbrowns"
+      "id": "Progamer",
+      "name": "Progamer",
+      "description": "Rain Money",
+      "buttonText": "💸 Money Storm",
+      "action": "rainMoney"
     },
     {
       "id": "max",
