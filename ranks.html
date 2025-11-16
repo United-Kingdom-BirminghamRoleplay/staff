@@ -49,47 +49,53 @@
         const timetableEvents = [
             {
                 name: 'Weekly Staff Meeting',
-                day: 0, // Today
+                day: 0,   // Sunday
                 hour: 19,
-                minute: 0, // 1 minute from now
+                minute: 0,
                 icon: 'users',
                 color: '#dc2626'
             },
             {
                 name: 'Quota Reset',
-                day: 5, // Friday
-                hour: 20, // 8PM
+                day: 5,  // Friday
+                hour: 20,
                 minute: 0,
                 icon: 'refresh',
                 color: '#f7931e'
             },
             {
                 name: 'Staff of the Week Reset',
-                day: 3, // Wednesday
-                hour: 8, // 8AM
+                day: 5, // Friday
+                hour: 8,
                 minute: 0,
                 icon: 'star',
                 color: '#ff6b35'
             }
         ];
 
+
         function getNextEventTime(event) {
             const now = new Date();
-            const nextEvent = new Date();
-            
-            // Set to today first
-            nextEvent.setHours(event.hour, event.minute, 0, 0);
-            
-            // If event time has passed today, move to next occurrence
-            if (nextEvent <= now) {
-                nextEvent.setDate(now.getDate() + (event.day + 7 - now.getDay()) % 7);
-                if (nextEvent <= now) {
-                    nextEvent.setDate(nextEvent.getDate() + 7);
-                }
+    
+            // Create next event date
+            const next = new Date();
+            const currentDay = now.getDay();
+
+            // Calculate how many days until the event
+            let daysAhead = event.day - currentDay;
+            if (daysAhead < 0) daysAhead += 7;
+
+            next.setDate(now.getDate() + daysAhead);
+            next.setHours(event.hour, event.minute, 0, 0);
+
+            // If event time today has already passed, schedule next week
+            if (next <= now) {
+                next.setDate(next.getDate() + 7);
             }
-            
-            return nextEvent;
+
+            return next;
         }
+
 
         function formatTimeRemaining(ms) {
             const days = Math.floor(ms / (1000 * 60 * 60 * 24));
