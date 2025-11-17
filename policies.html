@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Punishment Guide - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <main class="main-content">
+        <section class="top-search">
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="siteSearch" placeholder="Search Sharepoint content..." class="search-input" autocomplete="off">
+                    <button class="filter-btn"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+        <section class="hero">
+            <h1>Staff Policies</h1>
+            <p>Here you will find all of our staff policies that you can read upon for assisting you as your role on the staff team.</p>
+        </section>
+
+        <section id="server-info" class="guidelines-section">
+            <h2><i class="fas fa-scroll"></i>Staff Policies</h2>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Social Media Policy</h3>
+                <p>To ensure the safety and privacy of all staff members, sharing personal social media accounts (including but not limited to WhatsApp, TikTok, Snapchat, Instagram, Facebook, etc.) with other staff, community members, or other external parties that are involved in our community is strictly prohibited. This policy is in place to protect our staff from potential risks and maintain professional boundaries. If you are seen to be exploiting this policy it can result in an immediate removal from our team.</p>
+            </div>
+            <br>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Staff Conduct Policy</h3>
+                <p>Our community is committed to providing a safe, respectful, and inclusive environment free from harassment of any kind. Harassment is defined as any unwelcome behavior—verbal, written, physical, or digital—that creates a hostile, intimidating, or offensive environment, including but not limited to insults, slurs, derogatory comments, bullying and threats.</p>
+            </div>
+            <br>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Advertisment Policy</h3>
+                <p>To protect the integrity of Birmingham Roleplay staff members are strictly prohibited from advertising, promoting, or hinting at any communities they may own or work in, This includes direct promotions, subtle hints, or indirect references, whether in chats, voice channels, private messages, or other platforms connected to Birmingham Roleplay. Staff are expected to remain fully focused on supporting and representing this community without using their position for personal gain or outside promotion. Any violation of this policy may result in disciplinary action, up to and including removal from the staff team.</p>
+            </div>
+            <br>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Staff Sharepoint Policy</h3>
+                <p>The Staff Sharepoint is a confidential resource intended solely for the use of authorized staff members within our community. Sharing, distributing, or leaking any information, documents, or resources contained within the Staff Sharepoint to individuals outside of our staff team is strictly prohibited. This includes sharing via screenshots, screen sharing, or any other means of communication. Unauthorized disclosure of Sharepoint content can compromise the integrity and security of our community and may result in disciplinary action, including removal from the staff team. By accessing the Staff Sharepoint, you agree to uphold this confidentiality policy and respect the privacy of all information contained within.</p>
+            </div>
+            <br>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Professionalism Conduct Policy</h3>
+                <p>All staff members of Birmingham Roleplay are expected to demonstrate professionalism at all times, regardless of the situation or circumstances. Professionalism means treating all players and fellow staff with respect, fairness, and maturity, even when under pressure or dealing with challenging situations. As a staff member, you are the one who upholds authority within the community, and your actions reflect directly on Birmingham Roleplay as a whole. You are not just enforcing rules — you are representing us</p>
+            </div>
+            <br>
+            <div class="card">
+                <i class="fas fa-file-alt card-icon"></i>
+                <h3>Anti-Raiding Policy</h3>
+                <p>Raiding or attempting to disrupt Birmingham Roleplay in any form is strictly prohibited. Staff members are trusted with commands and permissions to help manage and protect the community, not to abuse them. Using commands to troll, harass, cause disruption, or aid in raiding activities is considered command abuse and will not be tolerated under any circumstances. All staff are expected to use their powers responsibly and solely for the benefit of the community. Any abuse of commands, whether large or small, will result in disciplinary action, which may include removal from the staff team or a permanent ban from the community.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Staff Sharepoint. All rights reserved.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/discord-auth.js"></script>
+    <script src="js/components.js"></script>
+
+    <script>
+        function logout() {
+            if (window.authSystem) {
+                window.authSystem.logout();
+            } else {
+                localStorage.removeItem('ukbrum_auth');
+                location.reload();
+            }
+        }
+        
+        function siteSearch() {
+            const query = document.getElementById('siteSearch').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            const searchableElements = document.querySelectorAll('h1, h2, h3, h4, p, li');
+            const matches = [];
+            
+            searchableElements.forEach(el => {
+                if (el.textContent.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: el.textContent.substring(0, 100) + '...',
+                        element: el
+                    });
+                }
+            });
+            
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(match => `
+                    <div class="search-result">
+                        <p>${match.text}</p>
+                    </div>
+                `).join('');
+            } else {
+                results.innerHTML = '<div class="no-results">No results found</div>';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('siteSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', siteSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        siteSearch();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
