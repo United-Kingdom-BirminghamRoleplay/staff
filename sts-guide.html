@@ -266,6 +266,12 @@
                 });
             }
         });
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast('Command copied to clipboard!'))
+                .catch(() => showToast('Failed to copy command'));
+        }
     </script>
 </body>
 
