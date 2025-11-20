@@ -64,3 +64,9 @@ DirectoryIndex index.html
 Header always set Cache-Control "no-cache, no-store, must-revalidate"
 Header always set Pragma "no-cache"
 Header always set Expires "0"
+
+RewriteEngine On
+
+# Remove .html extension
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.+)$ $1.html [L]
