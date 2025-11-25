@@ -3,7 +3,7 @@ class FormSystem {
         this.forms = [];
         this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
         this.TRAINING_WEBHOOK = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
-        this.TRIAL_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
+        this.TRIAL_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1442956549717884979/pCGDkB1RoTxFrPp1WDj9BQexxiAwhYmM66x8h9weCna_r2eYbZbyWrpkS46ypNd6oJ3e';
     }
     
     async loadForms() {
