@@ -1,6 +1,6 @@
 class SecuritySystem {
     constructor() {
-        this.SECURITY_WEBHOOK = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
+        this.SECURITY_WEBHOOK = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
         this.sessionId = this.generateSessionId();
         this.deviceFingerprint = this.generateDeviceFingerprint();
         this.threatLevel = 'LOW';
