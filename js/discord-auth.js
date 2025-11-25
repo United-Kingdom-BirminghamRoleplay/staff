@@ -177,7 +177,7 @@ class DiscordAuth {
             'administration': 1,
             'human_resources': 2,
             'oversight_enforcement': 3,
-            'board_of_directors': 4,
+            'advisory_board': 4,
             'assistant_founder': 5,
             'founder': 5
         };
