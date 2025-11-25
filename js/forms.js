@@ -1,7 +1,7 @@
 class FormSystem {
     constructor() {
         this.forms = [];
-        this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T';
+        this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
         this.TRAINING_WEBHOOK = 'https://discord.com/api/webhooks/1426500062522900501/O1CoAt5wgF7d7CxdflrjOpz_uS1upyPK2pKoxjOX-XqJ-VEimT3oQl_inCMM900E4-8y';
         this.TRIAL_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1426500158698295337/ky7tVcRgI-e3G2D4gsA2mXGx6k5zNlO6Gk5pfWJPFSfuqb6Bid2rgrRmpPFJs1J3aMQE';
     }
