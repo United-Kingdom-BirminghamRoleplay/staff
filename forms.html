@@ -168,6 +168,127 @@
             background: rgba(220, 38, 38, 0.3);
             border-color: #dc2626;
         }
+        .trial-card.modern, .training-card.modern {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .trial-card.modern:hover, .training-card.modern:hover {
+            border-color: rgba(255, 107, 53, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .trial-header, .training-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .trial-icon, .training-icon {
+            background: linear-gradient(135deg, #ff6b35, #dc2626);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .trial-info h4, .training-info h4 {
+            margin: 0 0 8px 0;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .trial-meta, .training-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .trial-meta span, .training-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .trial-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .trial-status.passed { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .trial-status.failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .trial-status.ongoing { background: rgba(255, 107, 53, 0.2); color: #ff6b35; }
+        .trial-status.extended { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .trial-details {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        .detail-value {
+            color: white;
+            font-weight: 500;
+        }
+        .training-desc {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        .training-stats {
+            margin-bottom: 15px;
+        }
+        .training-stats .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        .trial-actions, .training-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-action.pass { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .btn-action.fail { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .btn-action.extend { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .btn-action.edit { background: rgba(255, 107, 53, 0.2); color: #ff6b35; }
+        .btn-action.delete { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
         .form-card.creator {
             border: 2px solid rgba(0, 255, 0, 0.3);
             background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 200, 0, 0.05));
@@ -989,19 +1110,37 @@
                 const canManage = formSystem.canViewPin();
                 
                 container.innerHTML = logs.map(log => `
-                    <div class="form-card">
-                        <h4>Trial Log #${log.trialLogNum}</h4>
-                        <p><strong>Staff Member:</strong> ${log.staffMember}</p>
-                        <p><strong>Rank Change:</strong> ${log.oldRank} → ${log.newRank}</p>
-                        <p><strong>Trial Period:</strong> ${new Date(log.trialStartDate).toLocaleDateString()} - ${new Date(log.trialEndDate).toLocaleDateString()}</p>
-                        <p><strong>Result:</strong> <span style="color: ${log.trialResult === 'Passed' ? '#00ff00' : log.trialResult === 'Failed' ? '#ff0000' : '#ff6b35'}">${log.trialResult}</span></p>
-                        <p><small>Signed by: ${log.signedBy}</small></p>
-                        <p><small>Created: ${new Date(log.created).toLocaleDateString()}</small></p>
+                    <div class="trial-card modern">
+                        <div class="trial-header">
+                            <div class="trial-icon"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="trial-info">
+                                <h4>Trial Log #${log.trialLogNum}</h4>
+                                <div class="trial-meta">
+                                    <span><i class="fas fa-user"></i> ${log.staffMember}</span>
+                                    <span><i class="fas fa-calendar"></i> ${new Date(log.created).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <div class="trial-status ${log.trialResult.toLowerCase()}">${log.trialResult}</div>
+                        </div>
+                        <div class="trial-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Rank Change:</span>
+                                <span class="detail-value">${log.oldRank} → ${log.newRank}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Trial Period:</span>
+                                <span class="detail-value">${new Date(log.trialStartDate).toLocaleDateString()} - ${new Date(log.trialEndDate).toLocaleDateString()}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Signed by:</span>
+                                <span class="detail-value">${log.signedBy}</span>
+                            </div>
+                        </div>
                         ${canManage && log.trialResult === 'Ongoing' ? `
-                            <div class="form-actions">
-                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Passed')">Pass</button>
-                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Failed')">Fail</button>
-                                <button class="btn-glass" onclick="updateTrialResult('${log.id}', 'Extended')">Extend</button>
+                            <div class="trial-actions">
+                                <button class="btn-action pass" onclick="updateTrialResult('${log.id}', 'Passed')"><i class="fas fa-check"></i> Pass</button>
+                                <button class="btn-action fail" onclick="updateTrialResult('${log.id}', 'Failed')"><i class="fas fa-times"></i> Fail</button>
+                                <button class="btn-action extend" onclick="updateTrialResult('${log.id}', 'Extended')"><i class="fas fa-clock"></i> Extend</button>
                             </div>
                         ` : ''}
                     </div>
@@ -1104,16 +1243,29 @@
                 const canManage = formSystem.canViewPin();
                 
                 container.innerHTML = trainings.map(training => `
-                    <div class="form-card">
-                        <h4>${training.title}</h4>
-                        <p>${training.description}</p>
-                        <p><strong>Date:</strong> ${new Date(training.date).toLocaleDateString()}</p>
-                        <p><strong>Time:</strong> ${training.time}</p>
-                        <p><strong>Posted by:</strong> ${training.postedBy}</p>
-                        <p><small>Confirmed: ${training.attendees ? training.attendees.length : 0} trainees</small></p>
+                    <div class="training-card modern">
+                        <div class="training-header">
+                            <div class="training-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <div class="training-info">
+                                <h4>${training.title}</h4>
+                                <div class="training-meta">
+                                    <span><i class="fas fa-calendar"></i> ${new Date(training.date).toLocaleDateString()}</span>
+                                    <span><i class="fas fa-clock"></i> ${training.time}</span>
+                                    <span><i class="fas fa-user"></i> ${training.postedBy}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="training-desc">${training.description}</p>
+                        <div class="training-stats">
+                            <div class="stat">
+                                <i class="fas fa-users"></i>
+                                <span>${training.attendees ? training.attendees.length : 0} attendees</span>
+                            </div>
+                        </div>
                         ${canManage ? `
-                            <div class="form-actions">
-                                <button class="btn-glass" onclick="deleteTraining('${training.id}')">Delete</button>
+                            <div class="training-actions">
+                                <button class="btn-action edit" onclick="editTraining('${training.id}')"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn-action delete" onclick="deleteTraining('${training.id}')"><i class="fas fa-trash"></i> Delete</button>
                             </div>
                         ` : ''}
                     </div>

@@ -15,9 +15,7 @@ $CLIENT_ID = getenv('DISCORD_CLIENT_ID') ?: '1340376847732707380';
 $CLIENT_SECRET = getenv('DISCORD_CLIENT_SECRET') ?: 'tG1VDexmSuYXPWC3KMndNgvvRuB8YmWA'; // SECURED via Environment Variable
 $GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '1152677388543598749';
 
-// Set the correct Redirect URI based on the server's context
-$REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/../auth-callback.html';
-$REDIRECT_URI = str_replace('/api/../', '/', $REDIRECT_URI);
+$REDIRECT_URI = 'https://staff.ukbrum.co.uk/auth-callback.html';
 
 // Critical Check: Ensure the secret is loaded
 if (empty($CLIENT_SECRET)) {
