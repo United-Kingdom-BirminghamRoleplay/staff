@@ -299,24 +299,26 @@ if ($type === 'announcements') {
     echo json_encode($touchpoints);
 
 } elseif ($type === 'emergency_broadcast') {
-    // Use IP address as user identifier for emergency broadcasts
-    $userId = 'user_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    $userIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
     // Get active broadcast that user hasn't acknowledged
-    $stmt = $conn->prepare("
-        SELECT eb.* FROM emergency_broadcasts eb 
-        LEFT JOIN emergency_acknowledgments ea ON eb.id = ea.broadcast_id AND ea.user_id = ?
-        WHERE eb.active = TRUE AND ea.id IS NULL 
-        ORDER BY eb.created DESC LIMIT 1
-    ");
-    $stmt->bind_param("s", $userId);
+    $stmt = $conn->prepare("SELECT * FROM emergency_broadcasts WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1");
     $stmt->execute();
     $result = $stmt->get_result();
     
     if ($result->num_rows > 0) {
         $broadcast = $result->fetch_assoc();
-        $broadcast['timestamp'] = $broadcast['created'];
-        echo json_encode($broadcast);
+        
+        // Check if this IP has already acknowledged
+        $acknowledgedIps = $broadcast['acknowledged_ips'] ? json_decode($broadcast['acknowledged_ips'], true) : [];
+        
+        if (!in_array($userIp, $acknowledgedIps)) {
+            $broadcast['active'] = true;
+            $broadcast['timestamp'] = $broadcast['created_at'];
+            echo json_encode($broadcast);
+        } else {
+            echo json_encode(null);
+        }
     } else {
         echo json_encode(null);
     }

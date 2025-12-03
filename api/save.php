@@ -1017,6 +1017,16 @@ if ($type === 'forms') {
         echo json_encode(['success' => true, 'already_acknowledged' => true]);
     }
 
+} elseif ($type === 'clear_emergency_broadcasts') {
+    // Deactivate all emergency broadcasts
+    $stmt = $conn->prepare("UPDATE emergency_broadcasts SET is_active = 0");
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot clear broadcasts']);
+    }
+
 } elseif ($type === 'check_health') {
     // Simple health check endpoint
     echo json_encode(['status' => 'healthy', 'timestamp' => time()]);
