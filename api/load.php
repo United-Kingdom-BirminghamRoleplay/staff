@@ -298,6 +298,28 @@ if ($type === 'announcements') {
     
     echo json_encode($touchpoints);
 
+} elseif ($type === 'emergency_broadcast') {
+    $userId = 'user_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    
+    // Get active broadcast that user hasn't acknowledged
+    $stmt = $conn->prepare("
+        SELECT eb.* FROM emergency_broadcasts eb 
+        LEFT JOIN emergency_acknowledgments ea ON eb.id = ea.broadcast_id AND ea.user_id = ?
+        WHERE eb.active = TRUE AND ea.id IS NULL 
+        ORDER BY eb.created DESC LIMIT 1
+    ");
+    $stmt->bind_param("s", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $broadcast = $result->fetch_assoc();
+        $broadcast['timestamp'] = $broadcast['created'];
+        echo json_encode($broadcast);
+    } else {
+        echo json_encode(null);
+    }
+
 } else {
     echo json_encode(['error' => 'Invalid type']);
 }
