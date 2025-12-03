@@ -356,6 +356,31 @@ if ($type === 'forms') {
         echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
     }
 
+} elseif ($type === 'delete_form') {
+    $formId = $input['formId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    // Get form details before deletion
+    $getStmt = $conn->prepare("SELECT title FROM forms WHERE id = ?");
+    $getStmt->bind_param("s", $formId);
+    $getStmt->execute();
+    $form = $getStmt->get_result()->fetch_assoc();
+    
+    // Delete form responses first
+    $stmt = $conn->prepare("DELETE FROM form_responses WHERE form_id = ?");
+    $stmt->bind_param("s", $formId);
+    $stmt->execute();
+    
+    // Delete form
+    $stmt = $conn->prepare("DELETE FROM forms WHERE id = ?");
+    $stmt->bind_param("s", $formId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete form']);
+    }
+
 } elseif ($type === 'delete_announcement') {
     $announcementId = $input['announcementId'];
     $deletedBy = $input['deletedBy'] ?? 'Unknown';
