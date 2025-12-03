@@ -544,7 +544,7 @@
                 return;
             }
 
-            document.getElementById('content').innerHTML = `
+            const responseHtml = `
                 <div class="responses-header">
                     <div class="header-content">
                         <div class="header-icon"><i class="fas fa-chart-bar"></i></div>
@@ -581,15 +581,21 @@
                             <h3>No responses yet</h3>
                             <p>Share your form to start collecting responses</p>
                         </div>
-                    ` : renderResponses('cards')}
+                    ` : renderResponsesInitial()}
                 </div>
             `;
-        }
+            
+            document.getElementById('content').innerHTML = responseHtml;
         
         let currentView = 'cards';
         let filteredResponses = formResponses;
+        
+        function renderResponsesInitial() {
+            filteredResponses = formResponses;
+            return renderResponses('cards');
+        }
                 
-                function renderResponses(view) {
+        function renderResponses(view) {
                     if (view === 'table') {
                         return `
                             <div class="table-wrapper">
