@@ -884,7 +884,13 @@
                 return;
             }
             
-            await formSystem.createAnnouncement(title, content, postedBy, roleId);
+            let submittedBy = 'System';
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                submittedBy = user.username || user.displayName || 'System';
+            }
+            
+            await formSystem.createAnnouncement(title, content, postedBy, roleId, submittedBy);
             document.querySelector('.form-modal').remove();
             alert('Announcement created and will be posted shortly!');
             
@@ -933,12 +939,19 @@
                 return;
             }
             
+            let submittedBy = 'Anonymous';
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                submittedBy = user.username || user.displayName || 'Anonymous';
+            }
+            
             const reportData = {
                 robloxUsername,
                 discordUsername,
                 reportType,
                 description,
-                evidence: evidenceLink
+                evidence: evidenceLink,
+                submittedBy
             };
             
             try {

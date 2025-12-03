@@ -78,9 +78,10 @@ if ($type === 'forms') {
     $formId = $input['formId'];
     $response = $input['response'];
     
-    $stmt = $conn->prepare("INSERT INTO form_responses (form_id, response_data) VALUES (?, ?)");
+    $stmt = $conn->prepare("INSERT INTO form_responses (form_id, response_data, submittedBy, submitted_at) VALUES (?, ?, ?, NOW())");
     $responseJson = json_encode($response);
-    $stmt->bind_param("ss", $formId, $responseJson);
+    $submittedBy = $response['submittedBy'] ?? 'Anonymous';
+    $stmt->bind_param("sss", $formId, $responseJson, $submittedBy);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);
@@ -92,8 +93,8 @@ if ($type === 'forms') {
     $announcement = $input['announcement'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO announcements (id, title, content, icon, postedBy) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $id, $announcement['title'], $announcement['content'], $announcement['icon'], $announcement['postedBy']);
+    $stmt = $conn->prepare("INSERT INTO announcements (id, title, content, icon, postedBy, submittedBy, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssssss", $id, $announcement['title'], $announcement['content'], $announcement['icon'], $announcement['postedBy'], $announcement['submittedBy']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
@@ -131,8 +132,8 @@ if ($type === 'forms') {
     $report = $input['report'];
     $id = uniqid();
     
-    $stmt = $conn->prepare("INSERT INTO reports (id, robloxUsername, discordUsername, reportType, description, evidence, created) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("ssssss", $id, $report['robloxUsername'], $report['discordUsername'], $report['reportType'], $report['description'], $report['evidence']);
+    $stmt = $conn->prepare("INSERT INTO reports (id, robloxUsername, discordUsername, reportType, description, evidence, submittedBy, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssssss", $id, $report['robloxUsername'], $report['discordUsername'], $report['reportType'], $report['description'], $report['evidence'], $report['submittedBy']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);

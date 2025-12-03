@@ -280,21 +280,110 @@
             color: #ff6b35;
             font-weight: 600;
         }
-        table {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            overflow: hidden;
+        .responses-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
         }
-        th, td {
-            padding: 12px;
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .search-container input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+        }
+        .view-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .view-btn {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .view-btn.active {
+            background: rgba(255, 107, 53, 0.3);
+            border-color: #ff6b35;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .responses-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .responses-table th {
+            background: rgba(255, 107, 53, 0.2);
+            padding: 15px;
             text-align: left;
+            color: white;
+            font-weight: 600;
+        }
+        .responses-table td {
+            padding: 12px 15px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
         }
-        th {
+        .user-badge {
             background: rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .btn-view {
+            background: rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .response-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .response-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ff6b35;
             font-weight: 600;
+        }
+        .response-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -476,8 +565,14 @@
                     </div>
                 </div>
                 <div class="responses-controls">
-                    <input type="text" id="responseSearch" placeholder="Search responses..." onkeyup="filterResponses()">
-                    <button onclick="setView('table')" id="tableBtn">Table View</button>
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="responseSearch" placeholder="Search by user or content..." onkeyup="filterResponses()">
+                    </div>
+                    <div class="view-controls">
+                        <button class="view-btn active" onclick="setView('cards')" id="cardsBtn"><i class="fas fa-th-large"></i> Cards</button>
+                        <button class="view-btn" onclick="setView('table')" id="tableBtn"><i class="fas fa-table"></i> Table</button>
+                    </div>
                 </div>
                 <div class="responses-container" id="responsesContainer">
                     ${formResponses.length === 0 ? `
@@ -486,45 +581,89 @@
                             <h3>No responses yet</h3>
                             <p>Share your form to start collecting responses</p>
                         </div>
-                    ` : formResponses.map((r, i) => `
-                        <div class="response-card">
-                            <div class="response-header">
-                                <div class="response-number">#${i + 1}</div>
-                                <div class="response-info">
-                                    <div class="response-user">${r.response_data?.submittedBy || 'Anonymous'}</div>
-                                    <div class="response-date">${new Date(r.submitted_at).toLocaleString()}</div>
-                                </div>
-                            </div>
-                            <div class="response-content">
-                                ${Object.entries(r.response_data?.data || r.response_data || {}).map(([k, v]) => `
-                                    <div class="answer-item">
-                                        <div class="question-label">${k.replace('q', 'Question ')}</div>
-                                        <div class="answer-value">${Array.isArray(v) ? v.join(', ') : v}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
+                    ` : renderResponses('cards')}
                 </div>
                 <script>
+                let currentView = 'cards';
+                let filteredResponses = formResponses;
+                
+                function renderResponses(view) {
+                    if (view === 'table') {
+                        return `
+                            <div class="table-wrapper">
+                                <table class="responses-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Submitted By</th>
+                                            <th>Date</th>
+                                            <th>Answers</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${filteredResponses.map((r, i) => `
+                                            <tr class="response-row" data-index="${i}">
+                                                <td><span class="response-number">#${i + 1}</span></td>
+                                                <td><span class="user-badge">${r.submittedBy || 'Anonymous'}</span></td>
+                                                <td>${new Date(r.submitted_at).toLocaleDateString()}</td>
+                                                <td>${Object.keys(r.response_data?.data || r.response_data || {}).length} answers</td>
+                                                <td><button class="btn-view" onclick="viewResponseDetails(${i})">View Details</button></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+                    } else {
+                        return filteredResponses.map((r, i) => `
+                            <div class="response-card" data-index="${i}">
+                                <div class="response-header">
+                                    <div class="response-number">#${i + 1}</div>
+                                    <div class="response-info">
+                                        <div class="response-user">
+                                            <i class="fas fa-user"></i>
+                                            <span>${r.submittedBy || 'Anonymous'}</span>
+                                        </div>
+                                        <div class="response-date">
+                                            <i class="fas fa-clock"></i>
+                                            <span>${new Date(r.submitted_at).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="response-content">
+                                    ${Object.entries(r.response_data?.data || r.response_data || {}).map(([k, v]) => `
+                                        <div class="answer-item">
+                                            <div class="question-label">${k.replace('q', 'Question ')}</div>
+                                            <div class="answer-value">${Array.isArray(v) ? v.join(', ') : v}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+                
+                function setView(view) {
+                    currentView = view;
+                    document.getElementById('cardsBtn').classList.toggle('active', view === 'cards');
+                    document.getElementById('tableBtn').classList.toggle('active', view === 'table');
+                    document.getElementById('responsesContainer').innerHTML = renderResponses(view);
+                }
+                
                 function filterResponses() {
                     const search = document.getElementById('responseSearch').value.toLowerCase();
-                    const cards = document.querySelectorAll('.response-card');
-                    cards.forEach(card => {
-                        const text = card.textContent.toLowerCase();
-                        card.style.display = text.includes(search) ? 'block' : 'none';
+                    filteredResponses = formResponses.filter(r => {
+                        const user = (r.submittedBy || 'Anonymous').toLowerCase();
+                        const content = JSON.stringify(r.response_data).toLowerCase();
+                        return user.includes(search) || content.includes(search);
                     });
+                    document.getElementById('responsesContainer').innerHTML = renderResponses(currentView);
                 }
-                function setView(view) {
-                    if (view === 'table') {
-                        document.getElementById('responsesContainer').innerHTML = 
-                        '<table><thead><tr><th>#</th><th>User</th><th>Date</th><th>Answers</th></tr></thead><tbody>' +
-                        formResponses.map((r, i) => 
-                            '<tr><td>' + (i+1) + '</td><td>' + (r.response_data?.submittedBy || 'Anonymous') + '</td><td>' + 
-                            new Date(r.submitted_at).toLocaleDateString() + '</td><td>' + 
-                            Object.keys(r.response_data?.data || {}).length + ' answers</td></tr>'
-                        ).join('') + '</tbody></table>';
-                    }
+                
+                function viewResponseDetails(index) {
+                    const response = filteredResponses[index];
+                    alert('Response Details:\n\n' + JSON.stringify(response.response_data, null, 2));
                 }
                 </script>
             `;
