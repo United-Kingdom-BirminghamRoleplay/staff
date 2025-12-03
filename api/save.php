@@ -1027,6 +1027,7 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot clear broadcasts']);
     }
 
+
 } elseif ($type === 'check_health') {
     // Simple health check endpoint
     echo json_encode(['status' => 'healthy', 'timestamp' => time()]);
