@@ -38,7 +38,7 @@ class DiscordAuth {
 
         try {
             // Exchange code for access token
-            const tokenResponse = await fetch('./api/discord-auth.php', {
+            const tokenResponse = await fetch('./api/debug-auth.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
