@@ -1,9 +1,10 @@
 class FormSystem {
     constructor() {
         this.forms = [];
-        this.WEBHOOK_URL = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
-        this.TRAINING_WEBHOOK = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
+        this.ANNOUNCEMENT_WEBHOOK = 'https://discord.com/api/webhooks/1442944637139681291/YzrPvceSfIEeeGT17INGWPRjaYlr97vTxgx22r5STdTvDXvL2nAL2JE-sUL1Mvc2NOzo';
+        this.TRAINING_WEBHOOK = 'https://discord.com/api/webhooks/1445841865369714688/EXjt9MJc-kR0G4kwwrMvTgU5PcHCVThB7jBbOTHWvpQqID4zWwsRU47YWOraLXhqaxcZ';
         this.TRIAL_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1442956549717884979/pCGDkB1RoTxFrPp1WDj9BQexxiAwhYmM66x8h9weCna_r2eYbZbyWrpkS46ypNd6oJ3e';
+        this.TOUCHPOINT_WEBHOOK = 'https://discord.com/api/webhooks/1445841990607437946/3EZ2eyH4Q88mQnYX7y5n0FbTZQVUNkaGiYxLFgbnv3pHconIH_6e_Wv0wmGPc0EnqbcN';
     }
     
     async loadForms() {
@@ -171,7 +172,7 @@ class FormSystem {
             
             const announcementUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, '')}announcement.html?id=${result.id}`;
             
-            this.sendToDiscord({
+            this.sendAnnouncementWebhook({
                 content: roleId ? `<@&${roleId}>` : '',
                 embeds: [{
                     title: '📢 New Staff Announcement Posted!',
@@ -230,8 +231,16 @@ class FormSystem {
         });
     }
 
-    sendToDiscord(payload) {
-        fetch(this.WEBHOOK_URL, {
+    sendAnnouncementWebhook(payload) {
+        fetch(this.ANNOUNCEMENT_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        }).catch(() => {});
+    }
+    
+    sendTouchpointWebhook(payload) {
+        fetch(this.TOUCHPOINT_WEBHOOK, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

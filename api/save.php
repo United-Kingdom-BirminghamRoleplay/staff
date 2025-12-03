@@ -633,6 +633,30 @@ if ($type === 'forms') {
     $stmt->bind_param("sssssssss", $id, $touchpoint['name'], $touchpoint['rank'], $touchpoint['department'], $target, $touchpoint['priority'], $touchpoint['subject'], $encryptedMessage, $encryptedContact);
     
     if ($stmt->execute()) {
+        // Send Discord webhook for touchpoint
+        $webhookData = [
+            'embeds' => [[
+                'title' => '🤝 New Touchpoint Request',
+                'color' => 0x3b82f6,
+                'fields' => [
+                    ['name' => 'From', 'value' => $touchpoint['name'] . ' (' . $touchpoint['rank'] . ')', 'inline' => true],
+                    ['name' => 'Department', 'value' => $target, 'inline' => true],
+                    ['name' => 'Priority', 'value' => $touchpoint['priority'], 'inline' => true],
+                    ['name' => 'Subject', 'value' => $touchpoint['subject'], 'inline' => false]
+                ],
+                'timestamp' => date('c')
+            ]]
+        ];
+        
+        $ch = curl_init('https://discord.com/api/webhooks/1445841990607437946/3EZ2eyH4Q88mQnYX7y5n0FbTZQVUNkaGiYxLFgbnv3pHconIH_6e_Wv0wmGPc0EnqbcN');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+        curl_close($ch);
+        
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
         echo json_encode(['error' => 'Cannot save touchpoint: ' . $conn->error]);

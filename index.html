@@ -202,9 +202,18 @@
 
 
     <script src="js/ip-check.js"></script>
+    <script src="js/discord-auth.js"></script>
+    <script>
+        // Force authentication check on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+        });
+    </script>
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/discord-auth.js"></script>
     <script src="js/lock-check.js"></script>
     <script src="js/security.js"></script>
     <script src="js/forms.js"></script>
