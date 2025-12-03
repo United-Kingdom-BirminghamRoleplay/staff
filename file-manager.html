@@ -475,13 +475,17 @@
         async function deleteFile(fileId) {
             if (confirm('Delete this file permanently?')) {
                 try {
-                    const response = await fetch('./api/save.php', {
+                    const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+                    const file = await response.json();
+                    
+                    const deleteResponse = await fetch('./api/save.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ type: 'delete_file', fileId })
                     });
                     
-                    if ((await response.json()).success) {
+                    if ((await deleteResponse.json()).success) {
+                        window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
                         alert('File deleted successfully!');
                         loadFiles();
                     }
