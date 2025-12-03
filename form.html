@@ -586,9 +586,10 @@
             `;
             
             document.getElementById('content').innerHTML = responseHtml;
+        }
         
         let currentView = 'cards';
-        let filteredResponses = formResponses;
+        let filteredResponses = [];
         
         function renderResponsesInitial() {
             filteredResponses = formResponses;
