@@ -16,7 +16,8 @@ $CLIENT_SECRET = getenv('DISCORD_CLIENT_SECRET') ?: 'tG1VDexmSuYXPWC3KMndNgvvRuB
 $GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '1152677388543598749';
 
 // Set the correct Redirect URI based on the server's context
-$REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/auth-callback.html';
+$REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/../auth-callback.html';
+$REDIRECT_URI = str_replace('/api/../', '/', $REDIRECT_URI);
 
 // Critical Check: Ensure the secret is loaded
 if (empty($CLIENT_SECRET)) {
@@ -80,7 +81,8 @@ if ($action === 'exchange_code') {
             'expires_in' => $tokenResponse['expires_in']
         ]);
     } else {
-        echo json_encode(['success' => false, 'error' => 'Token exchange failed', 'details' => $response]);
+        error_log('Discord token exchange failed: ' . $response);
+        echo json_encode(['success' => false, 'error' => 'Token exchange failed', 'details' => $response, 'redirect_uri' => $REDIRECT_URI]);
     }
 
 } elseif ($action === 'get_user_info') {
