@@ -958,7 +958,7 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'emergency_broadcast') {
-    $id = uniqid();
+    $id = 'eb_' . uniqid() . '_' . time();
     
     // Create emergency_broadcasts table
     $conn->query("CREATE TABLE IF NOT EXISTS emergency_broadcasts (
