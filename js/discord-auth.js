@@ -47,10 +47,9 @@ class DiscordAuth {
                 })
             });
 
-            const tokenData = await tokenResponse.json();
-            if (!tokenData.success) {
-                throw new Error(tokenData.error || 'Token exchange failed');
-            }
+            const tokenText = await tokenResponse.text();
+            console.log('Debug response:', tokenText);
+            throw new Error('Check console for debug info');
 
             // Get user info and guild membership
             const userResponse = await fetch('./api/discord-auth.php', {
