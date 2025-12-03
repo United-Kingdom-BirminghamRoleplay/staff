@@ -1020,10 +1020,14 @@
                             <button class="btn-icon" onclick="openForm('${form.id}')" title="Open Form"><i class="fas fa-external-link-alt"></i></button>
                             <button class="btn-icon" onclick="copyLink('${form.id}')" title="Copy Link"><i class="fas fa-copy"></i></button>
                             <button class="btn-icon" onclick="viewResponses('${form.id}')" title="View Responses"><i class="fas fa-chart-bar"></i></button>
-                            ${canViewPin ? `
-                                <button class="btn-icon" onclick="editForm('${form.id}')" title="Edit Form"><i class="fas fa-edit"></i></button>
-                                <button class="btn-icon danger" onclick="deleteForm('${form.id}')" title="Delete Form"><i class="fas fa-trash"></i></button>
-                            ` : ''}
+                            ${(() => {
+                                const currentUser = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+                                const canDelete = currentUser && (currentUser.level >= 5 || form.createdBy === currentUser.username);
+                                return canDelete ? `
+                                    <button class="btn-icon" onclick="editForm('${form.id}')" title="Edit Form"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger" onclick="deleteForm('${form.id}')" title="Delete Form"><i class="fas fa-trash"></i></button>
+                                ` : '';
+                            })()}
                         </div>
                     </div>
                 `).join('');
@@ -1089,11 +1093,15 @@
                             </div>
                         </div>
                         <p class="announcement-content">${announcement.content}</p>
-                        ${canViewPin ? `
-                            <div class="announcement-actions">
-                                <button class="btn-action delete" onclick="deleteAnnouncement('${announcement.id}')"><i class="fas fa-trash"></i> Delete</button>
-                            </div>
-                        ` : ''}
+                        ${(() => {
+                            const currentUser = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+                            const canDelete = currentUser && (currentUser.level >= 5 || announcement.submittedBy === currentUser.username);
+                            return canDelete ? `
+                                <div class="announcement-actions">
+                                    <button class="btn-action delete" onclick="deleteAnnouncement('${announcement.id}')"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            ` : '';
+                        })()}
                     </div>
                 `).join('');
                 
@@ -1236,13 +1244,20 @@
                                 <span class="detail-value">${log.signedBy}</span>
                             </div>
                         </div>
-                        ${canManage && log.trialResult === 'Ongoing' ? `
-                            <div class="trial-actions">
-                                <button class="btn-action pass" onclick="updateTrialResult('${log.id}', 'Passed')"><i class="fas fa-check"></i> Pass</button>
-                                <button class="btn-action fail" onclick="updateTrialResult('${log.id}', 'Failed')"><i class="fas fa-times"></i> Fail</button>
-                                <button class="btn-action extend" onclick="updateTrialResult('${log.id}', 'Extended')"><i class="fas fa-clock"></i> Extend</button>
-                            </div>
-                        ` : ''}
+                        ${(() => {
+                            const currentUser = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+                            const canManage = currentUser && (currentUser.level >= 5 || log.signedBy === currentUser.username);
+                            return canManage ? `
+                                <div class="trial-actions">
+                                    ${log.trialResult === 'Ongoing' ? `
+                                        <button class="btn-action pass" onclick="updateTrialResult('${log.id}', 'Passed')"><i class="fas fa-check"></i> Pass</button>
+                                        <button class="btn-action fail" onclick="updateTrialResult('${log.id}', 'Failed')"><i class="fas fa-times"></i> Fail</button>
+                                        <button class="btn-action extend" onclick="updateTrialResult('${log.id}', 'Extended')"><i class="fas fa-clock"></i> Extend</button>
+                                    ` : ''}
+                                    <button class="btn-action delete" onclick="deleteTrialLog('${log.id}')"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            ` : '';
+                        })()}
                     </div>
                 `).join('');
             } catch (error) {
@@ -1362,16 +1377,39 @@
                                 <span>${training.attendees ? training.attendees.length : 0} attendees</span>
                             </div>
                         </div>
-                        ${canManage ? `
-                            <div class="training-actions">
-                                <button class="btn-action edit" onclick="editTraining('${training.id}')"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn-action delete" onclick="deleteTraining('${training.id}')"><i class="fas fa-trash"></i> Delete</button>
-                            </div>
-                        ` : ''}
+                        ${(() => {
+                            const currentUser = window.discordAuth ? window.discordAuth.getCurrentUser() : null;
+                            const canManage = currentUser && (currentUser.level >= 5 || training.postedBy === currentUser.username);
+                            return canManage ? `
+                                <div class="training-actions">
+                                    <button class="btn-action edit" onclick="editTraining('${training.id}')"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-action delete" onclick="deleteTraining('${training.id}')"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            ` : '';
+                        })()}
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error loading trainings:', error);
+            }
+        }
+        
+        async function deleteTrialLog(id) {
+            if (confirm('Delete this trial log?')) {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'delete_trial_log', logId: id })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        loadTrialLogs();
+                    }
+                } catch (error) {
+                    alert('Error deleting trial log');
+                }
             }
         }
         
