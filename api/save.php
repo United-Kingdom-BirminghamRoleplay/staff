@@ -1028,6 +1028,7 @@ if ($type === 'forms') {
 
 } elseif ($type === 'acknowledge_emergency_broadcast') {
     $broadcastId = $input['broadcastId'];
+    // Use IP address as user identifier for emergency broadcasts
     $userId = 'user_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     
     // Create acknowledgments table if it doesn't exist

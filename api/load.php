@@ -299,6 +299,7 @@ if ($type === 'announcements') {
     echo json_encode($touchpoints);
 
 } elseif ($type === 'emergency_broadcast') {
+    // Use IP address as user identifier for emergency broadcasts
     $userId = 'user_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     
     // Get active broadcast that user hasn't acknowledged
