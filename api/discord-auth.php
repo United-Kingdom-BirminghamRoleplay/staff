@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // The getenv() function retrieves the variable set on your server (e.g., via Apache, Nginx, or a .env loader).
 $CLIENT_ID = getenv('DISCORD_CLIENT_ID') ?: '1340376847732707380';
 $CLIENT_SECRET = getenv('DISCORD_CLIENT_SECRET') ?: 'sItirewymvIRAnGRRhb_jFTyeBR2lJCn';
-$GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '1152677388543598749';
+$GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '906647296370958408';
 
 $REDIRECT_URI = 'https://staff.ukbrum.co.uk/auth-callback.html';
 

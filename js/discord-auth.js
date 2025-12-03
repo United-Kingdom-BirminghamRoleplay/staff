@@ -4,7 +4,7 @@ class DiscordAuth {
         this.CLIENT_ID = '1340376847732707380';
         this.REDIRECT_URI = window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'auth-callback.html';
         this.SCOPES = 'identify guilds.members.read';
-        this.GUILD_ID = '1152677388543598749'; 
+        this.GUILD_ID = '906647296370958408'; 
     }
 
     // Initiate Discord OAuth flow
