@@ -38,7 +38,7 @@ class DiscordAuth {
 
         try {
             // Exchange code for access token
-            const tokenResponse = await fetch('./api/debug-auth.php', {
+            const tokenResponse = await fetch('./api/discord-auth.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -47,9 +47,10 @@ class DiscordAuth {
                 })
             });
 
-            const tokenText = await tokenResponse.text();
-            console.log('Debug response:', tokenText);
-            throw new Error('Check console for debug info');
+            const tokenData = await tokenResponse.json();
+            if (!tokenData.success) {
+                throw new Error(tokenData.error || 'Token exchange failed');
+            }
 
             // Get user info and guild membership
             const userResponse = await fetch('./api/discord-auth.php', {
