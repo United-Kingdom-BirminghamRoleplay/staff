@@ -583,9 +583,11 @@
                         </div>
                     ` : renderResponses('cards')}
                 </div>
-                <script>
-                let currentView = 'cards';
-                let filteredResponses = formResponses;
+            `;
+        }
+        
+        let currentView = 'cards';
+        let filteredResponses = formResponses;
                 
                 function renderResponses(view) {
                     if (view === 'table') {
