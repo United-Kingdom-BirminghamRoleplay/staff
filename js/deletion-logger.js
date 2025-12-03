@@ -35,9 +35,9 @@ window.DeletionLogger = {
             });
 
             // Send Discord webhook for critical deletions
-            const criticalTypes = ['assessment', 'announcement', 'file', 'training', 'touchpoint'];
+            const criticalTypes = ['form', 'assessment', 'announcement', 'file', 'training', 'touchpoint', 'trial_log'];
             if (criticalTypes.includes(type)) {
-                await fetch('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T', {
+                await fetch('https://discord.com/api/webhooks/1442957109896675590/2uKYJXKuTl0wPyMxk_BFLaTVf7gMW4lnfpH_tNVKDSyfMxteEo33QgpsqPP1Kq4MFfxH', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
