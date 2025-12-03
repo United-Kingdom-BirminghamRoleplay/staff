@@ -135,15 +135,22 @@
             const message = document.getElementById('emergencyMessage').value.trim();
             if (!message) return;
             
+            const currentUser = window.discordAuth?.getCurrentUser();
+            
             try {
                 const response = await fetch('./api/save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        type: 'emergency_broadcast', 
-                        title: 'Emergency Notice',
-                        message: message,
-                        active: true
+                        type: 'emergency_broadcast',
+                        broadcast: {
+                            title: 'Emergency Notice',
+                            message: message,
+                            active: true,
+                            createdBy: currentUser?.username || 'Founder',
+                            createdById: currentUser?.userId || 'founder',
+                            priority: 'high'
+                        }
                     })
                 });
                 
@@ -152,10 +159,10 @@
                     document.querySelector('.form-modal').remove();
                     alert('Emergency broadcast sent to all users!');
                 } else {
-                    alert('Failed to send emergency message');
+                    alert('Failed to send emergency message: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Error sending message');
+                alert('Error sending message: ' + error.message);
             }
         }
         

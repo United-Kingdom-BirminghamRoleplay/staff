@@ -955,75 +955,37 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'emergency_broadcast') {
-    $broadcast = $input['broadcast'];
+    $broadcast = $input['broadcast'] ?? $input;
     $id = uniqid();
     
-    // Create emergency_broadcasts table if it doesn't exist
+    // Create enhanced emergency_broadcasts table
     $conn->query("CREATE TABLE IF NOT EXISTS emergency_broadcasts (
         id VARCHAR(50) PRIMARY KEY,
         title VARCHAR(255),
         message TEXT,
         active BOOLEAN DEFAULT TRUE,
         created_by VARCHAR(100),
-        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    $stmt = $conn->prepare("INSERT INTO emergency_broadcasts (id, title, message, created_by) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $id, $broadcast['title'], $broadcast['message'], $broadcast['createdBy']);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $id]);
-    } else {
-        echo json_encode(['error' => 'Cannot create emergency broadcast']);
-    }
-
-} elseif ($type === 'acknowledge_emergency_broadcast') {
-    $broadcastId = $input['broadcastId'];
-    $userId = 'current_user'; // Would get from session in real implementation
-    
-    // Create acknowledgments table if it doesn't exist
-    $conn->query("CREATE TABLE IF NOT EXISTS emergency_acknowledgments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        broadcast_id VARCHAR(50),
-        user_id VARCHAR(100),
-        acknowledged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    $stmt = $conn->prepare("INSERT INTO emergency_acknowledgments (broadcast_id, user_id) VALUES (?, ?)");
-    $stmt->bind_param("ss", $broadcastId, $userId);
-    
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['error' => 'Cannot acknowledge broadcast']);
-    }
-
-} elseif ($type === 'emergency_broadcast') {
-    $title = $input['title'] ?? 'Emergency Notice';
-    $message = $input['message'];
-    $active = $input['active'] ?? true;
-    $id = uniqid();
-    
-    // Create emergency_broadcasts table if it doesn't exist
-    $conn->query("CREATE TABLE IF NOT EXISTS emergency_broadcasts (
-        id VARCHAR(50) PRIMARY KEY,
-        title VARCHAR(255),
-        message TEXT,
-        active BOOLEAN DEFAULT TRUE,
+        created_by_id VARCHAR(100),
+        priority VARCHAR(20) DEFAULT 'high',
         created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     
     // Deactivate all previous broadcasts
     $conn->query("UPDATE emergency_broadcasts SET active = FALSE");
     
-    // Insert new broadcast
-    $stmt = $conn->prepare("INSERT INTO emergency_broadcasts (id, title, message, active) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("sssi", $id, $title, $message, $active);
+    $title = $broadcast['title'] ?? 'Emergency Notice';
+    $message = $broadcast['message'] ?? $input['message'];
+    $createdBy = $broadcast['createdBy'] ?? 'System';
+    $createdById = $broadcast['createdById'] ?? 'system';
+    $priority = $broadcast['priority'] ?? 'high';
+    
+    $stmt = $conn->prepare("INSERT INTO emergency_broadcasts (id, title, message, created_by, created_by_id, priority) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssss", $id, $title, $message, $createdBy, $createdById, $priority);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
-        echo json_encode(['error' => 'Cannot create emergency broadcast']);
+        echo json_encode(['error' => 'Cannot create emergency broadcast: ' . $conn->error]);
     }
 
 } elseif ($type === 'acknowledge_emergency_broadcast') {

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergency Broadcast Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+        button { padding: 10px 20px; margin: 10px; background: #ff6b35; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .result { margin: 10px 0; padding: 10px; background: #333; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Emergency Broadcast System Test</h1>
+    
+    <button onclick="testCreateBroadcast()">Create Test Broadcast</button>
+    <button onclick="testCheckBroadcast()">Check for Broadcasts</button>
+    <button onclick="testClearBroadcasts()">Clear All Broadcasts</button>
+    
+    <div id="results"></div>
+    
+    <script src="js/emergency-broadcast.js"></script>
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            results.innerHTML += `<div class="result">${new Date().toLocaleTimeString()}: ${message}</div>`;
+        }
+        
+        async function testCreateBroadcast() {
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'emergency_broadcast',
+                        broadcast: {
+                            title: 'Test Emergency',
+                            message: 'This is a test emergency broadcast message!',
+                            createdBy: 'Test User',
+                            createdById: 'test123',
+                            priority: 'high'
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                log(`Create broadcast result: ${JSON.stringify(result)}`);
+            } catch (error) {
+                log(`Error creating broadcast: ${error.message}`);
+            }
+        }
+        
+        async function testCheckBroadcast() {
+            try {
+                const response = await fetch('./api/load.php?type=emergency_broadcast');
+                const data = await response.json();
+                log(`Check broadcast result: ${JSON.stringify(data)}`);
+                
+                if (data && data.active) {
+                    log('Active broadcast found! Emergency system should show it.');
+                } else {
+                    log('No active broadcast found.');
+                }
+            } catch (error) {
+                log(`Error checking broadcast: ${error.message}`);
+            }
+        }
+        
+        async function testClearBroadcasts() {
+            try {
+                // Manually deactivate broadcasts
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'emergency_broadcast',
+                        broadcast: {
+                            title: 'Clear',
+                            message: 'Clear',
+                            createdBy: 'System',
+                            active: false
+                        }
+                    })
+                });
+                
+                log('Broadcasts cleared (deactivated)');
+            } catch (error) {
+                log(`Error clearing broadcasts: ${error.message}`);
+            }
+        }
+        
+        // Auto-check on page load
+        window.addEventListener('load', () => {
+            log('Test page loaded. Emergency broadcast system initialized.');
+            testCheckBroadcast();
+        });
+    </script>
+</body>
+</html>
