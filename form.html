@@ -539,8 +539,22 @@
 
         function showResponses() {
             const form = formSystem.getForm(formId);
-            if (!form || form.pin != pin) {
-                document.getElementById('content').innerHTML = '<div class="error">Invalid PIN or form not found</div>';
+            if (!form) {
+                document.getElementById('content').innerHTML = '<div class="error">Form not found</div>';
+                return;
+            }
+            
+            // Check if user has Level 5+ access or correct PIN
+            let hasAccess = false;
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                if (user.level >= 5) {
+                    hasAccess = true;
+                }
+            }
+            
+            if (!hasAccess && form.pin != pin) {
+                document.getElementById('content').innerHTML = '<div class="error">Invalid PIN or insufficient access level</div>';
                 return;
             }
 
@@ -670,10 +684,9 @@
                     document.getElementById('responsesContainer').innerHTML = renderResponses(currentView);
                 }
                 
-                function viewResponseDetails(index) {
-                    const response = filteredResponses[index];
-                    alert('Response Details:\n\n' + JSON.stringify(response.response_data, null, 2));
-                }
+        function viewResponseDetails(index) {
+            const response = filteredResponses[index];
+            alert('Response Details:\n\n' + JSON.stringify(response.response_data, null, 2));
         }
     </script>
 </body>

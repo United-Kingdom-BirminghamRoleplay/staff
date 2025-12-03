@@ -841,7 +841,16 @@
         }
         
         function viewResponses(id) {
-            if (formSystem.canViewPin()) {
+            // Check if user has Level 5+ access
+            let hasHighAccess = false;
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const user = window.discordAuth.getCurrentUser();
+                if (user.level >= 5) {
+                    hasHighAccess = true;
+                }
+            }
+            
+            if (hasHighAccess) {
                 const form = formSystem.getForm(id);
                 window.open(`form.html?id=${id}&pin=${form.pin}`, '_blank');
             } else {
@@ -994,7 +1003,15 @@
                                 <div class="form-meta">
                                     <span><i class="fas fa-calendar"></i> ${new Date(form.created).toLocaleDateString()}</span>
                                     <span><i class="fas fa-question-circle"></i> ${form.fields.length} questions</span>
-                                    ${canViewPin ? `<span><i class="fas fa-key"></i> ${form.pin}</span>` : ''}
+                                    ${(() => {
+                                        if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                                            const user = window.discordAuth.getCurrentUser();
+                                            if (user.level >= 5) {
+                                                return `<span><i class="fas fa-key"></i> ${form.pin}</span>`;
+                                            }
+                                        }
+                                        return '';
+                                    })()}
                                 </div>
                             </div>
                         </div>
