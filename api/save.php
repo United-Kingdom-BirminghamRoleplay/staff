@@ -1,6 +1,6 @@
 <?php
-// Re-enable rate limiter for DDoS protection
-require_once 'rate-limiter.php';
+// Temporarily disable rate limiter for testing
+// require_once 'rate-limiter.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
