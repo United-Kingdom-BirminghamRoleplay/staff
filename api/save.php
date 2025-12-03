@@ -302,12 +302,13 @@ if ($type === 'forms') {
         description TEXT,
         uploadedBy VARCHAR(100),
         status VARCHAR(20) DEFAULT 'pending',
+        accessLevel INT DEFAULT 1,
         fileData LONGTEXT,
         created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     
-    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssisssss", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['fileData']);
+    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, accessLevel, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssissssis", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['accessLevel'], $file['fileData']);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
