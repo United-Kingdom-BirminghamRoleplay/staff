@@ -913,8 +913,8 @@
             modal.innerHTML = `
                 <div class="form-modal-content">
                     <h3><i class="fas fa-flag"></i> General Report</h3>
-                    <input type="text" id="robloxUsername" placeholder="Roblox Username of the Person you are Reporting" required>
-                    <input type="text" id="discordUsername" placeholder="Your Discord Username" required>
+                    <input type="text" id="reportedDiscordUsername" placeholder="Discord Username of the Person you are Reporting" required>
+                    <input type="text" id="reporterDiscordUsername" placeholder="Your Discord Username" required readonly>
                     <select id="reportType" required>
                         <option value="">Select Report Type</option>
                         <option value="Staff Report">Staff Report</option>
@@ -934,17 +934,23 @@
                 </div>
             `;
             document.body.appendChild(modal);
+            
+            // Auto-fill reporter's Discord username
+            if (window.discordAuth && window.discordAuth.isAuthenticated()) {
+                const currentUser = window.discordAuth.getCurrentUser();
+                document.getElementById('reporterDiscordUsername').value = currentUser.username || currentUser.displayName || '';
+            }
         }
         
         async function submitGeneralReport() {
-            const robloxUsername = document.getElementById('robloxUsername').value.trim();
-            const discordUsername = document.getElementById('discordUsername').value.trim();
+            const reportedDiscordUsername = document.getElementById('reportedDiscordUsername').value.trim();
+            const reporterDiscordUsername = document.getElementById('reporterDiscordUsername').value.trim();
             const reportType = document.getElementById('reportType').value;
             const description = document.getElementById('reportDescription').value.trim();
             const evidenceLink = document.getElementById('evidenceLink').value.trim();
             const agreeTicket = document.getElementById('agreeTicket').checked;
             
-            if (!robloxUsername || !discordUsername || !reportType || !description || !agreeTicket) {
+            if (!reportedDiscordUsername || !reporterDiscordUsername || !reportType || !description || !agreeTicket) {
                 alert('Please fill in all required fields and agree to the terms');
                 return;
             }
@@ -956,8 +962,8 @@
             }
             
             const reportData = {
-                robloxUsername,
-                discordUsername,
+                robloxUsername: reportedDiscordUsername,
+                discordUsername: reporterDiscordUsername,
                 reportType,
                 description,
                 evidence: evidenceLink,
