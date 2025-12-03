@@ -153,6 +153,19 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot update trial']);
     }
 
+} elseif ($type === 'delete_trial_log') {
+    $logId = $input['logId'];
+    $deletedBy = $input['deletedBy'] ?? 'Unknown';
+    
+    $stmt = $conn->prepare("DELETE FROM trial_logs WHERE id = ?");
+    $stmt->bind_param("s", $logId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot delete trial log']);
+    }
+
 } elseif ($type === 'delete_training') {
     $trainingId = $input['trainingId'];
     $deletedBy = $input['deletedBy'] ?? 'Unknown';
