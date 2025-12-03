@@ -354,6 +354,7 @@
                                 <button class="btn-glass" onclick="approveFile('${file.id}')" style="background: rgba(34, 197, 94, 0.3);"><i class="fas fa-check"></i> Approve</button>
                                 <button class="btn-glass" onclick="rejectFile('${file.id}')" style="background: rgba(239, 68, 68, 0.3);"><i class="fas fa-times"></i> Reject</button>
                             ` : ''}
+                            ${isFounder ? `<button class="btn-glass" onclick="editFile('${file.id}', '${file.name.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit</button>` : ''}
                             ${isFounder ? `<button class="btn-glass" onclick="deleteFile('${file.id}')" style="background: rgba(239, 68, 68, 0.3);"><i class="fas fa-trash"></i> Delete</button>` : ''}
                             ${isImage || isDoc ? `<button class="btn-glass" onclick="previewFile('${file.id}', '${file.type}')"><i class="fas fa-eye"></i> Preview</button>` : ''}
                         </div>
@@ -411,6 +412,66 @@
             }
         }
         
+        async function editFile(fileId, currentName) {
+            const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+            const file = await response.json();
+            
+            const modal = document.createElement('div');
+            modal.className = 'form-modal';
+            modal.innerHTML = `
+                <div class="form-modal-content">
+                    <h3>Edit File</h3>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: white;">File Name:</label>
+                        <input type="text" id="editFileName" value="${currentName}" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: white;">Access Level:</label>
+                        <select id="editAccessLevel" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+                            <option value="1" ${(file.accessLevel || 1) == 1 ? 'selected' : ''}>Level 1+ (All Staff)</option>
+                            <option value="2" ${(file.accessLevel || 1) == 2 ? 'selected' : ''}>Level 2+ (HR and above)</option>
+                            <option value="3" ${(file.accessLevel || 1) == 3 ? 'selected' : ''}>Level 3+ (Oversight and above)</option>
+                            <option value="4" ${(file.accessLevel || 1) == 4 ? 'selected' : ''}>Level 4+ (Advisory and above)</option>
+                            <option value="5" ${(file.accessLevel || 1) == 5 ? 'selected' : ''}>Level 5+ (Leadership only)</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button onclick="saveFileEdit('${fileId}')" class="btn-primary">Save Changes</button>
+                        <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        async function saveFileEdit(fileId) {
+            const name = document.getElementById('editFileName').value.trim();
+            const accessLevel = parseInt(document.getElementById('editAccessLevel').value);
+            
+            if (!name) {
+                alert('File name cannot be empty');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'update_file', fileId, name, accessLevel })
+                });
+                
+                if ((await response.json()).success) {
+                    alert('File updated successfully!');
+                    document.querySelector('.form-modal').remove();
+                    loadFiles();
+                } else {
+                    alert('Error updating file');
+                }
+            } catch (error) {
+                alert('Error updating file');
+            }
+        }
+        
         async function deleteFile(fileId) {
             if (confirm('Delete this file permanently?')) {
                 try {
@@ -450,10 +511,12 @@
                         </div>
                     `;
                 } else if (fileType.includes('pdf')) {
+                    // Use PDF proxy to avoid CORS issues
+                    const proxyUrl = `./api/pdf-proxy.php?file=${encodeURIComponent(file.name)}`;
                     modal.innerHTML = `
                         <div class="form-modal-content" style="max-width: 90vw; max-height: 90vh;">
                             <h3>${file.name}</h3>
-                            <iframe src="${file.fileData}" style="width: 100%; height: 70vh; border: none; border-radius: 8px;"></iframe>
+                            <iframe src="${proxyUrl}" style="width: 100%; height: 70vh; border: none; border-radius: 8px;"></iframe>
                             <div class="form-actions">
                                 <button onclick="this.closest('.form-modal').remove()" class="btn-secondary">Close</button>
                             </div>

@@ -78,6 +78,15 @@ if ($type === 'forms') {
     $formId = $input['formId'];
     $response = $input['response'];
     
+    // Create form_responses table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS form_responses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        form_id VARCHAR(50),
+        response_data JSON,
+        submittedBy VARCHAR(100),
+        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
     $stmt = $conn->prepare("INSERT INTO form_responses (form_id, response_data, submittedBy, submitted_at) VALUES (?, ?, ?, NOW())");
     $responseJson = json_encode($response);
     $submittedBy = $response['submittedBy'] ?? 'Anonymous';
@@ -511,6 +520,20 @@ if ($type === 'forms') {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot approve file']);
+    }
+
+} elseif ($type === 'update_file') {
+    $fileId = $input['fileId'];
+    $name = $input['name'];
+    $accessLevel = $input['accessLevel'];
+    
+    $stmt = $conn->prepare("UPDATE files SET name = ?, accessLevel = ? WHERE id = ?");
+    $stmt->bind_param("sis", $name, $accessLevel, $fileId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Cannot update file']);
     }
 
 } elseif ($type === 'delete_file') {
