@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // The getenv() function retrieves the variable set on your server (e.g., via Apache, Nginx, or a .env loader).
 $CLIENT_ID = getenv('DISCORD_CLIENT_ID') ?: '1340376847732707380';
 $CLIENT_SECRET = getenv('DISCORD_CLIENT_SECRET') ?: 'tG1VDexmSuYXPWC3KMndNgvvRuB8YmWA'; // SECURED via Environment Variable
-$GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '906647296370958408';
+$GUILD_ID = getenv('DISCORD_GUILD_ID') ?: '1152677388543598749';
 
 // Set the correct Redirect URI based on the server's context
 $REDIRECT_URI = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/auth-callback.html';
