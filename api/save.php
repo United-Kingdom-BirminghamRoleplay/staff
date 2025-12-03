@@ -955,32 +955,32 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'emergency_broadcast') {
-    $broadcast = $input['broadcast'] ?? $input;
     $id = uniqid();
     
-    // Create enhanced emergency_broadcasts table
+    // Create emergency_broadcasts table
     $conn->query("CREATE TABLE IF NOT EXISTS emergency_broadcasts (
         id VARCHAR(50) PRIMARY KEY,
-        title VARCHAR(255),
-        message TEXT,
-        active BOOLEAN DEFAULT TRUE,
-        created_by VARCHAR(100),
-        created_by_id VARCHAR(100),
-        priority VARCHAR(20) DEFAULT 'high',
-        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        priority INT DEFAULT 1,
+        creator VARCHAR(255) NOT NULL,
+        creator_id VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_active TINYINT(1) DEFAULT 1,
+        acknowledged_ips JSON
     )");
     
     // Deactivate all previous broadcasts
-    $conn->query("UPDATE emergency_broadcasts SET active = FALSE");
+    $conn->query("UPDATE emergency_broadcasts SET is_active = 0");
     
-    $title = $broadcast['title'] ?? 'Emergency Notice';
-    $message = $broadcast['message'] ?? $input['message'];
-    $createdBy = $broadcast['createdBy'] ?? 'System';
-    $createdById = $broadcast['createdById'] ?? 'system';
-    $priority = $broadcast['priority'] ?? 'high';
+    $title = $input['title'] ?? 'Emergency Notice';
+    $message = $input['message'] ?? '';
+    $creator = $input['creator'] ?? 'System';
+    $creatorId = $input['creator_id'] ?? 'system';
+    $priority = $input['priority'] ?? 1;
     
-    $stmt = $conn->prepare("INSERT INTO emergency_broadcasts (id, title, message, created_by, created_by_id, priority) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssss", $id, $title, $message, $createdBy, $createdById, $priority);
+    $stmt = $conn->prepare("INSERT INTO emergency_broadcasts (id, title, message, creator, creator_id, priority) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssi", $id, $title, $message, $creator, $creatorId, $priority);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'id' => $id]);
@@ -990,24 +990,31 @@ if ($type === 'forms') {
 
 } elseif ($type === 'acknowledge_emergency_broadcast') {
     $broadcastId = $input['broadcastId'];
-    // Use IP address as user identifier for emergency broadcasts
-    $userId = 'user_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    $userIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
-    // Create acknowledgments table if it doesn't exist
-    $conn->query("CREATE TABLE IF NOT EXISTS emergency_acknowledgments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        broadcast_id VARCHAR(50),
-        user_id VARCHAR(100),
-        acknowledged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
+    // Get current acknowledged IPs
+    $stmt = $conn->prepare("SELECT acknowledged_ips FROM emergency_broadcasts WHERE id = ?");
+    $stmt->bind_param("s", $broadcastId);
+    $stmt->execute();
+    $result = $stmt->get_result()->fetch_assoc();
     
-    $stmt = $conn->prepare("INSERT INTO emergency_acknowledgments (broadcast_id, user_id) VALUES (?, ?)");
-    $stmt->bind_param("ss", $broadcastId, $userId);
+    $acknowledgedIps = $result['acknowledged_ips'] ? json_decode($result['acknowledged_ips'], true) : [];
     
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
+    // Add current IP if not already acknowledged
+    if (!in_array($userIp, $acknowledgedIps)) {
+        $acknowledgedIps[] = $userIp;
+        
+        $stmt = $conn->prepare("UPDATE emergency_broadcasts SET acknowledged_ips = ? WHERE id = ?");
+        $acknowledgedIpsJson = json_encode($acknowledgedIps);
+        $stmt->bind_param("ss", $acknowledgedIpsJson, $broadcastId);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['error' => 'Cannot acknowledge broadcast']);
+        }
     } else {
-        echo json_encode(['error' => 'Cannot acknowledge broadcast']);
+        echo json_encode(['success' => true, 'already_acknowledged' => true]);
     }
 
 } elseif ($type === 'check_health') {
