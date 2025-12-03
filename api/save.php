@@ -284,7 +284,6 @@ if ($type === 'forms') {
     // SECURITY: Account deletion disabled
     echo json_encode(['error' => 'Account deletion disabled for security']);
 
-
 } elseif ($type === 'save_notes') {
     $userId = $input['userId'];
     $notes = $input['notes'];
@@ -1026,7 +1025,6 @@ if ($type === 'forms') {
     } else {
         echo json_encode(['error' => 'Cannot clear broadcasts']);
     }
-
 
 } elseif ($type === 'check_health') {
     // Simple health check endpoint
