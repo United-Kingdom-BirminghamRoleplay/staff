@@ -154,7 +154,17 @@
                     })
                 });
                 
-                const result = await response.json();
+                const text = await response.text();
+                console.log('Raw response:', text);
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    alert('Server returned invalid response: ' + text);
+                    return;
+                }
+                
                 if (result.success) {
                     document.querySelector('.form-modal').remove();
                     alert('Emergency broadcast sent to all users!');
