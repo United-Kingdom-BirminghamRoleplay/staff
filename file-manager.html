@@ -139,6 +139,35 @@
         .upload-form input::placeholder {
             color: rgba(255, 255, 255, 0.6);
         }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .notification.show {
+            transform: translateX(0);
+        }
+        .notification.success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -181,14 +210,20 @@
         </section>
 
         <section class="forms-section">
-            <h2><i class="fas fa-folder-open"></i> Approved Files</h2>
+            <div class="section-header">
+                <h2><i class="fas fa-folder-open"></i> Approved Files</h2>
+                <button class="btn-glass" onclick="loadFiles()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
             <div id="approvedFiles">
                 <!-- Approved files will be loaded here -->
             </div>
         </section>
 
         <section class="forms-section" id="pendingSection" style="display: none;">
-            <h2><i class="fas fa-clock"></i> Pending Approval</h2>
+            <div class="section-header">
+                <h2><i class="fas fa-clock"></i> Pending Approval</h2>
+                <button class="btn-glass" onclick="loadFiles()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
             <div id="pendingFiles">
                 <!-- Pending files will be loaded here -->
             </div>
@@ -256,16 +291,17 @@
                 
                 const result = JSON.parse(text);
                 if (result.success) {
-                    alert('File uploaded successfully! Awaiting founder approval.');
+                    showNotification('File uploaded successfully! Awaiting founder approval.', 'success');
                     fileInput.value = '';
                     document.getElementById('fileDescription').value = '';
+                    document.getElementById('accessLevel').value = '1';
                     loadFiles();
                 } else {
-                    alert('Failed to upload file: ' + (result.error || 'Unknown error'));
+                    showNotification('Failed to upload file: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('Error uploading file: ' + error.message);
+                showNotification('Error uploading file: ' + error.message, 'error');
             } finally {
                 // Reset button
                 uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload File';
@@ -398,11 +434,11 @@
                     });
                     
                     if ((await response.json()).success) {
-                        alert('File approved successfully!');
+                        showNotification('File approved successfully!', 'success');
                         loadFiles();
                     }
                 } catch (error) {
-                    alert('Error approving file');
+                    showNotification('Error approving file', 'error');
                 }
             }
         }
@@ -462,14 +498,14 @@
                 });
                 
                 if ((await response.json()).success) {
-                    alert('File updated successfully!');
+                    showNotification('File updated successfully!', 'success');
                     document.querySelector('.form-modal').remove();
                     loadFiles();
                 } else {
-                    alert('Error updating file');
+                    showNotification('Error updating file', 'error');
                 }
             } catch (error) {
-                alert('Error updating file');
+                showNotification('Error updating file', 'error');
             }
         }
         
@@ -487,11 +523,11 @@
                     
                     if ((await deleteResponse.json()).success) {
                         window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
-                        alert('File deleted successfully!');
+                        showNotification('File deleted successfully!', 'success');
                         loadFiles();
                     }
                 } catch (error) {
-                    alert('Error deleting file');
+                    showNotification('Error deleting file', 'error');
                 }
             }
         }
@@ -555,8 +591,26 @@
                 
                 document.body.appendChild(modal);
             } catch (error) {
-                alert('Error loading file preview');
+                showNotification('Error loading file preview', 'error');
             }
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
         }
         
         document.addEventListener('DOMContentLoaded', () => {
