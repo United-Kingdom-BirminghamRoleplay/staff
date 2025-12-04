@@ -371,29 +371,6 @@ if ($type === 'forms') {
     $stmt->bind_param("ssissssis", $id, $name, $size, $type, $description, $uploadedBy, $status, $accessLevel, $fileData);
     
     if ($stmt->execute()) {
-        // Log file upload
-        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-        if ($logStmt) {
-            $logData = json_encode([
-                'action' => 'file_upload',
-                'fileId' => $id,
-                'fileName' => $name,
-                'fileSize' => $size,
-                'uploadedBy' => $uploadedBy,
-                'accessLevel' => $accessLevel
-            ]);
-            $logStmt->bind_param("sssssss", 
-                $eventType = 'FILE_UPLOAD',
-                $logData,
-                $sessionId = 'file_action',
-                $fingerprint = 'upload_action',
-                $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-                $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-                $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
-            );
-            $logStmt->execute();
-        }
-        
         echo json_encode(['success' => true, 'id' => $id]);
         exit;
     } else {
