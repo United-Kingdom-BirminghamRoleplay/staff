@@ -1145,6 +1145,34 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot clear broadcasts']);
     }
 
+} elseif ($type === 'approve_file') {
+    $fileId = $input['fileId'];
+    
+    $stmt = $conn->prepare("UPDATE files SET status = 'approved' WHERE id = ?");
+    $stmt->bind_param("s", $fileId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Database error']);
+        exit;
+    }
+
+} elseif ($type === 'delete_file') {
+    $fileId = $input['fileId'];
+    
+    $stmt = $conn->prepare("DELETE FROM files WHERE id = ?");
+    $stmt->bind_param("s", $fileId);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Database error']);
+        exit;
+    }
+
 } elseif ($type === 'check_health') {
     // Simple health check endpoint
     echo json_encode(['status' => 'healthy', 'timestamp' => time()]);

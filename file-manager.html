@@ -493,48 +493,62 @@
                     <h3>${title}</h3>
                     <p>${message}</p>
                     <div class="confirm-buttons">
-                        <button class="btn-confirm ${confirmClass}" onclick="this.closest('.confirm-modal').remove(); (${onConfirm.toString()})()">\n                            <i class="fas ${confirmClass.includes('approve') ? 'fa-check' : confirmClass.includes('reject') ? 'fa-times' : 'fa-check'}"></i> ${confirmText}\n                        </button>
-                        <button class="btn-confirm btn-cancel" onclick="this.closest('.confirm-modal').remove()">\n                            <i class="fas fa-times"></i> Cancel\n                        </button>
+                        <button class="btn-confirm ${confirmClass}" id="confirmBtn">
+                            <i class="fas ${confirmClass.includes('approve') ? 'fa-check' : confirmClass.includes('reject') ? 'fa-times' : 'fa-check'}"></i> ${confirmText}
+                        </button>
+                        <button class="btn-confirm btn-cancel" onclick="this.closest('.confirm-modal').remove()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
                     </div>
                 </div>
             `;
+            
+            modal.querySelector('#confirmBtn').onclick = () => {
+                modal.remove();
+                onConfirm();
+            };
+            
             document.body.appendChild(modal);
         }
         
         async function approveFile(fileId) {
+            const approveAction = async () => {
+                try {
+                    const response = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'approve_file', fileId })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        showNotification('File approved successfully!', 'success');
+                    } else {
+                        showNotification('Error approving file: ' + (result.error || 'Unknown error'), 'error');
+                    }
+                    loadFiles();
+                } catch (error) {
+                    showNotification('Error approving file: ' + error.message, 'error');
+                    loadFiles();
+                }
+            };
+            
             showConfirmModal(
                 'Approve File',
                 'Approve this file for all users to see?',
-                async () => {
-                    try {
-                        const response = await fetch('./api/save.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ type: 'approve_file', fileId })
-                        });
-                        
-                        const result = await response.json();
-                        if (result.success) {
-                            showNotification('File approved successfully!', 'success');
-                        } else {
-                            showNotification('Error approving file: ' + (result.error || 'Unknown error'), 'error');
-                        }
-                        loadFiles();
-                    } catch (error) {
-                        showNotification('Error approving file: ' + error.message, 'error');
-                        loadFiles();
-                    }
-                },
+                approveAction,
                 'Approve',
                 'btn-approve'
             );
         }
         
         async function rejectFile(fileId) {
+            const rejectAction = () => deleteFile(fileId);
+            
             showConfirmModal(
                 'Reject File',
                 'Reject this file? It will be permanently deleted.',
-                () => deleteFile(fileId),
+                rejectAction,
                 'Reject',
                 'btn-reject'
             );
@@ -601,33 +615,35 @@
         }
         
         async function deleteFile(fileId) {
+            const deleteAction = async () => {
+                try {
+                    const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+                    const file = await response.json();
+                    
+                    const deleteResponse = await fetch('./api/save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'delete_file', fileId })
+                    });
+                    
+                    const result = await deleteResponse.json();
+                    if (result.success) {
+                        window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
+                        showNotification('File deleted successfully!', 'success');
+                    } else {
+                        showNotification('Error deleting file: ' + (result.error || 'Unknown error'), 'error');
+                    }
+                    loadFiles();
+                } catch (error) {
+                    showNotification('Error deleting file: ' + error.message, 'error');
+                    loadFiles();
+                }
+            };
+            
             showConfirmModal(
                 'Delete File',
                 'Delete this file permanently?',
-                async () => {
-                    try {
-                        const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
-                        const file = await response.json();
-                        
-                        const deleteResponse = await fetch('./api/save.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ type: 'delete_file', fileId })
-                        });
-                        
-                        const result = await deleteResponse.json();
-                        if (result.success) {
-                            window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
-                            showNotification('File deleted successfully!', 'success');
-                        } else {
-                            showNotification('Error deleting file: ' + (result.error || 'Unknown error'), 'error');
-                        }
-                        loadFiles();
-                    } catch (error) {
-                        showNotification('Error deleting file: ' + error.message, 'error');
-                        loadFiles();
-                    }
-                },
+                deleteAction,
                 'Delete',
                 'btn-reject'
             );
