@@ -37,15 +37,16 @@ window.EmergencyBroadcast = {
         
         const modal = document.createElement('div');
         modal.style.cssText = `
-            background: rgba(0, 0, 0, 0.9);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(20, 20, 20, 0.9));
             border: 3px solid #dc2626;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 600px;
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 650px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 0 50px rgba(220, 38, 38, 0.8);
+            box-shadow: 0 0 60px rgba(220, 38, 38, 0.9), inset 0 0 30px rgba(220, 38, 38, 0.1);
             animation: emergencyShake 0.5s ease-in-out;
+            backdrop-filter: blur(15px);
         `;
         
         modal.innerHTML = `
@@ -72,14 +73,16 @@ window.EmergencyBroadcast = {
                 background: linear-gradient(135deg, #dc2626, #991b1b);
                 color: white;
                 border: none;
-                padding: 15px 40px;
+                padding: 18px 45px;
                 border-radius: 50px;
-                font-size: 1.2rem;
-                font-weight: 600;
+                font-size: 1.3rem;
+                font-weight: 700;
                 cursor: not-allowed;
                 opacity: 0.5;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+                transition: all 0.4s ease;
+                box-shadow: 0 10px 30px rgba(220, 38, 38, 0.4);
+                text-transform: uppercase;
+                letter-spacing: 1px;
             ">Continue to Sharepoint</button>
         `;
         

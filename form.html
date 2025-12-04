@@ -401,6 +401,18 @@
         const pin = params.get('pin');
 
         async function init() {
+            // Check if user is logged in for form submission
+            if (!pin && (!window.discordAuth || !window.discordAuth.isAuthenticated())) {
+                document.getElementById('content').innerHTML = `
+                    <div class="form-header">
+                        <h1>Login Required</h1>
+                        <p>You must be logged in to submit form responses.</p>
+                        <button onclick="window.location.href='login.html'" class="btn-submit">Login to Continue</button>
+                    </div>
+                `;
+                return;
+            }
+            
             if (!formId) {
                 document.getElementById('content').innerHTML = '<div class="error">No form ID provided</div>';
                 return;
