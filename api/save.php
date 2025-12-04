@@ -2,9 +2,9 @@
 // Temporarily disable rate limiter for testing
 // require_once 'rate-limiter.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -19,7 +19,7 @@ try {
     require_once '../backend/connect.php';
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
     exit;
 }
 
@@ -344,53 +344,65 @@ if ($type === 'forms') {
     }
 
 } elseif ($type === 'files') {
-    $file = $input['file'];
-    $id = uniqid();
-    
-    // Create files table if it doesn't exist
-    $conn->query("CREATE TABLE IF NOT EXISTS files (
-        id VARCHAR(50) PRIMARY KEY,
-        name VARCHAR(255),
-        size INT,
-        type VARCHAR(100),
-        description TEXT,
-        uploadedBy VARCHAR(100),
-        status VARCHAR(20) DEFAULT 'pending',
-        accessLevel INT DEFAULT 1,
-        fileData LONGTEXT,
-        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
-    
-    $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, accessLevel, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssissssis", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['accessLevel'], $file['fileData']);
-    
-    if ($stmt->execute()) {
-        // Log file upload
-        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-        $logData = json_encode([
-            'action' => 'file_upload',
-            'fileId' => $id,
-            'fileName' => $file['name'],
-            'fileSize' => $file['size'],
-            'fileType' => $file['type'],
-            'uploadedBy' => $file['uploadedBy'],
-            'accessLevel' => $file['accessLevel'],
-            'timestamp' => date('c')
-        ]);
-        $logStmt->bind_param("sssssss", 
-            $eventType = 'FILE_UPLOAD',
-            $logData,
-            $sessionId = 'file_action',
-            $fingerprint = 'upload_action',
-            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
-        );
-        $logStmt->execute();
+    try {
+        $file = $input['file'];
+        $id = uniqid();
         
-        echo json_encode(['success' => true, 'id' => $id]);
-    } else {
-        echo json_encode(['error' => 'Database error: ' . $conn->error]);
+        // Create files table if it doesn't exist
+        $conn->query("CREATE TABLE IF NOT EXISTS files (
+            id VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(255),
+            size INT,
+            type VARCHAR(100),
+            description TEXT,
+            uploadedBy VARCHAR(100),
+            status VARCHAR(20) DEFAULT 'pending',
+            accessLevel INT DEFAULT 1,
+            fileData LONGTEXT,
+            created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        
+        $stmt = $conn->prepare("INSERT INTO files (id, name, size, type, description, uploadedBy, status, accessLevel, fileData) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        if (!$stmt) {
+            throw new Exception('Failed to prepare statement');
+        }
+        
+        $stmt->bind_param("ssissssis", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['accessLevel'], $file['fileData']);
+        
+        if ($stmt->execute()) {
+            // Log file upload
+            try {
+                $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+                $logData = json_encode([
+                    'action' => 'file_upload',
+                    'fileId' => $id,
+                    'fileName' => $file['name'],
+                    'fileSize' => $file['size'],
+                    'fileType' => $file['type'],
+                    'uploadedBy' => $file['uploadedBy'],
+                    'accessLevel' => $file['accessLevel'],
+                    'timestamp' => date('c')
+                ]);
+                $logStmt->bind_param("sssssss", 
+                    $eventType = 'FILE_UPLOAD',
+                    $logData,
+                    $sessionId = 'file_action',
+                    $fingerprint = 'upload_action',
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+                    $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+                );
+                $logStmt->execute();
+            } catch (Exception $e) {
+                // Log error but don't fail the upload
+            }
+            
+            echo json_encode(['success' => true, 'id' => $id]);
+        } else {
+            throw new Exception('Failed to save file');
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => 'File upload failed']);
     }
 
 } elseif ($type === 'change_password') {
@@ -1165,7 +1177,7 @@ if ($type === 'forms') {
     echo json_encode(['status' => 'healthy', 'timestamp' => time()]);
 
 } else {
-    echo json_encode(['error' => 'Invalid type']);
+    echo json_encode(['success' => false, 'error' => 'Invalid request type']);
 }
 
 $conn->close();
