@@ -47,6 +47,7 @@ if ($type === 'forms') {
             fields TEXT,
             pin VARCHAR(4),
             createdBy VARCHAR(100),
+            singleResponse TINYINT(1) DEFAULT 1,
             created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
         
@@ -56,7 +57,7 @@ if ($type === 'forms') {
             throw new Exception('Failed to create forms table: ' . $conn->error);
         }
         
-        $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO forms (id, title, description, fields, pin, createdBy, singleResponse) VALUES (?, ?, ?, ?, ?, ?, ?)");
         if (!$stmt) {
             throw new Exception('Failed to prepare statement: ' . $conn->error);
         }
@@ -65,8 +66,9 @@ if ($type === 'forms') {
         $title = $form['title'] ?? $form['name'] ?? 'Untitled Form';
         $description = $form['description'] ?? '';
         $createdBy = $form['createdBy'] ?? 'System';
+        $singleResponse = $form['singleResponse'] ?? true;
         
-        $stmt->bind_param("ssssss", $id, $title, $description, $fieldsJson, $pin, $createdBy);
+        $stmt->bind_param("ssssssi", $id, $title, $description, $fieldsJson, $pin, $createdBy, $singleResponse);
         
         if ($stmt->execute()) {
             echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
@@ -91,9 +93,27 @@ if ($type === 'forms') {
         submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     
+    $submittedBy = $response['submittedBy'] ?? 'Anonymous';
+    
+    // Check if form allows single response only
+    $formStmt = $conn->prepare("SELECT singleResponse FROM forms WHERE id = ?");
+    $formStmt->bind_param("s", $formId);
+    $formStmt->execute();
+    $formResult = $formStmt->get_result()->fetch_assoc();
+    
+    if ($formResult && $formResult['singleResponse']) {
+        // Check if user already submitted
+        $checkStmt = $conn->prepare("SELECT id FROM form_responses WHERE form_id = ? AND submittedBy = ?");
+        $checkStmt->bind_param("ss", $formId, $submittedBy);
+        $checkStmt->execute();
+        if ($checkStmt->get_result()->num_rows > 0) {
+            echo json_encode(['error' => 'You have already submitted a response to this form']);
+            exit;
+        }
+    }
+    
     $stmt = $conn->prepare("INSERT INTO form_responses (form_id, response_data, submittedBy, submitted_at) VALUES (?, ?, ?, NOW())");
     $responseJson = json_encode($response);
-    $submittedBy = $response['submittedBy'] ?? 'Anonymous';
     $stmt->bind_param("sss", $formId, $responseJson, $submittedBy);
     
     if ($stmt->execute()) {

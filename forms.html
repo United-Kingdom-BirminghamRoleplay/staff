@@ -700,6 +700,11 @@
                     <input type="text" id="formTitle" placeholder="Form Title" required>
                     <textarea id="formDesc" placeholder="Form Description (optional)" rows="2"></textarea>
                     
+                    <label class="checkbox-option" style="margin: 15px 0;">
+                        <input type="checkbox" id="singleResponse" checked>
+                        <span>Allow only one response per user</span>
+                    </label>
+                    
                     <h4>Questions</h4>
                     <div id="questions"></div>
                     
@@ -764,6 +769,7 @@
         async function createForm() {
             const title = document.getElementById('formTitle').value.trim();
             const description = document.getElementById('formDesc').value.trim();
+            const singleResponse = document.getElementById('singleResponse').checked;
             
             if (!title) {
                 alert('Please enter a form title');
@@ -809,7 +815,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         type: 'forms', 
-                        form: { title, description, fields: questions, createdBy }
+                        form: { title, description, fields: questions, createdBy, singleResponse }
                     })
                 });
                 
