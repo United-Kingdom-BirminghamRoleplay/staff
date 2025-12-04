@@ -168,6 +168,67 @@
             align-items: center;
             margin-bottom: 20px;
         }
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+        .confirm-content {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+        }
+        .confirm-content h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        .confirm-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .btn-confirm {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-approve {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
     </style>
 </head>
 
@@ -424,29 +485,59 @@
             }
         }
         
+        function showConfirmModal(title, message, onConfirm, confirmText = 'Confirm', confirmClass = 'btn-approve') {
+            const modal = document.createElement('div');
+            modal.className = 'confirm-modal';
+            modal.innerHTML = `
+                <div class="confirm-content">
+                    <h3>${title}</h3>
+                    <p>${message}</p>
+                    <div class="confirm-buttons">
+                        <button class="btn-confirm ${confirmClass}" onclick="this.closest('.confirm-modal').remove(); (${onConfirm.toString()})()">\n                            <i class="fas ${confirmClass.includes('approve') ? 'fa-check' : confirmClass.includes('reject') ? 'fa-times' : 'fa-check'}"></i> ${confirmText}\n                        </button>
+                        <button class="btn-confirm btn-cancel" onclick="this.closest('.confirm-modal').remove()">\n                            <i class="fas fa-times"></i> Cancel\n                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
         async function approveFile(fileId) {
-            if (confirm('Approve this file for all users to see?')) {
-                try {
-                    const response = await fetch('./api/save.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'approve_file', fileId })
-                    });
-                    
-                    if ((await response.json()).success) {
-                        showNotification('File approved successfully!', 'success');
+            showConfirmModal(
+                'Approve File',
+                'Approve this file for all users to see?',
+                async () => {
+                    try {
+                        const response = await fetch('./api/save.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ type: 'approve_file', fileId })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            showNotification('File approved successfully!', 'success');
+                        } else {
+                            showNotification('Error approving file: ' + (result.error || 'Unknown error'), 'error');
+                        }
+                        loadFiles();
+                    } catch (error) {
+                        showNotification('Error approving file: ' + error.message, 'error');
                         loadFiles();
                     }
-                } catch (error) {
-                    showNotification('Error approving file', 'error');
-                }
-            }
+                },
+                'Approve',
+                'btn-approve'
+            );
         }
         
         async function rejectFile(fileId) {
-            if (confirm('Reject this file? It will be permanently deleted.')) {
-                await deleteFile(fileId);
-            }
+            showConfirmModal(
+                'Reject File',
+                'Reject this file? It will be permanently deleted.',
+                () => deleteFile(fileId),
+                'Reject',
+                'btn-reject'
+            );
         }
         
         async function editFile(fileId, currentName) {
@@ -502,34 +593,44 @@
                     document.querySelector('.form-modal').remove();
                     loadFiles();
                 } else {
-                    showNotification('Error updating file', 'error');
+                    showNotification('Error updating file: ' + (result.error || 'Unknown error'), 'error');
                 }
             } catch (error) {
-                showNotification('Error updating file', 'error');
+                showNotification('Error updating file: ' + error.message, 'error');
             }
         }
         
         async function deleteFile(fileId) {
-            if (confirm('Delete this file permanently?')) {
-                try {
-                    const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
-                    const file = await response.json();
-                    
-                    const deleteResponse = await fetch('./api/save.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ type: 'delete_file', fileId })
-                    });
-                    
-                    if ((await deleteResponse.json()).success) {
-                        window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
-                        showNotification('File deleted successfully!', 'success');
+            showConfirmModal(
+                'Delete File',
+                'Delete this file permanently?',
+                async () => {
+                    try {
+                        const response = await fetch(`./api/load.php?type=file_download&id=${fileId}`);
+                        const file = await response.json();
+                        
+                        const deleteResponse = await fetch('./api/save.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ type: 'delete_file', fileId })
+                        });
+                        
+                        const result = await deleteResponse.json();
+                        if (result.success) {
+                            window.DeletionLogger?.logDeletion('file', fileId, file.name || 'Unknown File');
+                            showNotification('File deleted successfully!', 'success');
+                        } else {
+                            showNotification('Error deleting file: ' + (result.error || 'Unknown error'), 'error');
+                        }
+                        loadFiles();
+                    } catch (error) {
+                        showNotification('Error deleting file: ' + error.message, 'error');
                         loadFiles();
                     }
-                } catch (error) {
-                    showNotification('Error deleting file', 'error');
-                }
-            }
+                },
+                'Delete',
+                'btn-reject'
+            );
         }
         
         async function previewFile(fileId, fileType) {
