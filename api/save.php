@@ -71,6 +71,28 @@ if ($type === 'forms') {
         $stmt->bind_param("ssssssi", $id, $title, $description, $fieldsJson, $pin, $createdBy, $singleResponse);
         
         if ($stmt->execute()) {
+            // Log form creation
+            $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+            $logData = json_encode([
+                'action' => 'form_create',
+                'formId' => $id,
+                'formTitle' => $title,
+                'questionCount' => count($form['fields']),
+                'createdBy' => $createdBy,
+                'singleResponse' => $singleResponse,
+                'timestamp' => date('c')
+            ]);
+            $logStmt->bind_param("sssssss", 
+                $eventType = 'FORM_CREATE',
+                $logData,
+                $sessionId = 'form_action',
+                $fingerprint = 'create_action',
+                $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+                $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+                $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+            );
+            $logStmt->execute();
+            
             echo json_encode(['success' => true, 'id' => $id, 'pin' => $pin]);
         } else {
             throw new Exception('Failed to execute statement: ' . $stmt->error);
@@ -343,6 +365,29 @@ if ($type === 'forms') {
     $stmt->bind_param("ssissssis", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['accessLevel'], $file['fileData']);
     
     if ($stmt->execute()) {
+        // Log file upload
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'file_upload',
+            'fileId' => $id,
+            'fileName' => $file['name'],
+            'fileSize' => $file['size'],
+            'fileType' => $file['type'],
+            'uploadedBy' => $file['uploadedBy'],
+            'accessLevel' => $file['accessLevel'],
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $eventType = 'FILE_UPLOAD',
+            $logData,
+            $sessionId = 'file_action',
+            $fingerprint = 'upload_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true, 'id' => $id]);
     } else {
         echo json_encode(['error' => 'Database error: ' . $conn->error]);
@@ -508,14 +553,22 @@ if ($type === 'forms') {
             ]]
         ];
         
-        $ch = curl_init('https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T');
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_exec($ch);
-        curl_close($ch);
+        // Send to both webhooks
+        $webhooks = [
+            'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T',
+            'https://discord.com/api/webhooks/1442957109896675590/2uKYJXKuTl0wPyMxk_BFLaTVf7gMW4lnfpH_tNVKDSyfMxteEo33QgpsqPP1Kq4MFfxH'
+        ];
+        
+        foreach ($webhooks as $webhook) {
+            $ch = curl_init($webhook);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_exec($ch);
+            curl_close($ch);
+        }
     }
     
     echo json_encode(['success' => true, 'processed' => $successCount]);
@@ -560,11 +613,38 @@ if ($type === 'forms') {
 
 } elseif ($type === 'approve_file') {
     $fileId = $input['fileId'];
+    $approvedBy = $input['approvedBy'] ?? 'System';
+    
+    // Get file details before approval
+    $getStmt = $conn->prepare("SELECT name FROM files WHERE id = ?");
+    $getStmt->bind_param("s", $fileId);
+    $getStmt->execute();
+    $file = $getStmt->get_result()->fetch_assoc();
     
     $stmt = $conn->prepare("UPDATE files SET status = 'approved' WHERE id = ?");
     $stmt->bind_param("s", $fileId);
     
     if ($stmt->execute()) {
+        // Log file approval
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'file_approve',
+            'fileId' => $fileId,
+            'fileName' => $file['name'] ?? 'Unknown',
+            'approvedBy' => $approvedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $eventType = 'FILE_APPROVE',
+            $logData,
+            $sessionId = 'file_action',
+            $fingerprint = 'approve_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot approve file']);
@@ -574,11 +654,41 @@ if ($type === 'forms') {
     $fileId = $input['fileId'];
     $name = $input['name'];
     $accessLevel = $input['accessLevel'];
+    $editedBy = $input['editedBy'] ?? 'System';
+    
+    // Get old file details
+    $getStmt = $conn->prepare("SELECT name, accessLevel FROM files WHERE id = ?");
+    $getStmt->bind_param("s", $fileId);
+    $getStmt->execute();
+    $oldFile = $getStmt->get_result()->fetch_assoc();
     
     $stmt = $conn->prepare("UPDATE files SET name = ?, accessLevel = ? WHERE id = ?");
     $stmt->bind_param("sis", $name, $accessLevel, $fileId);
     
     if ($stmt->execute()) {
+        // Log file edit
+        $logStmt = $conn->prepare("INSERT INTO security_events (type, data, session_id, fingerprint, ip_address, user_agent, url, created) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+        $logData = json_encode([
+            'action' => 'file_edit',
+            'fileId' => $fileId,
+            'oldName' => $oldFile['name'] ?? 'Unknown',
+            'newName' => $name,
+            'oldAccessLevel' => $oldFile['accessLevel'] ?? 1,
+            'newAccessLevel' => $accessLevel,
+            'editedBy' => $editedBy,
+            'timestamp' => date('c')
+        ]);
+        $logStmt->bind_param("sssssss", 
+            $eventType = 'FILE_EDIT',
+            $logData,
+            $sessionId = 'file_action',
+            $fingerprint = 'edit_action',
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
+            $url = $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        );
+        $logStmt->execute();
+        
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['error' => 'Cannot update file']);
