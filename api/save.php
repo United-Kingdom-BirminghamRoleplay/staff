@@ -6,6 +6,22 @@ ini_set('display_errors', 0);
 ini_set('display_startup_errors', 0);
 error_reporting(0);
 
+// Global error handler
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && $error['type'] === E_ERROR) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Server error']);
+    }
+});
+
+set_error_handler(function($severity, $message, $file, $line) {
+    if (!(error_reporting() & $severity)) return;
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Server error']);
+    exit;
+});
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -367,7 +383,16 @@ if ($type === 'forms') {
             throw new Exception('Failed to prepare statement');
         }
         
-        $stmt->bind_param("ssissssis", $id, $file['name'], $file['size'], $file['type'], $file['description'], $file['uploadedBy'], $file['status'], $file['accessLevel'], $file['fileData']);
+        $name = $file['name'] ?? 'unknown';
+        $size = (int)($file['size'] ?? 0);
+        $type = $file['type'] ?? 'unknown';
+        $description = $file['description'] ?? '';
+        $uploadedBy = $file['uploadedBy'] ?? 'unknown';
+        $status = $file['status'] ?? 'pending';
+        $accessLevel = (int)($file['accessLevel'] ?? 1);
+        $fileData = $file['fileData'] ?? '';
+        
+        $stmt->bind_param("ssissssis", $id, $name, $size, $type, $description, $uploadedBy, $status, $accessLevel, $fileData);
         
         if ($stmt->execute()) {
             // Log file upload
