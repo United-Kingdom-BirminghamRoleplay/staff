@@ -214,11 +214,38 @@ if ($type === 'announcements') {
     
     echo json_encode($bannedIps);
 
+} elseif ($type === 'banned_users') {
+    $stmt = $conn->prepare("SELECT * FROM banned_users ORDER BY created DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $bannedUsers = [];
+    while ($row = $result->fetch_assoc()) {
+        $bannedUsers[] = $row;
+    }
+    
+    echo json_encode($bannedUsers);
+
 } elseif ($type === 'check_ip_ban') {
     $ip = $_GET['ip'] ?? '';
     
     $stmt = $conn->prepare("SELECT * FROM banned_ips WHERE ip = ?");
     $stmt->bind_param("s", $ip);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $ban = $result->fetch_assoc();
+        echo json_encode(['banned' => true, 'reason' => $ban['reason'], 'bannedBy' => $ban['bannedBy']]);
+    } else {
+        echo json_encode(['banned' => false]);
+    }
+
+} elseif ($type === 'check_user_ban') {
+    $username = $_GET['username'] ?? '';
+    
+    $stmt = $conn->prepare("SELECT * FROM banned_users WHERE username = ?");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
     

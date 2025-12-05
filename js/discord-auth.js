@@ -67,6 +67,15 @@ class DiscordAuth {
                 throw new Error(userData.error || 'Failed to get user info');
             }
 
+            // Check if user is banned
+            const banCheck = await fetch(`./api/load.php?type=check_user_ban&username=${encodeURIComponent(userData.user.username)}`);
+            const banData = await banCheck.json();
+            
+            if (banData.banned) {
+                window.location.href = `access-blocked.html?reason=${encodeURIComponent(banData.reason)}&bannedBy=${encodeURIComponent(banData.bannedBy)}`;
+                throw new Error('User is banned');
+            }
+
             // Store authentication data
             const authData = {
                 userId: userData.user.id,
@@ -115,9 +124,23 @@ class DiscordAuth {
     }
 
     // Check if user is authenticated
-    isAuthenticated() {
+    async isAuthenticated() {
         const auth = this.getAuthData();
         if (!auth) return false;
+        
+        // Check if user is banned
+        try {
+            const banCheck = await fetch(`./api/load.php?type=check_user_ban&username=${encodeURIComponent(auth.username)}`);
+            const banData = await banCheck.json();
+            
+            if (banData.banned) {
+                this.logout();
+                window.location.href = `access-blocked.html?reason=${encodeURIComponent(banData.reason)}&bannedBy=${encodeURIComponent(banData.bannedBy)}`;
+                return false;
+            }
+        } catch (error) {
+            console.error('Error checking ban status:', error);
+        }
         
         // Check if token is expired (but don't auto-logout)
         if (Date.now() >= auth.expiresAt) {

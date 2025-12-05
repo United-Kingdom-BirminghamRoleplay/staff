@@ -1072,6 +1072,45 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot unban IP']);
     }
 
+} elseif ($type === 'ban_user') {
+    $username = $input['username'];
+    $reason = $input['reason'];
+    $bannedBy = $input['bannedBy'];
+    $id = uniqid();
+    
+    $conn->query("CREATE TABLE IF NOT EXISTS banned_users (
+        id VARCHAR(50) PRIMARY KEY,
+        username VARCHAR(100),
+        reason TEXT,
+        bannedBy VARCHAR(100),
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    
+    $stmt = $conn->prepare("INSERT INTO banned_users (id, username, reason, bannedBy, created) VALUES (?, ?, ?, ?, NOW())");
+    $stmt->bind_param("ssss", $id, $username, $reason, $bannedBy);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Cannot ban user']);
+        exit;
+    }
+
+} elseif ($type === 'unban_user') {
+    $username = $input['username'];
+    
+    $stmt = $conn->prepare("DELETE FROM banned_users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Cannot unban user']);
+        exit;
+    }
+
 } elseif ($type === 'emergency_broadcast') {
     $id = 'eb_' . uniqid() . '_' . time();
     
@@ -1176,6 +1215,7 @@ if ($type === 'forms') {
 } elseif ($type === 'check_health') {
     // Simple health check endpoint
     echo json_encode(['status' => 'healthy', 'timestamp' => time()]);
+    exit;
 
 } else {
     echo json_encode(['success' => false, 'error' => 'Invalid type: ' . $type]);

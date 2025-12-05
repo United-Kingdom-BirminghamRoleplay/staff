@@ -436,7 +436,7 @@
         </section>
 
         <section class="forms-section">
-            <h2><i class="fas fa-ban"></i> IP Ban Management</h2>
+            <h2><i class="fas fa-ban"></i> Ban Management</h2>
             <div class="ban-section">
                 <h4><i class="fas fa-hammer"></i> Add IP Ban</h4>
                 <div class="ban-form-row">
@@ -445,8 +445,19 @@
                     <button class="btn-admin" onclick="addIpBan()" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;"><i class="fas fa-ban"></i> Ban IP</button>
                 </div>
             </div>
+            <div class="ban-section">
+                <h4><i class="fas fa-user-slash"></i> Add Discord User Ban</h4>
+                <div class="ban-form-row">
+                    <input type="text" id="banUsernameInput" placeholder="Enter Discord username">
+                    <input type="text" id="banUserReasonInput" placeholder="Reason for ban">
+                    <button class="btn-admin" onclick="addUserBan()" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;"><i class="fas fa-user-slash"></i> Ban User</button>
+                </div>
+            </div>
             <div id="bannedIpsContainer">
                 <!-- Banned IPs will be loaded here -->
+            </div>
+            <div id="bannedUsersContainer">
+                <!-- Banned users will be loaded here -->
             </div>
         </section>
 
@@ -707,6 +718,20 @@
             document.getElementById('banIpInput').value = '';
             document.getElementById('banReasonInput').value = '';
         }
+        
+        async function addUserBan() {
+            const username = document.getElementById('banUsernameInput').value.trim();
+            const reason = document.getElementById('banUserReasonInput').value.trim();
+            
+            if (!username || !reason) {
+                alert('Please enter both Discord username and reason');
+                return;
+            }
+            
+            await banUser(username, reason);
+            document.getElementById('banUsernameInput').value = '';
+            document.getElementById('banUserReasonInput').value = '';
+        }
 
         async function banIp(ip, reason) {
             try {
@@ -838,6 +863,89 @@
                 }
             } catch (error) {
                 alert('Error unbanning IP');
+            }
+        }
+        
+        async function banUser(username, reason) {
+            try {
+                const user = window.discordAuth.getCurrentUser();
+                
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'ban_user',
+                        username: username,
+                        reason: reason,
+                        bannedBy: user.username
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('User banned successfully');
+                    loadBannedUsers();
+                } else {
+                    alert('Failed to ban user');
+                }
+            } catch (error) {
+                alert('Error banning user');
+            }
+        }
+        
+        async function unbanUser(username) {
+            if (!confirm(`Unban user ${username}?`)) return;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'unban_user',
+                        username: username
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('User unbanned successfully');
+                    loadBannedUsers();
+                } else {
+                    alert('Failed to unban user');
+                }
+            } catch (error) {
+                alert('Error unbanning user');
+            }
+        }
+        
+        async function loadBannedUsers() {
+            try {
+                const response = await fetch('./api/load.php?type=banned_users');
+                const bannedUsers = await response.json();
+                
+                const container = document.getElementById('bannedUsersContainer');
+                if (bannedUsers.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">No banned users</p>';
+                    return;
+                }
+                
+                container.innerHTML = bannedUsers.map(ban => `
+                    <div class="ip-card" style="border-left: 3px solid #ef4444;">
+                        <div class="ip-header">
+                            <div class="ip-info">
+                                <h4><i class="fas fa-user-slash" style="color: #ef4444;"></i> ${ban.username}</h4>
+                                <p><i class="fas fa-exclamation-triangle"></i> <strong>Reason:</strong> ${ban.reason}</p>
+                                <p><i class="fas fa-user-shield"></i> <strong>Banned by:</strong> ${ban.bannedBy}</p>
+                            </div>
+                            <div class="ip-actions">
+                                <div class="ip-time">Banned: ${new Date(ban.timestamp).toLocaleString()}</div>
+                                <button class="btn-admin" onclick="unbanUser('${ban.username}')" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;"><i class="fas fa-unlock"></i> Unban</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading banned users:', error);
             }
         }
 
@@ -1075,9 +1183,11 @@
             
             loadIpLogs();
             loadBannedIps();
+            loadBannedUsers();
             loadSecurityLogs();
             setInterval(() => {
                 loadIpLogs();
+                loadBannedUsers();
                 loadSecurityLogs();
             }, 30000);
         });

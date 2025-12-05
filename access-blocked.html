@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Blocked - Staff Sharepoint</title>
+    <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b1b 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .blocked-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .blocked-icon {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .blocked-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ef4444;
+        }
+        
+        .blocked-message {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+        
+        .ban-details {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .ban-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .ban-detail:last-child {
+            margin-bottom: 0;
+        }
+        
+        .ban-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .ban-value {
+            color: white;
+            text-align: right;
+        }
+        
+        .contact-info {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="blocked-container">
+        <div class="blocked-icon">
+            <i class="fas fa-ban"></i>
+        </div>
+        
+        <h1 class="blocked-title">Access Blocked</h1>
+        
+        <p class="blocked-message">
+            Your Discord account has been banned from accessing the Staff Sharepoint system.
+        </p>
+        
+        <div class="ban-details">
+            <div class="ban-detail">
+                <span class="ban-label">Reason:</span>
+                <span class="ban-value" id="banReason">Policy violation</span>
+            </div>
+            <div class="ban-detail">
+                <span class="ban-label">Banned by:</span>
+                <span class="ban-value" id="bannedBy">System Administrator</span>
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            If you believe this is an error, please contact a system administrator through Discord.
+        </div>
+    </div>
+
+    <script>
+        // Get ban details from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const reason = urlParams.get('reason') || 'Policy violation';
+        const bannedBy = urlParams.get('bannedBy') || 'System Administrator';
+        
+        document.getElementById('banReason').textContent = reason;
+        document.getElementById('bannedBy').textContent = bannedBy;
+        
+        // Clear any stored auth data
+        localStorage.removeItem('discord_auth');
+        localStorage.removeItem('discord_oauth_state');
+    </script>
+</body>
+</html>
