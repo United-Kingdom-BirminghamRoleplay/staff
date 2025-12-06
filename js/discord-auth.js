@@ -134,7 +134,9 @@ class DiscordAuth {
             const banData = await banCheck.json();
             
             if (banData.banned) {
-                this.logout();
+                localStorage.removeItem('discord_auth');
+                localStorage.removeItem('discord_oauth_state');
+                localStorage.removeItem('discord_login_time');
                 window.location.href = `access-blocked.html?reason=${encodeURIComponent(banData.reason)}&bannedBy=${encodeURIComponent(banData.bannedBy)}`;
                 return false;
             }
