@@ -205,8 +205,8 @@
     <script src="js/discord-auth.js"></script>
     <script>
         // Force authentication check on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!window.discordAuth || !window.discordAuth.isAuthenticated()) {
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.discordAuth || !(await window.discordAuth.isAuthenticated())) {
                 window.location.href = 'login.html';
                 return;
             }
