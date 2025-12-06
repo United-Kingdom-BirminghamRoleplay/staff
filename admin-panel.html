@@ -450,6 +450,12 @@
                 <div class="ban-form-row">
                     <input type="text" id="banUsernameInput" placeholder="Enter Discord username">
                     <input type="text" id="banUserReasonInput" placeholder="Reason for ban">
+                </div>
+                <div class="ban-form-row">
+                    <label style="display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); cursor: pointer;">
+                        <input type="checkbox" id="anonymousBan" style="cursor: pointer;">
+                        <span>Ban anonymously (show as "System Administrator")</span>
+                    </label>
                     <button class="btn-admin" onclick="addUserBan()" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;"><i class="fas fa-user-slash"></i> Ban User</button>
                 </div>
             </div>
@@ -489,6 +495,8 @@
     <script src="js/components.js"></script>
     <script src="js/discord-auth.js"></script>
     <script src="js/emergency-broadcast.js"></script>
+    <script src="js/auto-ban-system.js"></script>
+
     <script>
         let allLogs = [];
         
@@ -722,15 +730,17 @@
         async function addUserBan() {
             const username = document.getElementById('banUsernameInput').value.trim();
             const reason = document.getElementById('banUserReasonInput').value.trim();
+            const anonymous = document.getElementById('anonymousBan').checked;
             
             if (!username || !reason) {
                 alert('Please enter both Discord username and reason');
                 return;
             }
             
-            await banUser(username, reason);
+            await banUser(username, reason, anonymous);
             document.getElementById('banUsernameInput').value = '';
             document.getElementById('banUserReasonInput').value = '';
+            document.getElementById('anonymousBan').checked = false;
         }
 
         async function banIp(ip, reason) {
@@ -866,7 +876,7 @@
             }
         }
         
-        async function banUser(username, reason) {
+        async function banUser(username, reason, anonymous = false) {
             try {
                 const user = window.discordAuth.getCurrentUser();
                 
@@ -877,7 +887,8 @@
                         type: 'ban_user',
                         username: username,
                         reason: reason,
-                        bannedBy: user.username
+                        bannedBy: user.username,
+                        anonymous: anonymous
                     })
                 });
                 

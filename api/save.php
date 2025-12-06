@@ -1076,6 +1076,8 @@ if ($type === 'forms') {
     $username = $input['username'];
     $reason = $input['reason'];
     $bannedBy = $input['bannedBy'];
+    $anonymous = $input['anonymous'] ?? false;
+    $displayName = $anonymous ? 'System Administrator' : $bannedBy;
     $id = uniqid();
     
     $conn->query("CREATE TABLE IF NOT EXISTS banned_users (
@@ -1083,11 +1085,12 @@ if ($type === 'forms') {
         username VARCHAR(100),
         reason TEXT,
         bannedBy VARCHAR(100),
+        displayName VARCHAR(100),
         created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     
-    $stmt = $conn->prepare("INSERT INTO banned_users (id, username, reason, bannedBy, created) VALUES (?, ?, ?, ?, NOW())");
-    $stmt->bind_param("ssss", $id, $username, $reason, $bannedBy);
+    $stmt = $conn->prepare("INSERT INTO banned_users (id, username, reason, bannedBy, displayName, created) VALUES (?, ?, ?, ?, ?, NOW())");
+    $stmt->bind_param("sssss", $id, $username, $reason, $bannedBy, $displayName);
     
     if ($stmt->execute()) {
         echo json_encode(['success' => true]);

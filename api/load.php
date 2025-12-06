@@ -251,7 +251,8 @@ if ($type === 'announcements') {
     
     if ($result->num_rows > 0) {
         $ban = $result->fetch_assoc();
-        echo json_encode(['banned' => true, 'reason' => $ban['reason'], 'bannedBy' => $ban['bannedBy']]);
+        $displayName = $ban['displayName'] ?? $ban['bannedBy'];
+        echo json_encode(['banned' => true, 'reason' => $ban['reason'], 'bannedBy' => $displayName]);
     } else {
         echo json_encode(['banned' => false]);
     }
