@@ -912,8 +912,9 @@ if ($type === 'forms') {
     echo json_encode(['success' => $valid]);
 
 } elseif ($type === 'website_lock') {
-    $locked = $input['locked'] ? '1' : '0';
+    $locked = $input['locked'] ? 'true' : 'false';
     $lockedBy = $input['lockedBy'] ?? 'System';
+    $reason = $input['reason'] ?? 'The website has been locked due to either security concerns, maintenance or removal of system.';
     
     // Create table if it doesn't exist
     $conn->query("CREATE TABLE IF NOT EXISTS website_settings (
@@ -924,16 +925,20 @@ if ($type === 'forms') {
         updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
     
-    if ($locked === '1') {
+    if ($locked === 'true') {
         // Generate unlock code
         $unlockCode = strtoupper(substr(md5(uniqid() . time()), 0, 8));
         
-        // Save lock status and unlock code
-        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', '1') ON DUPLICATE KEY UPDATE setting_value = '1'");
+        // Save lock status, unlock code, and reason
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', 'true') ON DUPLICATE KEY UPDATE setting_value = 'true'");
         $stmt->execute();
         
         $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('unlock_code', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->bind_param("ss", $unlockCode, $unlockCode);
+        $stmt->execute();
+        
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('lock_reason', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->bind_param("ss", $reason, $reason);
         $stmt->execute();
         
         // Send webhook notification
@@ -944,6 +949,7 @@ if ($type === 'forms') {
                 'fields' => [
                     ['name' => 'Locked By', 'value' => $lockedBy, 'inline' => true],
                     ['name' => 'Unlock Code', 'value' => $unlockCode, 'inline' => true],
+                    ['name' => 'Reason', 'value' => $reason, 'inline' => false],
                     ['name' => 'Timestamp', 'value' => date('c'), 'inline' => false]
                 ],
                 'timestamp' => date('c')
@@ -969,11 +975,11 @@ if ($type === 'forms') {
         echo json_encode(['success' => true, 'unlock_code' => $unlockCode]);
     } else {
         // Unlock website
-        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', '0') ON DUPLICATE KEY UPDATE setting_value = '0'");
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', 'false') ON DUPLICATE KEY UPDATE setting_value = 'false'");
         $stmt->execute();
         
-        // Remove unlock code
-        $stmt = $conn->prepare("DELETE FROM website_settings WHERE setting_key = 'unlock_code'");
+        // Remove unlock code and reason
+        $stmt = $conn->prepare("DELETE FROM website_settings WHERE setting_key IN ('unlock_code', 'lock_reason')");
         $stmt->execute();
         
         echo json_encode(['success' => true]);

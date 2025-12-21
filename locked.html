@@ -7,77 +7,522 @@
     <link rel="icon" type="image/png" href="./images/ukbrum_png.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="lock-container">
-        <div class="lock-content">
-            <div class="lock-icon">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h1>Site Temporarily Locked</h1>
-            <p>The Staff Sharepoint is currently locked for maintenance or security reasons.</p>
-            <p>Please contact leadership if you need immediate access.</p>
-            <div class="lock-actions">
-                <button onclick="checkUnlock()" class="btn-glass">Check Status</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        async function checkUnlock() {
-            try {
-                const response = await fetch('./api/load.php?type=website_control');
-                const data = await response.json();
-                
-                if (!data.site_locked) {
-                    window.location.href = 'index.html';
-                } else {
-                    alert('Site is still locked. Please try again later.');
-                }
-            } catch (error) {
-                alert('Unable to check status. Please try again later.');
-            }
-        }
-
-        // Auto-check every 60 seconds
-        setInterval(checkUnlock, 60000);
-    </script>
-
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 60px; height: 60px; left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { width: 100px; height: 100px; left: 35%; animation-delay: 2s; }
+        .particle:nth-child(4) { width: 40px; height: 40px; left: 50%; animation-delay: 3s; }
+        .particle:nth-child(5) { width: 70px; height: 70px; left: 65%; animation-delay: 4s; }
+        .particle:nth-child(6) { width: 90px; height: 90px; left: 80%; animation-delay: 5s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Lock container */
         .lock-container {
+            position: relative;
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
         }
+        
         .lock-content {
             text-align: center;
-            max-width: 500px;
-            padding: 50px;
-            background: rgba(255, 255, 255, 0.05);
+            max-width: 600px;
+            padding: 60px 50px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 25px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideIn 1s ease-out;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .lock-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 107, 53, 0.1), transparent);
+            animation: rotate 4s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Lock icon with advanced animation */
         .lock-icon {
-            font-size: 4rem;
+            font-size: 5rem;
             color: #ff6b35;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            display: inline-block;
+            animation: lockPulse 3s ease-in-out infinite;
         }
+        
+        .lock-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 50%;
+            animation: ripple 2s ease-out infinite;
+        }
+        
+        .lock-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 50%;
+            animation: ripple 2s ease-out infinite 0.5s;
+        }
+        
+        @keyframes lockPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        /* Typography */
         .lock-content h1 {
             color: white;
-            margin-bottom: 20px;
-            font-size: 2rem;
+            margin-bottom: 25px;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #ff6b35 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 2s ease-in-out infinite alternate;
         }
-        .lock-content p {
-            color: rgba(255, 255, 255, 0.8);
+        
+        @keyframes textGlow {
+            from { filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.6)); }
+        }
+        
+        .lock-reason {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
             margin-bottom: 15px;
             line-height: 1.6;
+            font-weight: 500;
         }
-        .lock-actions {
-            margin-top: 30px;
+        
+        .lock-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        /* Unlock section */
+        .unlock-section {
+            margin: 40px 0;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .unlock-form {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .unlock-input {
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 16px;
+            width: 250px;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .unlock-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+        
+        .unlock-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .unlock-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .unlock-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .unlock-btn:hover::before {
+            left: 100%;
+        }
+        
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+        }
+        
+        /* Status check button */
+        .status-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .status-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        /* Footer */
+        .lock-footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        
+        .lock-footer p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff6b35;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .lock-content {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .lock-content h1 {
+                font-size: 2.2rem;
+            }
+            
+            .lock-icon {
+                font-size: 4rem;
+            }
+            
+            .unlock-form {
+                flex-direction: column;
+            }
+            
+            .unlock-input {
+                width: 100%;
+                max-width: 300px;
+            }
         }
     </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="lock-container">
+        <div class="lock-content">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            
+            <h1>Website Locked</h1>
+            
+            <p class="lock-reason">The website has been locked due to either security concerns, maintenance or removal of system.</p>
+            
+            <p class="lock-description">Access is temporarily restricted while we address important system updates. If you have an unlock code, please enter it below.</p>
+            
+            <div class="unlock-section">
+                <div class="unlock-form">
+                    <input type="text" id="unlockCode" placeholder="Enter unlock code" class="unlock-input" maxlength="8">
+                    <button onclick="checkUnlockCode()" class="unlock-btn">
+                        <i class="fas fa-unlock"></i> Unlock
+                    </button>
+                </div>
+            </div>
+            
+            <button onclick="checkStatus()" class="status-btn">
+                <i class="fas fa-sync-alt"></i> Check Status
+            </button>
+            
+            <div class="lock-footer">
+                <p>If you believe this is an error or need immediate access, please contact system administrators.</p>
+                <p>Status will be automatically checked every 60 seconds.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkUnlockCode() {
+            const code = document.getElementById('unlockCode').value.trim();
+            if (!code) {
+                showNotification('Please enter an unlock code', 'error');
+                return;
+            }
+            
+            const btn = document.querySelector('.unlock-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Verifying...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'verify_unlock_code',
+                        code: code
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    sessionStorage.setItem('unlock_code', code);
+                    showNotification('Code verified! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    showNotification('Invalid unlock code', 'error');
+                    document.getElementById('unlockCode').value = '';
+                }
+            } catch (error) {
+                showNotification('Error verifying code. Please try again.', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        async function checkStatus() {
+            const btn = document.querySelector('.status-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Checking...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('./api/load.php?type=website_settings');
+                const settings = await response.json();
+                
+                if (settings.site_locked !== 'true') {
+                    showNotification('Site is now unlocked! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } else {
+                    showNotification('Site is still locked', 'info');
+                }
+            } catch (error) {
+                showNotification('Unable to check status', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 30px;
+                    right: 30px;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    color: white;
+                    font-weight: 500;
+                    z-index: 1000;
+                    animation: slideInRight 0.3s ease-out;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    backdrop-filter: blur(10px);
+                }
+                .notification.success { background: rgba(34, 197, 94, 0.9); }
+                .notification.error { background: rgba(239, 68, 68, 0.9); }
+                .notification.info { background: rgba(59, 130, 246, 0.9); }
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => {
+                    notification.remove();
+                    style.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // Auto-check every 60 seconds
+        setInterval(checkStatus, 60000);
+        
+        // Allow Enter key to submit unlock code
+        document.getElementById('unlockCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkUnlockCode();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -73,18 +73,14 @@ if ($type === 'announcements') {
     
     echo json_encode($reports);
 
-} elseif ($type === 'website_control') {
+} elseif ($type === 'website_control' || $type === 'website_settings') {
     $stmt = $conn->prepare("SELECT * FROM website_settings");
     $stmt->execute();
     $result = $stmt->get_result();
     
-    $settings = ['site_locked' => false, 'unlock_code' => null];
+    $settings = ['site_locked' => 'false', 'unlock_code' => null];
     while ($row = $result->fetch_assoc()) {
-        if ($row['setting_key'] === 'site_locked') {
-            $settings['site_locked'] = $row['setting_value'] === '1';
-        } elseif ($row['setting_key'] === 'unlock_code') {
-            $settings['unlock_code'] = $row['setting_value'];
-        }
+        $settings[$row['setting_key']] = $row['setting_value'];
     }
     
     echo json_encode($settings);
