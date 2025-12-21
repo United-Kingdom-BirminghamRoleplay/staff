@@ -70,52 +70,11 @@
         
         <section class="greeting-section">
             <h1 id="dynamicGreeting" class="greeting-text">Good Afternoon</h1>
-            <div class="quick-access-grid full-width">
-                <div class="quick-box modern" onclick="window.location.href='#announcements'">
-                    <div class="quick-icon">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <div class="quick-content">
-                        <h4>Announcements</h4>
-                        <p>Latest updates</p>
-                    </div>
-                </div>
-                <div class="quick-box modern" onclick="window.location.href='ranks.html'">
-                    <div class="quick-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="quick-content">
-                        <h4>Schedule</h4>
-                        <p>View events</p>
-                    </div>
-                </div>
-                <div class="quick-box modern" onclick="openIncidentReport()">
-                    <div class="quick-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="quick-content">
-                        <h4>Incident Report</h4>
-                        <p>Report issues</p>
-                    </div>
-                </div>
-                <div class="quick-box modern" onclick="window.location.href='forms.html'">
-                    <div class="quick-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="quick-content">
-                        <h4>Trial Logs</h4>
-                        <p>Manage trials</p>
-                    </div>
-                </div>
-                <div class="quick-box modern" onclick="window.location.href='resources.html'">
-                    <div class="quick-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <div class="quick-content">
-                        <h4>Staff Material</h4>
-                        <p>Resources & guides</p>
-                    </div>
-                </div>
+            <div class="quick-access-grid full-width" id="quickLinksContainer">
+                <button class="customize-btn" onclick="openQuickLinksCustomizer()" title="Customize Quick Links">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <!-- Quick links will be loaded dynamically -->
             </div>
         </section>
 
@@ -286,6 +245,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadAnnouncements();
             updateGreeting();
+            loadQuickLinks();
             setInterval(updateGreeting, 60000);
         });
         
@@ -570,6 +530,223 @@
             navigator.clipboard.writeText(text).then(() => {
                 securityManager.showNotification('Link copied to clipboard!', 'info');
             });
+        }
+        
+        // Quick Links System
+        const availableLinks = {
+            'announcements': { icon: 'fas fa-bullhorn', title: 'Announcements', desc: 'Latest updates', action: "window.location.href='#announcements'" },
+            'schedule': { icon: 'fas fa-clock', title: 'Schedule', desc: 'View events', action: "window.location.href='ranks.html'" },
+            'incident-report': { icon: 'fas fa-exclamation-triangle', title: 'Incident Report', desc: 'Report issues', action: 'openIncidentReport()' },
+            'forms': { icon: 'fas fa-file-alt', title: 'Trial Logs', desc: 'Manage trials', action: "window.location.href='forms.html'" },
+            'resources': { icon: 'fas fa-tools', title: 'Staff Material', desc: 'Resources & guides', action: "window.location.href='resources.html'" },
+            'file-manager': { icon: 'fas fa-folder', title: 'File Manager', desc: 'Manage files', action: "window.location.href='file-manager.html'" },
+            'admin-panel': { icon: 'fas fa-shield-alt', title: 'Admin Panel', desc: 'System administration', action: "window.location.href='admin-panel.html'" },
+            'founder-panel': { icon: 'fas fa-crown', title: 'Founder Panel', desc: 'Founder controls', action: "window.location.href='founder-panel.html'" },
+            'my-account': { icon: 'fas fa-user', title: 'My Account', desc: 'Profile settings', action: "window.location.href='my-account.html'" },
+            'melonly-system': { icon: 'fas fa-clipboard-list', title: 'Melonly System', desc: 'System management', action: "window.location.href='melonlysystem.html'" },
+            'roblox-search': { icon: 'fas fa-search', title: 'Roblox Search', desc: 'Search users', action: "document.getElementById('robloxSearch').focus()" },
+            'touchpoint': { icon: 'fas fa-handshake', title: 'Touchpoint', desc: 'Contact departments', action: "window.location.href='touchpoint.html'" }
+        };
+        
+        async function loadQuickLinks() {
+            const user = window.discordAuth?.getCurrentUser();
+            if (!user) return;
+            
+            try {
+                const response = await fetch(`./api/load.php?type=user_quick_links&userId=${user.userId}`);
+                const data = await response.json();
+                
+                const container = document.getElementById('quickLinksContainer');
+                const customizeBtn = container.querySelector('.customize-btn');
+                
+                // Clear existing links but keep customize button
+                container.innerHTML = '';
+                container.appendChild(customizeBtn);
+                
+                // Add selected links
+                data.links.forEach(linkId => {
+                    if (availableLinks[linkId]) {
+                        const link = availableLinks[linkId];
+                        const quickBox = document.createElement('div');
+                        quickBox.className = 'quick-box modern';
+                        quickBox.onclick = () => eval(link.action);
+                        
+                        quickBox.innerHTML = `
+                            <div class="quick-icon">
+                                <i class="${link.icon}"></i>
+                            </div>
+                            <div class="quick-content">
+                                <h4>${link.title}</h4>
+                                <p>${link.desc}</p>
+                            </div>
+                        `;
+                        
+                        container.appendChild(quickBox);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading quick links:', error);
+                // Load default links on error
+                loadDefaultQuickLinks();
+            }
+        }
+        
+        function loadDefaultQuickLinks() {
+            const container = document.getElementById('quickLinksContainer');
+            const customizeBtn = container.querySelector('.customize-btn');
+            
+            container.innerHTML = '';
+            container.appendChild(customizeBtn);
+            
+            const defaultLinks = ['announcements', 'schedule', 'incident-report', 'forms', 'resources'];
+            defaultLinks.forEach(linkId => {
+                const link = availableLinks[linkId];
+                const quickBox = document.createElement('div');
+                quickBox.className = 'quick-box modern';
+                quickBox.onclick = () => eval(link.action);
+                
+                quickBox.innerHTML = `
+                    <div class="quick-icon">
+                        <i class="${link.icon}"></i>
+                    </div>
+                    <div class="quick-content">
+                        <h4>${link.title}</h4>
+                        <p>${link.desc}</p>
+                    </div>
+                `;
+                
+                container.appendChild(quickBox);
+            });
+        }
+        
+        function openQuickLinksCustomizer() {
+            const modal = document.createElement('div');
+            modal.className = 'quick-links-customizer';
+            modal.innerHTML = `
+                <div class="customizer-modal">
+                    <div class="customizer-header">
+                        <h2><i class="fas fa-cog"></i> Customize Quick Links</h2>
+                        <button class="close-customizer" onclick="this.closest('.quick-links-customizer').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Select up to 6 quick links to display on your homepage:</p>
+                    <div class="available-links" id="availableLinks">
+                        ${Object.entries(availableLinks).map(([id, link]) => `
+                            <div class="link-option" data-link-id="${id}">
+                                <i class="${link.icon}"></i>
+                                <div class="link-option-content">
+                                    <h4>${link.title}</h4>
+                                    <p>${link.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="customizer-actions">
+                        <button class="btn-save" onclick="saveQuickLinks()">Save Changes</button>
+                        <button class="btn-cancel" onclick="this.closest('.quick-links-customizer').remove()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Load current selection
+            loadCurrentSelection();
+            
+            // Add click handlers
+            modal.querySelectorAll('.link-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const selected = modal.querySelectorAll('.link-option.selected');
+                    if (option.classList.contains('selected')) {
+                        option.classList.remove('selected');
+                    } else if (selected.length < 6) {
+                        option.classList.add('selected');
+                    } else {
+                        showNotification('You can only select up to 6 quick links', 'warning');
+                    }
+                });
+            });
+        }
+        
+        async function loadCurrentSelection() {
+            const user = window.discordAuth?.getCurrentUser();
+            if (!user) return;
+            
+            try {
+                const response = await fetch(`./api/load.php?type=user_quick_links&userId=${user.userId}`);
+                const data = await response.json();
+                
+                data.links.forEach(linkId => {
+                    const option = document.querySelector(`[data-link-id="${linkId}"]`);
+                    if (option) {
+                        option.classList.add('selected');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading current selection:', error);
+            }
+        }
+        
+        async function saveQuickLinks() {
+            const user = window.discordAuth?.getCurrentUser();
+            if (!user) {
+                showNotification('Please log in to save quick links', 'error');
+                return;
+            }
+            
+            const selected = document.querySelectorAll('.link-option.selected');
+            const links = Array.from(selected).map(option => option.dataset.linkId);
+            
+            if (links.length === 0) {
+                showNotification('Please select at least one quick link', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'save_quick_links',
+                        userId: user.userId,
+                        links: links
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Quick links saved successfully!', 'success');
+                    document.querySelector('.quick-links-customizer').remove();
+                    loadQuickLinks();
+                } else {
+                    showNotification(result.message || 'Failed to save quick links', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving quick links:', error);
+                showNotification('Error saving quick links', 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
         }
         
         function logout() {

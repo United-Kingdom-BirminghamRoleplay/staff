@@ -1072,6 +1072,33 @@ if ($type === 'forms') {
         echo json_encode(['error' => 'Cannot unban IP']);
     }
 
+} elseif ($type === 'save_quick_links') {
+    $userId = $input['userId'] ?? '';
+    $links = $input['links'] ?? [];
+    
+    if (!$userId || empty($links)) {
+        echo json_encode(['success' => false, 'message' => 'User ID and links required']);
+    } else {
+        $linksJson = json_encode($links);
+        
+        // Create table if not exists
+        $conn->query("CREATE TABLE IF NOT EXISTS user_quick_links (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id VARCHAR(100) UNIQUE,
+            links TEXT,
+            updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )");
+        
+        $stmt = $conn->prepare("INSERT INTO user_quick_links (user_id, links) VALUES (?, ?) ON DUPLICATE KEY UPDATE links = ?, updated = CURRENT_TIMESTAMP");
+        $stmt->bind_param("sss", $userId, $linksJson, $linksJson);
+        
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to save quick links']);
+        }
+    }
+
 } elseif ($type === 'ban_user') {
     $username = $input['username'];
     $reason = $input['reason'];

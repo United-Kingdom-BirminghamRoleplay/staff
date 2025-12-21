@@ -326,6 +326,30 @@ if ($type === 'announcements') {
     
     echo json_encode($touchpoints);
 
+} elseif ($type === 'user_quick_links') {
+    $userId = $_GET['userId'] ?? '';
+    if (!$userId) {
+        echo json_encode(['error' => 'User ID required']);
+    } else {
+        $stmt = $conn->prepare("SELECT links FROM user_quick_links WHERE user_id = ?");
+        $stmt->bind_param("s", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($row = $result->fetch_assoc()) {
+            echo json_encode(['links' => json_decode($row['links'], true)]);
+        } else {
+            // Return default links
+            echo json_encode(['links' => [
+                'announcements',
+                'schedule', 
+                'incident-report',
+                'forms',
+                'resources'
+            ]]);
+        }
+    }
+
 } elseif ($type === 'emergency_broadcast') {
     $userIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
