@@ -534,18 +534,25 @@
         
         // Quick Links System
         const availableLinks = {
-            'announcements': { icon: 'fas fa-bullhorn', title: 'Announcements', desc: 'Latest updates', action: "window.location.href='#announcements'" },
-            'schedule': { icon: 'fas fa-clock', title: 'Schedule', desc: 'View events', action: "window.location.href='ranks.html'" },
-            'incident-report': { icon: 'fas fa-exclamation-triangle', title: 'Incident Report', desc: 'Report issues', action: 'openIncidentReport()' },
-            'forms': { icon: 'fas fa-file-alt', title: 'Trial Logs', desc: 'Manage trials', action: "window.location.href='forms.html'" },
-            'resources': { icon: 'fas fa-tools', title: 'Staff Material', desc: 'Resources & guides', action: "window.location.href='resources.html'" },
-            'file-manager': { icon: 'fas fa-folder', title: 'File Manager', desc: 'Manage files', action: "window.location.href='file-manager.html'" },
-            'admin-panel': { icon: 'fas fa-shield-alt', title: 'Admin Panel', desc: 'System administration', action: "window.location.href='admin-panel.html'" },
-            'founder-panel': { icon: 'fas fa-crown', title: 'Founder Panel', desc: 'Founder controls', action: "window.location.href='founder-panel.html'" },
-            'my-account': { icon: 'fas fa-user', title: 'My Account', desc: 'Profile settings', action: "window.location.href='my-account.html'" },
-            'melonly-system': { icon: 'fas fa-clipboard-list', title: 'Melonly System', desc: 'System management', action: "window.location.href='melonlysystem.html'" },
-            'roblox-search': { icon: 'fas fa-search', title: 'Roblox Search', desc: 'Search users', action: "document.getElementById('robloxSearch').focus()" },
-            'touchpoint': { icon: 'fas fa-handshake', title: 'Touchpoint', desc: 'Contact departments', action: "window.location.href='touchpoint.html'" }
+            'announcements': { icon: 'fas fa-bullhorn', title: 'Announcements', desc: 'Latest updates', action: () => document.querySelector('#announcements').scrollIntoView({behavior: 'smooth'}) },
+            'schedule': { icon: 'fas fa-clock', title: 'Schedule', desc: 'View events', action: () => window.location.href='ranks.html' },
+            'incident-report': { icon: 'fas fa-exclamation-triangle', title: 'Incident Report', desc: 'Report issues', action: () => openIncidentReport() },
+            'forms': { icon: 'fas fa-file-alt', title: 'Trial Logs', desc: 'Manage trials', action: () => window.location.href='forms.html' },
+            'resources': { icon: 'fas fa-tools', title: 'Staff Material', desc: 'Resources & guides', action: () => window.location.href='resources.html' },
+            'file-manager': { icon: 'fas fa-folder', title: 'File Manager', desc: 'Manage files', action: () => window.location.href='file-manager.html' },
+            'admin-panel': { icon: 'fas fa-shield-alt', title: 'Admin Panel', desc: 'System administration', action: () => window.location.href='admin-panel.html' },
+            'founder-panel': { icon: 'fas fa-crown', title: 'Founder Panel', desc: 'Founder controls', action: () => window.location.href='founder-panel.html' },
+            'my-account': { icon: 'fas fa-user', title: 'My Account', desc: 'Profile settings', action: () => window.location.href='my-account.html' },
+            'melonly-system': { icon: 'fas fa-clipboard-list', title: 'Melonly System', desc: 'System management', action: () => window.location.href='melonlysystem.html' },
+            'roblox-search': { icon: 'fas fa-search', title: 'Roblox Search', desc: 'Search users', action: () => document.getElementById('robloxSearch').focus() },
+            'touchpoint': { icon: 'fas fa-handshake', title: 'Touchpoint', desc: 'Contact departments', action: () => window.location.href='touchpoint.html' },
+            'assessments': { icon: 'fas fa-graduation-cap', title: 'Assessments', desc: 'Take assessments', action: () => window.location.href='assessments.html' },
+            'training': { icon: 'fas fa-chalkboard-teacher', title: 'Training', desc: 'Training sessions', action: () => window.location.href='training.html' },
+            'reports': { icon: 'fas fa-chart-bar', title: 'Reports', desc: 'View reports', action: () => window.location.href='reports.html' },
+            'calendar': { icon: 'fas fa-calendar', title: 'Calendar', desc: 'Event calendar', action: () => window.location.href='calendar.html' },
+            'guidelines': { icon: 'fas fa-book', title: 'Guidelines', desc: 'Staff guidelines', action: () => window.location.href='guidelines.html' },
+            'commands': { icon: 'fas fa-terminal', title: 'Commands', desc: 'Command reference', action: () => window.location.href='commands.html' },
+            'discord': { icon: 'fab fa-discord', title: 'Discord Server', desc: 'Join Discord', action: () => window.open('https://discord.gg/ukbrum', '_blank') }
         };
         
         async function loadQuickLinks() {
@@ -569,7 +576,7 @@
                         const link = availableLinks[linkId];
                         const quickBox = document.createElement('div');
                         quickBox.className = 'quick-box modern';
-                        quickBox.onclick = () => eval(link.action);
+                        quickBox.onclick = link.action;
                         
                         quickBox.innerHTML = `
                             <div class="quick-icon">
@@ -603,7 +610,7 @@
                 const link = availableLinks[linkId];
                 const quickBox = document.createElement('div');
                 quickBox.className = 'quick-box modern';
-                quickBox.onclick = () => eval(link.action);
+                quickBox.onclick = link.action;
                 
                 quickBox.innerHTML = `
                     <div class="quick-icon">

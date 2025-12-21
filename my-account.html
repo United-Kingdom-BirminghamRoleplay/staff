@@ -32,6 +32,16 @@
 
 
         <section class="forms-section">
+            <h2><i class="fas fa-cog"></i> Quick Links Settings</h2>
+            <div class="form-card">
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Customize the quick links that appear on your homepage. Select up to 6 links from the available options.</p>
+                <button class="btn-glass" onclick="openQuickLinksCustomizer()" style="width: 100%;">
+                    <i class="fas fa-edit"></i> Customize Quick Links
+                </button>
+            </div>
+        </section>
+
+        <section class="forms-section">
             <h2><i class="fas fa-handshake"></i> My Touchpoints</h2>
             <div id="myTouchpoints">
                 <!-- User's touchpoints will be loaded here -->
@@ -112,6 +122,157 @@
     <script src="js/auto-ban-system.js"></script>
 
     <script>
+        // Quick Links System (copied from index.html)
+        const availableLinks = {
+            'announcements': { icon: 'fas fa-bullhorn', title: 'Announcements', desc: 'Latest updates', action: () => window.location.href='index.html#announcements' },
+            'schedule': { icon: 'fas fa-clock', title: 'Schedule', desc: 'View events', action: () => window.location.href='ranks.html' },
+            'incident-report': { icon: 'fas fa-exclamation-triangle', title: 'Incident Report', desc: 'Report issues', action: () => window.location.href='index.html' },
+            'forms': { icon: 'fas fa-file-alt', title: 'Trial Logs', desc: 'Manage trials', action: () => window.location.href='forms.html' },
+            'resources': { icon: 'fas fa-tools', title: 'Staff Material', desc: 'Resources & guides', action: () => window.location.href='resources.html' },
+            'file-manager': { icon: 'fas fa-folder', title: 'File Manager', desc: 'Manage files', action: () => window.location.href='file-manager.html' },
+            'admin-panel': { icon: 'fas fa-shield-alt', title: 'Admin Panel', desc: 'System administration', action: () => window.location.href='admin-panel.html' },
+            'founder-panel': { icon: 'fas fa-crown', title: 'Founder Panel', desc: 'Founder controls', action: () => window.location.href='founder-panel.html' },
+            'my-account': { icon: 'fas fa-user', title: 'My Account', desc: 'Profile settings', action: () => window.location.href='my-account.html' },
+            'melonly-system': { icon: 'fas fa-clipboard-list', title: 'Melonly System', desc: 'System management', action: () => window.location.href='melonlysystem.html' },
+            'roblox-search': { icon: 'fas fa-search', title: 'Roblox Search', desc: 'Search users', action: () => window.location.href='index.html' },
+            'touchpoint': { icon: 'fas fa-handshake', title: 'Touchpoint', desc: 'Contact departments', action: () => window.location.href='touchpoint.html' },
+            'assessments': { icon: 'fas fa-graduation-cap', title: 'Assessments', desc: 'Take assessments', action: () => window.location.href='assessments.html' },
+            'training': { icon: 'fas fa-chalkboard-teacher', title: 'Training', desc: 'Training sessions', action: () => window.location.href='training.html' },
+            'reports': { icon: 'fas fa-chart-bar', title: 'Reports', desc: 'View reports', action: () => window.location.href='reports.html' },
+            'calendar': { icon: 'fas fa-calendar', title: 'Calendar', desc: 'Event calendar', action: () => window.location.href='calendar.html' },
+            'guidelines': { icon: 'fas fa-book', title: 'Guidelines', desc: 'Staff guidelines', action: () => window.location.href='guidelines.html' },
+            'commands': { icon: 'fas fa-terminal', title: 'Commands', desc: 'Command reference', action: () => window.location.href='commands.html' },
+            'discord': { icon: 'fab fa-discord', title: 'Discord Server', desc: 'Join Discord', action: () => window.open('https://discord.gg/ukbrum', '_blank') }
+        };
+        
+        function openQuickLinksCustomizer() {
+            const modal = document.createElement('div');
+            modal.className = 'quick-links-customizer';
+            modal.innerHTML = `
+                <div class="customizer-modal">
+                    <div class="customizer-header">
+                        <h2><i class="fas fa-cog"></i> Customize Quick Links</h2>
+                        <button class="close-customizer" onclick="this.closest('.quick-links-customizer').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Select up to 6 quick links to display on your homepage:</p>
+                    <div class="available-links" id="availableLinks">
+                        ${Object.entries(availableLinks).map(([id, link]) => `
+                            <div class="link-option" data-link-id="${id}">
+                                <i class="${link.icon}"></i>
+                                <div class="link-option-content">
+                                    <h4>${link.title}</h4>
+                                    <p>${link.desc}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="customizer-actions">
+                        <button class="btn-save" onclick="saveQuickLinks()">Save Changes</button>
+                        <button class="btn-cancel" onclick="this.closest('.quick-links-customizer').remove()">Cancel</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Load current selection
+            loadCurrentSelection();
+            
+            // Add click handlers
+            modal.querySelectorAll('.link-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const selected = modal.querySelectorAll('.link-option.selected');
+                    if (option.classList.contains('selected')) {
+                        option.classList.remove('selected');
+                    } else if (selected.length < 6) {
+                        option.classList.add('selected');
+                    } else {
+                        showNotification('You can only select up to 6 quick links', 'warning');
+                    }
+                });
+            });
+        }
+        
+        async function loadCurrentSelection() {
+            const user = window.discordAuth?.getCurrentUser();
+            if (!user) return;
+            
+            try {
+                const response = await fetch(`./api/load.php?type=user_quick_links&userId=${user.userId}`);
+                const data = await response.json();
+                
+                data.links.forEach(linkId => {
+                    const option = document.querySelector(`[data-link-id="${linkId}"]`);
+                    if (option) {
+                        option.classList.add('selected');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading current selection:', error);
+            }
+        }
+        
+        async function saveQuickLinks() {
+            const user = window.discordAuth?.getCurrentUser();
+            if (!user) {
+                showNotification('Please log in to save quick links', 'error');
+                return;
+            }
+            
+            const selected = document.querySelectorAll('.link-option.selected');
+            const links = Array.from(selected).map(option => option.dataset.linkId);
+            
+            if (links.length === 0) {
+                showNotification('Please select at least one quick link', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'save_quick_links',
+                        userId: user.userId,
+                        links: links
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Quick links saved successfully!', 'success');
+                    document.querySelector('.quick-links-customizer').remove();
+                } else {
+                    showNotification(result.message || 'Failed to save quick links', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving quick links:', error);
+                showNotification('Error saving quick links', 'error');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
         let currentUser = null;
         let allUserActions = [];
         let filteredActions = [];
