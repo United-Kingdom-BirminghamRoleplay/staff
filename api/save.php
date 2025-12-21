@@ -911,6 +911,91 @@ if ($type === 'forms') {
     
     echo json_encode(['success' => $valid]);
 
+} elseif ($type === 'website_lock') {
+    $locked = $input['locked'] ? '1' : '0';
+    $lockedBy = $input['lockedBy'] ?? 'System';
+    
+    // Create table if it doesn't exist
+    $conn->query("CREATE TABLE IF NOT EXISTS website_settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        setting_key VARCHAR(100) UNIQUE,
+        setting_value TEXT,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )");
+    
+    if ($locked === '1') {
+        // Generate unlock code
+        $unlockCode = strtoupper(substr(md5(uniqid() . time()), 0, 8));
+        
+        // Save lock status and unlock code
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', '1') ON DUPLICATE KEY UPDATE setting_value = '1'");
+        $stmt->execute();
+        
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('unlock_code', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->bind_param("ss", $unlockCode, $unlockCode);
+        $stmt->execute();
+        
+        // Send webhook notification
+        $webhookData = [
+            'embeds' => [[
+                'title' => '🔒 Website Locked',
+                'color' => 0xff0000,
+                'fields' => [
+                    ['name' => 'Locked By', 'value' => $lockedBy, 'inline' => true],
+                    ['name' => 'Unlock Code', 'value' => $unlockCode, 'inline' => true],
+                    ['name' => 'Timestamp', 'value' => date('c'), 'inline' => false]
+                ],
+                'timestamp' => date('c')
+            ]]
+        ];
+        
+        $webhooks = [
+            'https://discord.com/api/webhooks/1425515405513855067/sf52yCMSFc6EZgHzJLWHheoUhCbKt12Nf7GF5sUhCRq26EyrClQbALK7neJQGCvjm37T',
+            'https://discord.com/api/webhooks/1442957109896675590/2uKYJXKuTl0wPyMxk_BFLaTVf7gMW4lnfpH_tNVKDSyfMxteEo33QgpsqPP1Kq4MFfxH'
+        ];
+        
+        foreach ($webhooks as $webhook) {
+            $ch = curl_init($webhook);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($webhookData));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_exec($ch);
+            curl_close($ch);
+        }
+        
+        echo json_encode(['success' => true, 'unlock_code' => $unlockCode]);
+    } else {
+        // Unlock website
+        $stmt = $conn->prepare("INSERT INTO website_settings (setting_key, setting_value) VALUES ('site_locked', '0') ON DUPLICATE KEY UPDATE setting_value = '0'");
+        $stmt->execute();
+        
+        // Remove unlock code
+        $stmt = $conn->prepare("DELETE FROM website_settings WHERE setting_key = 'unlock_code'");
+        $stmt->execute();
+        
+        echo json_encode(['success' => true]);
+    }
+
+} elseif ($type === 'verify_unlock_code') {
+    $code = $input['code'] ?? '';
+    
+    $stmt = $conn->prepare("SELECT setting_value FROM website_settings WHERE setting_key = 'unlock_code'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        if ($row['setting_value'] === $code) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
+    } else {
+        echo json_encode(['success' => false]);
+    }
+
 } elseif ($type === 'emergency_lock') {
     $locked = $input['locked'] ? '1' : '0';
     

@@ -119,8 +119,8 @@
                 websiteStatus = await response.json();
                 
                 const lockBtn = document.getElementById('lockBtn');
-                lockBtn.textContent = websiteStatus.locked ? 'Unlock Website' : 'Lock Website';
-                lockBtn.style.background = websiteStatus.locked ? 'rgba(220, 38, 38, 0.3)' : 'rgba(0, 255, 0, 0.3)';
+                lockBtn.textContent = websiteStatus.site_locked ? 'Unlock Website' : 'Lock Website';
+                lockBtn.style.background = websiteStatus.site_locked ? 'rgba(220, 38, 38, 0.3)' : 'rgba(0, 255, 0, 0.3)';
                 
             } catch (error) {
                 console.error('Error loading website status:', error);
@@ -128,25 +128,33 @@
         }
 
         async function toggleLock() {
-            const newLocked = !websiteStatus.locked;
+            const newLocked = !websiteStatus.site_locked;
+            const user = window.discordAuth.getCurrentUser();
             
-            if (confirm(`${newLocked ? 'Lock' : 'Unlock'} the website?`)) {
+            if (confirm(`${newLocked ? 'Lock' : 'Unlock'} the website?${newLocked ? '\n\nYou will receive an unlock code that only you can use to unlock the website.' : ''}`)) {
                 try {
                     const response = await fetch('./api/save.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            type: 'website_control', 
-                            action: 'lock', 
-                            data: { locked: newLocked } 
+                            type: 'website_lock', 
+                            locked: newLocked,
+                            lockedBy: user.username
                         })
                     });
                     
                     const result = await response.json();
                     if (result.success) {
-                        websiteStatus.locked = newLocked;
+                        websiteStatus.site_locked = newLocked;
                         loadWebsiteStatus();
-                        alert(`Website ${newLocked ? 'locked' : 'unlocked'} successfully!`);
+                        
+                        if (newLocked && result.unlock_code) {
+                            alert(`🔒 Website locked successfully!\n\n🔑 Your unlock code: ${result.unlock_code}\n\n⚠️ SAVE THIS CODE! Only this code can unlock the website.\nThe code is stored unencrypted in the database for emergency access.`);
+                        } else {
+                            alert(`✅ Website ${newLocked ? 'locked' : 'unlocked'} successfully!`);
+                        }
+                    } else {
+                        alert('Error updating website status');
                     }
                 } catch (error) {
                     alert('Error updating website status');
